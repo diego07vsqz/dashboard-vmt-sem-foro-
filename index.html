@@ -39,104 +39,26 @@
     body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text); min-height: 100vh; }
  
     /* ── HEADER ── */
-    .header {
-      background: var(--bg-deep);
-      border-bottom: 2.5px solid var(--yellow);
-      padding: 0 32px;
-    }
-    .header-inner {
-      max-width: 1340px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 68px;
-    }
+    .header { background: var(--bg-deep); border-bottom: 2.5px solid var(--yellow); padding: 0 32px; }
+    .header-inner { max-width: 1340px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 68px; }
     .header-brand { display: flex; align-items: center; gap: 14px; }
- 
-    /* Semáforo SVG */
-    .semaforo-icon { flex-shrink: 0; }
- 
-    .divider-v {
-      width: 1px;
-      height: 38px;
-      background: rgba(255,209,0,0.25);
-      flex-shrink: 0;
-    }
- 
-    .brand-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #ffffff;
-      letter-spacing: 0.04em;
-      line-height: 1;
-      text-transform: uppercase;
-    }
-    .brand-sub {
-      font-size: 10px;
-      font-weight: 400;
-      color: var(--yellow);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-top: 5px;
-    }
- 
+    .divider-v { width: 1px; height: 38px; background: rgba(255,209,0,0.25); flex-shrink: 0; }
+    .brand-title { font-size: 15px; font-weight: 700; color: #ffffff; letter-spacing: 0.04em; line-height: 1; text-transform: uppercase; }
+    .brand-sub { font-size: 10px; font-weight: 400; color: var(--yellow); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 5px; }
     .header-right { display: flex; align-items: center; gap: 10px; }
- 
-    .live-pill {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 5px 13px;
-      font-size: 11px;
-      color: var(--text-mid);
-      font-weight: 500;
-    }
-    .live-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: #4ade80;
-      animation: blink 2s ease-in-out infinite;
-    }
+    .live-pill { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 5px 13px; font-size: 11px; color: var(--text-mid); font-weight: 500; }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: blink 2s ease-in-out infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
- 
-    .btn-refresh {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      background: var(--yellow-dim);
-      border: 1px solid rgba(255,209,0,0.28);
-      border-radius: var(--radius-sm);
-      color: var(--yellow);
-      font-size: 12px;
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      padding: 7px 15px;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
+    .btn-refresh { display: flex; align-items: center; gap: 7px; background: var(--yellow-dim); border: 1px solid rgba(255,209,0,0.28); border-radius: var(--radius-sm); color: var(--yellow); font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 600; padding: 7px 15px; cursor: pointer; transition: background 0.15s; }
     .btn-refresh:hover { background: rgba(255,209,0,0.18); }
     .btn-refresh svg { width: 12px; height: 12px; }
  
     /* ── FILTROS ── */
     .filter-bar { background: var(--bg-deep); border-bottom: 1px solid var(--border); padding: 0 32px; }
-    .filter-bar-inner {
-      max-width: 1340px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 46px; gap: 8px; flex-wrap: wrap;
-    }
+    .filter-bar-inner { max-width: 1340px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 46px; gap: 8px; flex-wrap: wrap; }
     .filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .filter-label { font-size: 11px; color: var(--text-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
-    .filter-select {
-      font-family: 'Inter', sans-serif; font-size: 12px;
-      color: var(--text); background: var(--bg-card);
-      border: 1px solid var(--border2); border-radius: var(--radius-sm);
-      padding: 5px 10px; cursor: pointer; outline: none;
-      transition: border-color 0.15s;
-    }
+    .filter-select { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; outline: none; transition: border-color 0.15s; }
     .filter-select:focus { border-color: var(--yellow); }
     .filter-select option { background: var(--bg-card); }
     .update-note { font-size: 11px; color: var(--text-soft); white-space: nowrap; }
@@ -144,28 +66,20 @@
     /* ── MAIN ── */
     .main { max-width: 1340px; margin: 0 auto; padding: 22px 32px 48px; }
  
-    /* ── KPI ── */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
-    }
+    /* ── KPI CARDS ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+ 
     .kpi-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 18px 16px 15px;
+      padding: 20px 18px 17px;
       box-shadow: var(--shadow-sm);
       position: relative; overflow: hidden;
       transition: border-color 0.15s, background 0.15s;
     }
     .kpi-card:hover { border-color: var(--border2); background: var(--bg-card2); }
-    .kpi-card::after {
-      content: ''; position: absolute;
-      top: 0; left: 0; right: 0; height: 2px;
-      border-radius: 2px 2px 0 0;
-    }
+    .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 2px 2px 0 0; }
     .kpi-card.k-yellow::after { background: var(--yellow); }
     .kpi-card.k-red::after    { background: var(--red); }
     .kpi-card.k-green::after  { background: var(--green); }
@@ -173,36 +87,41 @@
     .kpi-card.k-purple::after { background: var(--purple); }
     .kpi-card.k-teal::after   { background: #2a5466; }
  
-    .kpi-icon { width: 34px; height: 34px; border-radius: 7px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
-    .kpi-icon svg { width: 17px; height: 17px; }
+    /* Ícono más grande */
+    .kpi-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .kpi-icon svg { width: 24px; height: 24px; }
+ 
     .kpi-num { font-size: 33px; font-weight: 700; font-family: 'JetBrains Mono', monospace; line-height: 1; color: var(--text); margin-bottom: 7px; }
     .kpi-label { font-size: 10.5px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.06em; }
  
     /* ── GRILLA ── */
     .content-grid { display: grid; grid-template-columns: 290px 1fr; gap: 12px; }
     @media (max-width: 960px) { .content-grid { grid-template-columns: 1fr; } }
- 
     .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
     .card-title { font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
  
+    /* barras */
     .bar-item { margin-bottom: 10px; }
     .bar-meta { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-mid); margin-bottom: 5px; }
     .bar-meta span:last-child { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text); }
     .bar-track { background: rgba(255,255,255,0.07); border-radius: 3px; height: 6px; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 3px; transition: width 0.55s ease; }
  
+    /* tabla */
     .table-scroll { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    thead th {
-      text-align: left; padding: 8px 10px;
-      font-size: 10px; font-weight: 700; color: var(--text-soft);
-      text-transform: uppercase; letter-spacing: 0.07em;
-      border-bottom: 1px solid var(--border); white-space: nowrap;
-    }
+    thead th { text-align: left; padding: 8px 10px; font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1px solid var(--border); white-space: nowrap; }
     tbody td { padding: 9px 10px; color: var(--text-mid); border-bottom: 1px solid var(--border); vertical-align: middle; }
     tbody tr:last-child td { border-bottom: none; }
     tbody tr:hover td { background: var(--bg-hover); }
- 
     .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--blue); font-weight: 500; }
     .badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 10px; font-weight: 600; white-space: nowrap; }
     .b-amber  { background: var(--amber-bg);  color: var(--amber); }
@@ -214,11 +133,7 @@
     .empty { text-align: center; padding: 36px 20px; color: var(--text-soft); font-size: 13px; }
  
     /* loading */
-    #loading-overlay {
-      position: fixed; inset: 0; background: var(--bg-deep);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 18px; z-index: 9999; transition: opacity 0.35s;
-    }
+    #loading-overlay { position: fixed; inset: 0; background: var(--bg-deep); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; z-index: 9999; transition: opacity 0.35s; }
     #loading-overlay.fade-out { opacity: 0; pointer-events: none; }
     .spinner { width: 38px; height: 38px; border: 3px solid rgba(255,209,0,0.18); border-top-color: var(--yellow); border-radius: 50%; animation: spin 0.75s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -237,45 +152,25 @@
   <header class="header">
     <div class="header-inner">
       <div class="header-brand">
- 
-        <!--
-          Semáforo con viseras laterales — inspirado en la imagen de referencia.
-          Colores reales: rojo, ámbar, verde.
-          Estilo de línea limpio, proporcional al header oscuro.
-        -->
-        <svg class="semaforo-icon" width="44" height="52" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Cuerpo principal del semáforo -->
-          <rect x="10" y="2" width="24" height="48" rx="5"
-                fill="#1c2e3e" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
- 
-          <!-- Luces -->
-          <!-- Roja -->
+        <!-- Semáforo con viseras laterales -->
+        <svg width="44" height="52" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="2" width="24" height="48" rx="5" fill="#1c2e3e" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
           <circle cx="22" cy="13" r="7" fill="#e03535"/>
           <circle cx="22" cy="13" r="4.5" fill="#f05050"/>
-          <!-- Ámbar -->
           <circle cx="22" cy="26" r="7" fill="#c98a10"/>
           <circle cx="22" cy="26" r="4.5" fill="#FFD100"/>
-          <!-- Verde -->
           <circle cx="22" cy="39" r="7" fill="#1e8a4a"/>
           <circle cx="22" cy="39" r="4.5" fill="#2ecc71"/>
- 
-          <!-- Visera izquierda superior -->
           <path d="M10,10 L2,10" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
           <path d="M2,10 Q0,10 0,12 L0,16 Q0,18 2,18 L10,18" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <!-- Visera izquierda media -->
           <path d="M10,23 L2,23" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
           <path d="M2,23 Q0,23 0,25 L0,29 Q0,31 2,31 L10,31" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <!-- Visera izquierda inferior -->
           <path d="M10,36 L2,36" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
           <path d="M2,36 Q0,36 0,38 L0,42 Q0,44 2,44 L10,44" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
- 
-          <!-- Visera derecha superior -->
           <path d="M34,10 L42,10" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
           <path d="M42,10 Q44,10 44,12 L44,16 Q44,18 42,18 L34,18" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <!-- Visera derecha media -->
           <path d="M34,23 L42,23" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
           <path d="M42,23 Q44,23 44,25 L44,29 Q44,31 42,31 L34,31" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <!-- Visera derecha inferior -->
           <path d="M34,36 L42,36" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
           <path d="M42,36 Q44,36 44,38 L44,42 Q44,44 42,44 L34,44" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
         </svg>
@@ -304,7 +199,6 @@
     </div>
   </header>
  
-  <!-- Barra de filtros -->
   <div class="filter-bar">
     <div class="filter-bar-inner">
       <div class="filter-group">
@@ -334,7 +228,6 @@
     </div>
   </div>
  
-  <!-- Contenido -->
   <main class="main">
     <div class="kpi-grid" id="kpi-grid"></div>
  
@@ -402,14 +295,7 @@
           .map(row => {
             const c   = row.c;
             const get = i => (c[i]?.v != null) ? String(c[i].f || c[i].v).trim() : '';
-            return {
-              fecha:      get(COL.FECHA),
-              hora:       get(COL.HORA),
-              codigo:     get(COL.CODIGO),
-              reporte:    get(COL.REPORTE),
-              incidencia: get(COL.INCIDENCIA),
-              dir:        get(COL.DIR),
-            };
+            return { fecha:get(COL.FECHA), hora:get(COL.HORA), codigo:get(COL.CODIGO), reporte:get(COL.REPORTE), incidencia:get(COL.INCIDENCIA), dir:get(COL.DIR) };
           })
           .filter(r => r.fecha || r.codigo);
  
@@ -464,18 +350,90 @@
  
     function renderKPIs(rows) {
       const cards = [
-        { label:'Forzamiento de Tiempos', val:countKw(rows,'forzamiento'), cls:'k-yellow', bg:'rgba(212,148,26,0.12)',
-          icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#d4941a" stroke-width="2" stroke-linecap="round"><rect x="8" y="2" width="8" height="20" rx="3"/><circle cx="12" cy="7" r="2" fill="#c94040" stroke="none"/><circle cx="12" cy="12" r="2" fill="#d4941a" stroke="none"/><circle cx="12" cy="17" r="2" fill="#2a9d65" stroke="none"/></svg>` },
-        { label:'Semáforo Apagado', val:countKw(rows,'apagado'), cls:'k-red', bg:'rgba(201,64,64,0.12)',
-          icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#c94040" stroke-width="2" stroke-linecap="round"><rect x="8" y="2" width="8" height="20" rx="3"/><circle cx="12" cy="7" r="2" fill="#2a3a44" stroke="none"/><circle cx="12" cy="12" r="2" fill="#2a3a44" stroke="none"/><circle cx="12" cy="17" r="2" fill="#2a3a44" stroke="none"/></svg>` },
-        { label:'Mejora de Tiempos', val:countKw(rows,'mejora'), cls:'k-green', bg:'rgba(42,157,101,0.12)',
-          icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#2a9d65" stroke-width="2" stroke-linecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>` },
-        { label:'Intermitencia', val:countKw(rows,'intermitencia'), cls:'k-blue', bg:'rgba(58,143,212,0.12)',
-          icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#3a8fd4" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>` },
-        { label:'Error de Comunicación', val:countKw(rows,'error'), cls:'k-purple', bg:'rgba(124,98,196,0.12)',
-          icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#7c62c4" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>` },
-        { label:'Total de Registros', val:rows.length, cls:'k-teal', bg:'rgba(42,84,102,0.28)',
-          icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#8aa4b4" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>` },
+        {
+          label: 'Forzamiento de Tiempos',
+          val: countKw(rows,'forzamiento'),
+          cls: 'k-yellow', bg: 'rgba(212,148,26,0.14)',
+          // Semáforo con luces encendidas — forzamiento
+          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#d4941a" stroke-width="1.5"/>
+            <circle cx="12" cy="7"  r="2.8" fill="#c94040"/>
+            <circle cx="12" cy="12" r="2.8" fill="#d4941a"/>
+            <circle cx="12" cy="17" r="2.8" fill="#2a9d65"/>
+            <path d="M7,6 L4,6 M4,6 Q2.5,6 2.5,7.5 L2.5,9 Q2.5,10 4,10 L7,10" stroke="#d4941a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <path d="M17,6 L20,6 M20,6 Q21.5,6 21.5,7.5 L21.5,9 Q21.5,10 20,10 L17,10" stroke="#d4941a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+          </svg>`
+        },
+        {
+          label: 'Semáforo Apagado',
+          val: countKw(rows,'apagado'),
+          cls: 'k-red', bg: 'rgba(201,64,64,0.14)',
+          // Semáforo sin luces — apagado
+          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#c94040" stroke-width="1.5"/>
+            <circle cx="12" cy="7"  r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
+            <circle cx="12" cy="12" r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
+            <circle cx="12" cy="17" r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
+            <line x1="6" y1="2" x2="18" y2="22" stroke="#c94040" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>`
+        },
+        {
+          label: 'Mejora de Tiempos',
+          val: countKw(rows,'mejora'),
+          cls: 'k-green', bg: 'rgba(42,157,101,0.14)',
+          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="2 17 8.5 10.5 13.5 15.5 22 7" stroke="#2a9d65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="16 7 22 7 22 13" stroke="#2a9d65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`
+        },
+        {
+          label: 'Intermitencia',
+          val: countKw(rows,'intermitencia'),
+          cls: 'k-blue', bg: 'rgba(58,143,212,0.14)',
+          /*
+            Semáforo intermitente: sol/luz central radiante con viseras laterales
+            Inspirado en la imagen de referencia (luz ámbar pulsante con alas)
+          */
+          icon: `<svg viewBox="0 0 28 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Visera izquierda -->
+            <path d="M8,12 L3,12" stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M3,12 Q1,12 1,10 L1,8 Q1,6 3,6 L8,6" stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+            <!-- Visera derecha -->
+            <path d="M20,12 L25,12" stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M25,12 Q27,12 27,10 L27,8 Q27,6 25,6 L20,6" stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+            <!-- Rayos de luz (intermitencia) -->
+            <line x1="14" y1="1"   x2="14" y2="3.5"  stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="14" y1="20.5" x2="14" y2="23"  stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="20.2" y1="3.8" x2="18.5" y2="5.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
+            <line x1="7.8"  y1="3.8" x2="9.5"  y2="5.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
+            <line x1="20.2" y1="20.2" x2="18.5" y2="18.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
+            <line x1="7.8"  y1="20.2" x2="9.5"  y2="18.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
+            <!-- Luz central ámbar/azul pulsante -->
+            <circle cx="14" cy="12" r="5.5" fill="rgba(58,143,212,0.18)" stroke="#3a8fd4" stroke-width="1.4"/>
+            <circle cx="14" cy="12" r="3"   fill="#3a8fd4"/>
+          </svg>`
+        },
+        {
+          label: 'Error de Comunicación',
+          val: countKw(rows,'error'),
+          cls: 'k-purple', bg: 'rgba(124,98,196,0.14)',
+          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="#7c62c4" stroke-width="1.6" stroke-linejoin="round" fill="rgba(124,98,196,0.15)"/>
+            <line x1="12" y1="9"  x2="12" y2="13" stroke="#7c62c4" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="12" cy="17" r="0.8" fill="#7c62c4"/>
+          </svg>`
+        },
+        {
+          label: 'Total de Registros',
+          val: rows.length,
+          cls: 'k-teal', bg: 'rgba(42,84,102,0.32)',
+          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3"  y="3"  width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
+            <rect x="14" y="3"  width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
+            <rect x="14" y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
+            <rect x="3"  y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
+          </svg>`
+        },
       ];
  
       document.getElementById('kpi-grid').innerHTML = cards.map(c =>

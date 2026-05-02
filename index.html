@@ -379,16 +379,39 @@
       'mejora de tiempo':       { label:'Mejora de Tiempo',       badge:'b-green',  color:'#2a9d65' },
       'mejora de tiempos':      { label:'Mejora de Tiempo',       badge:'b-green',  color:'#2a9d65' },
       'intermitencia':          { label:'Intermitencia',          badge:'b-blue',   color:'#3a8fd4' },
-      'error de comunicación':  { label:'Error de Comunicación',  badge:'b-gray',   color:'#4e6e80' },
-      'error de comunicacion':  { label:'Error de Comunicación',  badge:'b-gray',   color:'#4e6e80' },
+      'error de comunicación':  { label:'Error de Comunicación',  badge:'b-purple', color:'#7c62c4' },
+      'error de comunicacion':  { label:'Error de Comunicación',  badge:'b-purple', color:'#7c62c4' },
       'funcionamiento':         { label:'Funcionamiento',         badge:'b-green',  color:'#2a9d65' },
       'programa':               { label:'Programa',               badge:'b-purple', color:'#7c62c4' },
       'accidente':              { label:'Apoyo en Accidentes',    badge:'b-red',    color:'#c94040' },
-      'vdt volumen':            { label:'VDT Volumen',             badge:'b-orange', color:'#c96d1a' },
+      'vdt volumen':            { label:'VDT Volumen',            badge:'b-orange', color:'#c96d1a' },
+      'tiempos':                { label:'Tiempos',                badge:'b-gray',   color:'#5a8a9f' },
+      'falla':                  { label:'Falla',                  badge:'b-red',    color:'#e05c5c' },
+      'ramas':                  { label:'Ramas',                  badge:'b-green',  color:'#4caf7d' },
+      'comunicación':           { label:'Comunicación',           badge:'b-blue',   color:'#3ab5d4' },
+      'comunicacion':           { label:'Comunicación',           badge:'b-blue',   color:'#3ab5d4' },
+      'chorros':                { label:'Chorros',                badge:'b-purple', color:'#9c7ce0' },
     };
  
-    const tipo    = raw  => TIPOS[(raw||'').toLowerCase().trim()] || { label:raw, badge:'b-gray', color:'#4e6e80' };
-    const countKw = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
+    // ── Mapa de colores por label (usado en gráficas Chart.js) ──
+    const COLOR_MAP = {
+      'Forzamiento de Tiempos': '#d4941a',
+      'Apagado':                '#c94040',
+      'Mejora de Tiempo':       '#2a9d65',
+      'Intermitencia':          '#3a8fd4',
+      'Error de Comunicación':  '#7c62c4',
+      'Apoyo en Accidentes':    '#c94040',
+      'Funcionamiento':         '#2a9d65',
+      'Programa':               '#7c62c4',
+      'VDT Volumen':            '#c96d1a',
+      'Tiempos':                '#5a8a9f',
+      'Falla':                  '#e05c5c',
+      'Ramas':                  '#4caf7d',
+      'Comunicación':           '#3ab5d4',
+      'Chorros':                '#9c7ce0',
+      'Otros':                  '#4e6e80',
+    };
+    const colorOf = label => COLOR_MAP[label] ?? '#4e6e80';
  
     let dataset = [];
  
@@ -602,7 +625,6 @@
       rows.forEach(r => { const t = tipo(r.incidencia); counts[t.label] = (counts[t.label]||0)+1; });
       const sorted  = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
       const max     = sorted[0]?.[1] || 1;
-      const colorOf = label => Object.values(TIPOS).find(t=>t.label===label)?.color ?? '#4e6e80';
  
       document.getElementById('bar-chart').innerHTML = sorted.length
         ? sorted.map(([label,val]) =>
@@ -686,7 +708,7 @@
       const sorted  = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
       const labels  = sorted.map(([l])=>l);
       const values  = sorted.map(([,v])=>v);
-      const colors  = labels.map(l => Object.values(TIPOS).find(t=>t.label===l)?.color ?? '#4e6e80');
+      const colors  = labels.map(colorOf);
  
       // BARRA
       chartBar = destroyChart(chartBar);

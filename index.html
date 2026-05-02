@@ -63,6 +63,26 @@
     .filter-select option { background: var(--bg-card); }
     .update-note { font-size: 11px; color: var(--text-soft); white-space: nowrap; }
  
+    /* Rango de fechas */
+    .date-range-group { display: flex; align-items: center; gap: 6px; }
+    .date-range-sep { font-size: 11px; color: var(--text-soft); }
+    .date-input {
+      font-family: 'Inter', sans-serif; font-size: 12px;
+      color: var(--text); background: var(--bg-card);
+      border: 1px solid var(--border2); border-radius: var(--radius-sm);
+      padding: 5px 8px; outline: none; cursor: pointer;
+      transition: border-color 0.15s; color-scheme: dark;
+    }
+    .date-input:focus { border-color: var(--yellow); }
+    .btn-clear-dates {
+      font-family: 'Inter', sans-serif; font-size: 11px;
+      color: var(--text-soft); background: transparent;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 5px 9px; cursor: pointer;
+      transition: color 0.15s, border-color 0.15s; white-space: nowrap;
+    }
+    .btn-clear-dates:hover { color: var(--text); border-color: var(--border2); }
+ 
     /* ── MAIN ── */
     .main { max-width: 1340px; margin: 0 auto; padding: 22px 32px 48px; }
  
@@ -203,9 +223,17 @@
     <div class="filter-bar-inner">
       <div class="filter-group">
         <span class="filter-label">Filtros:</span>
-        <select class="filter-select" id="f-mes" onchange="applyFilters()">
-          <option value="">Todos los meses</option>
-        </select>
+ 
+        <!-- Rango de fechas personalizado Día/Mes/Año -->
+        <div class="date-range-group">
+          <input type="date" class="date-input" id="f-fecha-ini"
+                 onchange="applyFilters()" title="Fecha de inicio"/>
+          <span class="date-range-sep">→</span>
+          <input type="date" class="date-input" id="f-fecha-fin"
+                 onchange="applyFilters()" title="Fecha de fin"/>
+          <button class="btn-clear-dates" onclick="clearDates()">✕ Limpiar</button>
+        </div>
+ 
         <select class="filter-select" id="f-incidencia" onchange="applyFilters()">
           <option value="">Todas las incidencias</option>
           <option>Forzamiento de Tiempos</option>
@@ -311,32 +339,38 @@
       }
     }
  
-    function buildMonthFilter() {
-      const meses = new Set();
-      dataset.forEach(r => {
-        const p = r.fecha.split('/');
-        if (p.length >= 3) meses.add(`${p[1].padStart(2,'0')}/${p[2]}`);
-      });
-      const sel = document.getElementById('f-mes');
-      const cur = sel.value;
-      sel.innerHTML = '<option value="">Todos los meses</option>';
-      [...meses].sort().reverse().forEach(m => {
-        const o = document.createElement('option');
-        o.value = m; o.textContent = m; sel.appendChild(o);
-      });
-      if (cur) sel.value = cur;
+    // Poblar el filtro de meses según los datos disponibles — eliminado, reemplazado por rango de fechas
+ 
+    function clearDates() {
+      document.getElementById('f-fecha-ini').value = '';
+      document.getElementById('f-fecha-fin').value = '';
+      applyFilters();
+    }
+ 
+    // Convierte "d/m/yyyy" del Sheet a objeto Date para comparar
+    function parseSheetDate(str) {
+      const p = str.split('/');
+      if (p.length < 3) return null;
+      // formato del sheet: d/m/yyyy
+      return new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
     }
  
     function applyFilters() {
-      const mes = document.getElementById('f-mes').value;
-      const inc = document.getElementById('f-incidencia').value.toLowerCase();
-      const rep = document.getElementById('f-reporte').value.toLowerCase();
+      const fechaIni = document.getElementById('f-fecha-ini').value; // yyyy-mm-dd
+      const fechaFin = document.getElementById('f-fecha-fin').value;
+      const inc      = document.getElementById('f-incidencia').value.toLowerCase();
+      const rep      = document.getElementById('f-reporte').value.toLowerCase();
+ 
+      const dateIni = fechaIni ? new Date(fechaIni + 'T00:00:00') : null;
+      const dateFin = fechaFin ? new Date(fechaFin + 'T23:59:59') : null;
  
       const filtered = dataset.filter(r => {
-        if (mes) {
-          const p = r.fecha.split('/');
-          if (p.length < 3) return false;
-          if (`${p[1].padStart(2,'0')}/${p[2]}` !== mes) return false;
+        // Filtro de rango de fechas
+        if (dateIni || dateFin) {
+          const d = parseSheetDate(r.fecha);
+          if (!d) return false;
+          if (dateIni && d < dateIni) return false;
+          if (dateFin && d > dateFin) return false;
         }
         if (inc && r.incidencia.toLowerCase() !== inc) return false;
         if (rep && r.reporte.toLowerCase() !== rep)     return false;

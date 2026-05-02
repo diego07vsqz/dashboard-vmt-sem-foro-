@@ -393,6 +393,9 @@
       'chorros':                { label:'Chorros',                badge:'b-purple', color:'#9c7ce0' },
     };
  
+    const tipo    = raw  => TIPOS[(raw||'').toLowerCase().trim()] || { label: raw, badge:'b-gray', color:'#4e6e80' };
+    const countKw = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
+ 
     // ── Mapa de colores por label (usado en gráficas Chart.js) ──
     const COLOR_MAP = {
       'Forzamiento de Tiempos': '#d4941a',
@@ -414,6 +417,7 @@
     const colorOf = label => COLOR_MAP[label] ?? '#4e6e80';
  
     let dataset = [];
+    let lastFilteredRows = [];
  
     async function loadData() {
       document.getElementById('update-note').textContent = 'Actualizando...';
@@ -666,7 +670,6 @@
     // ── TABS ──
     let chartsBuilt = false;
     let chartBar = null, chartDonut = null, chartLine = null, chartVdt = null;
-    let lastFilteredRows = [];
  
     function switchTab(name) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));

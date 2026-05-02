@@ -424,6 +424,27 @@
           </svg>`
         },
         {
+          label: 'Apoyo en Accidentes',
+          val: countKw(rows,'accidente'),
+          cls: 'k-red', bg: 'rgba(201,64,64,0.14)',
+          // Persona corriendo hacia semáforo — apoyo en accidente
+          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Persona corriendo -->
+            <circle cx="15" cy="4" r="2" fill="#c94040"/>
+            <path d="M15 6.5 L13 11 L10 14" stroke="#c94040" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13 11 L16 13.5 L14.5 17" stroke="#c94040" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 14 L8.5 17" stroke="#c94040" stroke-width="1.6" stroke-linecap="round"/>
+            <!-- Semáforo pequeño a la izquierda -->
+            <rect x="2" y="7" width="5" height="11" rx="1.5" fill="none" stroke="#c94040" stroke-width="1.3"/>
+            <circle cx="4.5" cy="10"  r="1.2" fill="#c94040"/>
+            <circle cx="4.5" cy="13"  r="1.2" fill="rgba(201,64,64,0.3)"/>
+            <circle cx="4.5" cy="16"  r="1.2" fill="rgba(201,64,64,0.3)"/>
+            <!-- Señal de alerta -->
+            <path d="M18 10 L20.5 14.5 L15.5 14.5 Z" stroke="#c94040" stroke-width="1.2" stroke-linejoin="round" fill="rgba(201,64,64,0.2)"/>
+            <line x1="18" y1="11.5" x2="18" y2="13" stroke="#c94040" stroke-width="1" stroke-linecap="round"/>
+          </svg>`
+        },
+        {
           label: 'Total de Registros',
           val: rows.length,
           cls: 'k-teal', bg: 'rgba(42,84,102,0.32)',

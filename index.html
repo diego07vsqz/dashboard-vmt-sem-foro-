@@ -421,7 +421,10 @@
         const url  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
         const res  = await fetch(url);
         const text = await res.text();
-        const json = JSON.parse(text.substring(47).slice(0, -2));
+        // Parser robusto: extrae el JSON sin depender de posición fija
+        const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+        if (!match) throw new Error('Respuesta inesperada de Google Sheets');
+        const json = JSON.parse(match[1]);
  
         dataset = (json.table.rows || [])
           .map(row => {
@@ -441,8 +444,9 @@
         document.getElementById('update-note').textContent = `Última actualización: ${hora}`;
         document.getElementById('live-label').textContent  = `Actualizado ${hora}`;
       } catch (err) {
-        document.getElementById('update-note').textContent = 'Error al obtener datos.';
-        console.error(err);
+        document.getElementById('update-note').textContent = 'Error al obtener datos — intenta actualizar de nuevo.';
+        document.getElementById('live-label').textContent = 'Sin conexión';
+        console.error('Error cargando Sheet:', err);
       }
     }
  

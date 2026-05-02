@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Unidad de Planeamiento Semafórico — CCM</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <style>
     :root {
       --bg-deep:    #0e1c28;
@@ -106,6 +107,25 @@
     .kpi-card.k-blue::after   { background: var(--blue); }
     .kpi-card.k-purple::after { background: var(--purple); }
     .kpi-card.k-teal::after   { background: #2a5466; }
+    .kpi-card.k-orange::after { background: #c96d1a; }
+ 
+    /* ── TABS ── */
+    .tab-bar { background: var(--bg-deep); border-bottom: 1px solid var(--border); padding: 0 32px; }
+    .tab-bar-inner { max-width: 1340px; margin: 0 auto; display: flex; gap: 0; }
+    .tab-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 13px 20px; font-size: 12px; font-weight: 600;
+      color: var(--text-soft); background: transparent; border: none;
+      border-bottom: 2px solid transparent; cursor: pointer;
+      font-family: 'Inter', sans-serif; letter-spacing: 0.04em;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: var(--text-mid); }
+    .tab-btn.active { color: var(--yellow); border-bottom-color: var(--yellow); }
+    .tab-btn svg { width: 14px; height: 14px; }
+ 
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
  
     /* Ícono más grande */
     .kpi-icon {
@@ -150,6 +170,7 @@
     .b-blue   { background: var(--blue-bg);   color: var(--blue); }
     .b-gray   { background: var(--gray-bg);   color: var(--text-mid); }
     .b-purple { background: var(--purple-bg); color: var(--purple); }
+    .b-orange { background: rgba(201,109,26,0.18); color: #c96d1a; }
     .empty { text-align: center; padding: 36px 20px; color: var(--text-soft); font-size: 13px; }
  
     /* loading */
@@ -160,6 +181,12 @@
     .loading-msg { font-size: 12px; color: var(--text-soft); letter-spacing: 0.08em; text-transform: uppercase; }
  
     .footer { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-soft); line-height: 1.9; }
+ 
+    /* ── GRÁFICAS (pestaña) ── */
+    .charts-grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .charts-grid-full { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    @media (max-width: 800px) { .charts-grid-2x2 { grid-template-columns: 1fr; } }
+    .chart-wrap { position: relative; height: 260px; }
   </style>
 </head>
 <body>
@@ -244,6 +271,7 @@
           <option>Funcionamiento</option>
           <option>Programa</option>
           <option>Accidente</option>
+          <option>VDT Volumen</option>
         </select>
         <select class="filter-select" id="f-reporte" onchange="applyFilters()">
           <option value="">Todos los reportes</option>
@@ -256,6 +284,28 @@
     </div>
   </div>
  
+  <!-- ── TAB BAR ── -->
+  <div class="tab-bar">
+    <div class="tab-bar-inner">
+      <button class="tab-btn active" onclick="switchTab('dashboard')" id="tab-dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+        </svg>
+        Dashboard
+      </button>
+      <button class="tab-btn" onclick="switchTab('graficas')" id="tab-graficas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+        Gráficas
+      </button>
+    </div>
+  </div>
+ 
+  <!-- ── PANEL: DASHBOARD ── -->
+  <div class="tab-panel active" id="panel-dashboard">
   <main class="main">
     <div class="kpi-grid" id="kpi-grid"></div>
  
@@ -286,6 +336,36 @@
       Información obtenida en tiempo real desde la base de datos institucional
     </div>
   </main>
+  </div>
+ 
+  <!-- ── PANEL: GRÁFICAS ── -->
+  <div class="tab-panel" id="panel-graficas">
+  <main class="main">
+    <div class="charts-grid-2x2">
+      <div class="card">
+        <div class="card-title">Incidencias por tipo</div>
+        <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Distribución porcentual</div>
+        <div class="chart-wrap"><canvas id="chart-donut"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Tendencia mensual — Forzamiento vs Apagado</div>
+        <div class="chart-wrap"><canvas id="chart-line"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Revisión VDT — Actividad mensual</div>
+        <div class="chart-wrap"><canvas id="chart-vdt"></canvas></div>
+      </div>
+    </div>
+    <div class="footer">
+      Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp;
+      Ministerio de Obras Públicas y de Transporte<br>
+      Información obtenida en tiempo real desde la base de datos institucional
+    </div>
+  </main>
+  </div>
  
   <script>
     const SHEET_ID   = "1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU";
@@ -304,6 +384,7 @@
       'funcionamiento':         { label:'Funcionamiento',         badge:'b-green',  color:'#2a9d65' },
       'programa':               { label:'Programa',               badge:'b-purple', color:'#7c62c4' },
       'accidente':              { label:'Apoyo en Accidentes',    badge:'b-red',    color:'#c94040' },
+      'vdt volumen':            { label:'VDT Volumen',             badge:'b-orange', color:'#c96d1a' },
     };
  
     const tipo    = raw  => TIPOS[(raw||'').toLowerCase().trim()] || { label:raw, badge:'b-gray', color:'#4e6e80' };
@@ -328,6 +409,7 @@
           .filter(r => r.fecha || r.codigo);
  
         // Mostrar todos los datos al cargar — los filtros son opcionales
+        lastFilteredRows = dataset;
         renderKPIs(dataset);
         renderBars(dataset);
         renderTable(dataset);
@@ -379,9 +461,14 @@
         return true;
       });
  
+      lastFilteredRows = filtered;
       renderKPIs(filtered);
       renderBars(filtered);
       renderTable(filtered);
+      // Si la pestaña Gráficas está activa, actualizar en tiempo real
+      if (document.getElementById('panel-graficas').classList.contains('active')) {
+        renderCharts(filtered);
+      }
     }
  
     function renderKPIs(rows) {
@@ -488,6 +575,17 @@
             <rect x="3"  y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
           </svg>`
         },
+        {
+          label: 'Revisión VDT',
+          val: countKw(rows,'vdt volumen'),
+          cls: 'k-orange', bg: 'rgba(201,109,26,0.16)',
+          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M23 7 L16 12 L23 17 Z" fill="rgba(201,109,26,0.25)" stroke="#c96d1a" stroke-width="1.5" stroke-linejoin="round"/>
+            <rect x="1" y="5" width="15" height="14" rx="2.5" fill="none" stroke="#c96d1a" stroke-width="1.6"/>
+            <circle cx="8.5" cy="12" r="3.5" fill="rgba(201,109,26,0.18)" stroke="#c96d1a" stroke-width="1.4"/>
+            <circle cx="8.5" cy="12" r="1.5" fill="#c96d1a"/>
+          </svg>`
+        },
       ];
  
       document.getElementById('kpi-grid').innerHTML = cards.map(c =>
@@ -538,6 +636,124 @@
       overlay.classList.add('fade-out');
       setTimeout(() => overlay.remove(), 400);
     });
+ 
+    // ── TABS ──
+    let chartsBuilt = false;
+    let chartBar = null, chartDonut = null, chartLine = null, chartVdt = null;
+    let lastFilteredRows = [];
+ 
+    function switchTab(name) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      document.getElementById('panel-' + name).classList.add('active');
+      // Construir gráficas la primera vez que se abre la pestaña (evita bugs de canvas oculto)
+      if (name === 'graficas' && lastFilteredRows.length > 0) {
+        renderCharts(lastFilteredRows);
+      }
+    }
+ 
+    // ── GRÁFICAS ──
+    Chart.defaults.color = '#8aa4b4';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size   = 11;
+ 
+    function buildMonthKeys(rows) {
+      const byMonth = {};
+      rows.forEach(r => {
+        const p = r.fecha.split('/');
+        if (p.length < 3) return;
+        const key = `${p[2]}-${String(p[1]).padStart(2,'0')}`;
+        if (!byMonth[key]) byMonth[key] = { forz:0, apagado:0, vdt:0 };
+        if (r.incidencia.toLowerCase().includes('forzamiento')) byMonth[key].forz++;
+        if (r.incidencia.toLowerCase().includes('apagado'))     byMonth[key].apagado++;
+        if (r.incidencia.toLowerCase().includes('vdt volumen'))   byMonth[key].vdt++;
+      });
+      const keys   = Object.keys(byMonth).sort().slice(-12);
+      const labels = keys.map(k => {
+        const [y,m] = k.split('-');
+        return `${['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][+m]} ${y.slice(2)}`;
+      });
+      return { labels, keys, byMonth };
+    }
+ 
+    function destroyChart(c) { if (c) { try { c.destroy(); } catch(e){} } return null; }
+ 
+    function renderCharts(rows) {
+      // Datos barra / donut
+      const counts = {};
+      rows.forEach(r => { const t = tipo(r.incidencia); counts[t.label] = (counts[t.label]||0)+1; });
+      const sorted  = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+      const labels  = sorted.map(([l])=>l);
+      const values  = sorted.map(([,v])=>v);
+      const colors  = labels.map(l => Object.values(TIPOS).find(t=>t.label===l)?.color ?? '#4e6e80');
+ 
+      // BARRA
+      chartBar = destroyChart(chartBar);
+      chartBar = new Chart(document.getElementById('chart-bar'), {
+        type: 'bar',
+        data: { labels, datasets:[{ data:values, backgroundColor:colors.map(c=>c+'33'), borderColor:colors, borderWidth:1.5, borderRadius:4 }] },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{ display:false } },
+          scales:{
+            x:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ font:{size:10}, maxRotation:28 } },
+            y:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ font:{size:10} } }
+          }
+        }
+      });
+ 
+      // DONUT
+      chartDonut = destroyChart(chartDonut);
+      chartDonut = new Chart(document.getElementById('chart-donut'), {
+        type: 'doughnut',
+        data: { labels, datasets:[{ data:values, backgroundColor:colors.map(c=>c+'cc'), borderColor:'#1c2e3e', borderWidth:2, hoverOffset:6 }] },
+        options: {
+          responsive:true, maintainAspectRatio:false, cutout:'56%',
+          plugins:{ legend:{ position:'bottom', labels:{ boxWidth:9, padding:8, font:{size:9} } } }
+        }
+      });
+ 
+      // LÍNEA tendencia mensual
+      const { labels:mLabels, keys, byMonth } = buildMonthKeys(rows);
+      chartLine = destroyChart(chartLine);
+      chartLine = new Chart(document.getElementById('chart-line'), {
+        type: 'line',
+        data: {
+          labels: mLabels,
+          datasets: [
+            { label:'Forzamiento', data:keys.map(k=>byMonth[k].forz),   borderColor:'#d4941a', backgroundColor:'rgba(212,148,26,0.08)', tension:0.4, fill:true,  borderWidth:2, pointRadius:3 },
+            { label:'Apagado',     data:keys.map(k=>byMonth[k].apagado), borderColor:'#c94040', backgroundColor:'transparent',           tension:0.4, fill:false, borderWidth:1.5, pointRadius:2 },
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{ labels:{ boxWidth:9, padding:8, font:{size:9} } } },
+          scales:{
+            x:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ font:{size:9} } },
+            y:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ font:{size:9} } }
+          }
+        }
+      });
+ 
+      // VDT mensual
+      chartVdt = destroyChart(chartVdt);
+      chartVdt = new Chart(document.getElementById('chart-vdt'), {
+        type: 'bar',
+        data: {
+          labels: mLabels,
+          datasets:[{ label:'Revisión VDT', data:keys.map(k=>byMonth[k].vdt), backgroundColor:'rgba(201,109,26,0.25)', borderColor:'#c96d1a', borderWidth:1.5, borderRadius:4 }]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{ display:false } },
+          scales:{
+            x:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ font:{size:9} } },
+            y:{ grid:{ color:'rgba(255,255,255,0.05)' }, beginAtZero:true, ticks:{ font:{size:9}, precision:0 } }
+          }
+        }
+      });
+    }
   </script>
 </body>
 </html>

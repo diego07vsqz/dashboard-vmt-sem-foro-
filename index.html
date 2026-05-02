@@ -327,8 +327,10 @@
           })
           .filter(r => r.fecha || r.codigo);
  
-        buildMonthFilter();
-        applyFilters();
+        // Mostrar todos los datos al cargar — los filtros son opcionales
+        renderKPIs(dataset);
+        renderBars(dataset);
+        renderTable(dataset);
  
         const hora = new Date().toLocaleTimeString('es-SV', { hour:'2-digit', minute:'2-digit' });
         document.getElementById('update-note').textContent = `Última actualización: ${hora}`;

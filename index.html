@@ -7,114 +7,124 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <style>
+    /* ══════════════════════════════════════════
+       VARIABLES GLOBALES
+    ══════════════════════════════════════════ */
     :root {
-      --bg-deep:    #0e1c28;
-      --bg-main:    #152030;
-      --bg-card:    #1c2e3e;
-      --bg-card2:   #223548;
-      --bg-hover:   rgba(255,255,255,0.03);
-      --border:     rgba(255,255,255,0.08);
-      --border2:    rgba(255,255,255,0.14);
-      --text:       #e4ecf2;
-      --text-mid:   #8aa4b4;
-      --text-soft:  #4e6e80;
+      /* Fondos */
+      --bg-deep:    #0f2236;
+      --bg-main:    #f0f3f6;
+      --bg-card:    #ffffff;
+      --bg-card2:   #f7f9fb;
+      /* Bordes */
+      --border:     rgba(0,0,0,0.08);
+      --border2:    rgba(0,0,0,0.13);
+      /* Textos */
+      --text:       #0f2236;
+      --text-mid:   #3a5570;
+      --text-soft:  #7a9ab0;
+      /* Paleta MOPT */
       --yellow:     #FFD100;
-      --yellow-dim: rgba(255,209,0,0.11);
-      --amber:      #d4941a;
-      --amber-bg:   rgba(212,148,26,0.13);
-      --red:        #c94040;
-      --red-bg:     rgba(201,64,64,0.13);
-      --green:      #2a9d65;
-      --green-bg:   rgba(42,157,101,0.13);
-      --blue:       #3a8fd4;
-      --blue-bg:    rgba(58,143,212,0.13);
-      --purple:     #7c62c4;
-      --purple-bg:  rgba(124,98,196,0.13);
-      --gray-bg:    rgba(143,168,180,0.11);
-      --radius:     8px;
-      --radius-sm:  5px;
-      --shadow-sm:  0 1px 4px rgba(0,0,0,0.3);
+      --yellow-dim: rgba(255,209,0,0.15);
+      /* Paleta CCM — incidencias */
+      --amber:      #d4941a;   --amber-bg:  rgba(212,148,26,0.10);
+      --red:        #c94040;   --red-bg:    rgba(201,64,64,0.10);
+      --green:      #2a9d65;   --green-bg:  rgba(42,157,101,0.10);
+      --blue:       #3a8fd4;   --blue-bg:   rgba(58,143,212,0.10);
+      --purple:     #7c62c4;   --purple-bg: rgba(124,98,196,0.10);
+      --gray-bg:    rgba(100,130,150,0.09);
+      /* Forma */
+      --radius:    8px;
+      --radius-sm: 5px;
+      --shadow-sm: 0 1px 5px rgba(0,0,0,0.08);
     }
 
+    /* ══════════════════════════════════════════
+       RESET Y BASE
+    ══════════════════════════════════════════ */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text); min-height: 100vh; }
+    @keyframes spin  { to { transform: rotate(360deg); } }
+    @keyframes blink { 0%,100%{ opacity:1 } 50%{ opacity:0.2 } }
 
-    /* ── HEADER ── */
-    .header { background: var(--bg-deep); border-bottom: 2.5px solid var(--yellow); padding: 0 32px; }
-    .header-inner { max-width: 1340px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 68px; }
-    .header-brand { display: flex; align-items: center; gap: 14px; }
-    .divider-v { width: 1px; height: 38px; background: rgba(255,209,0,0.25); flex-shrink: 0; }
-    .brand-title { font-size: 15px; font-weight: 700; color: #ffffff; letter-spacing: 0.04em; line-height: 1; text-transform: uppercase; }
-    .brand-sub { font-size: 10px; font-weight: 400; color: var(--yellow); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 5px; }
-    .header-right { display: flex; align-items: center; gap: 10px; }
-    .live-pill { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 5px 13px; font-size: 11px; color: var(--text-mid); font-weight: 500; }
-    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: blink 2s ease-in-out infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-    .btn-refresh { display: flex; align-items: center; gap: 7px; background: var(--yellow-dim); border: 1px solid rgba(255,209,0,0.28); border-radius: var(--radius-sm); color: var(--yellow); font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 600; padding: 7px 15px; cursor: pointer; transition: background 0.15s; }
+    /* ══════════════════════════════════════════
+       LOADING OVERLAY
+    ══════════════════════════════════════════ */
+    #loading-overlay {
+      position: fixed; inset: 0; background: var(--bg-deep);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 18px; z-index: 9999; transition: opacity 0.35s;
+    }
+    #loading-overlay.fade-out { opacity: 0; pointer-events: none; }
+    .spinner     { width: 38px; height: 38px; border: 3px solid rgba(255,209,0,0.18); border-top-color: var(--yellow); border-radius: 50%; animation: spin 0.75s linear infinite; }
+    .loading-msg { font-size: 12px; color: var(--text-soft); letter-spacing: 0.08em; text-transform: uppercase; }
+
+    /* ══════════════════════════════════════════
+       HEADER
+    ══════════════════════════════════════════ */
+    .header        { background: var(--bg-deep); border-bottom: 2.5px solid var(--yellow); padding: 0 32px; }
+    .header-inner  { max-width: 1340px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 68px; }
+    .header-brand  { display: flex; align-items: center; gap: 14px; }
+    .divider-v     { width: 1px; height: 38px; background: rgba(255,209,0,0.25); flex-shrink: 0; }
+    .brand-title   { font-size: 15px; font-weight: 700; color: #ffffff; letter-spacing: 0.04em; line-height: 1; text-transform: uppercase; }
+    .brand-sub     { font-size: 10px; font-weight: 400; color: var(--yellow); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 5px; }
+    .header-right  { display: flex; align-items: center; gap: 10px; }
+    .live-pill     { display: flex; align-items: center; gap: 7px; background: rgba(0,0,0,0.05); border: 1px solid var(--border); border-radius: 20px; padding: 5px 13px; font-size: 11px; color: var(--text-mid); font-weight: 500; }
+    .live-dot      { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: blink 2s ease-in-out infinite; }
+    .btn-refresh   { display: flex; align-items: center; gap: 7px; background: var(--yellow-dim); border: 1px solid rgba(255,209,0,0.28); border-radius: var(--radius-sm); color: var(--yellow); font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 600; padding: 7px 15px; cursor: pointer; transition: background 0.15s; }
     .btn-refresh:hover { background: rgba(255,209,0,0.18); }
-    .btn-refresh svg { width: 12px; height: 12px; }
+    .btn-refresh svg   { width: 12px; height: 12px; }
 
-    /* ── FILTROS ── */
-    .filter-bar { background: var(--bg-deep); border-bottom: 1px solid var(--border); padding: 0 32px; }
-    .filter-bar-inner { max-width: 1340px; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; gap: 7px; }
-    .filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .filter-label { font-size: 11px; color: var(--text-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
-    .filter-select { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; outline: none; transition: border-color 0.15s; }
-    .filter-select:focus { border-color: var(--yellow); }
-    .filter-select option { background: var(--bg-card); }
-    .update-note { font-size: 11px; color: var(--text-soft); white-space: nowrap; }
-
-    /* Rango de fechas */
-    .date-range-group { display: flex; align-items: center; gap: 6px; }
-    .date-range-sep { font-size: 11px; color: var(--text-soft); }
-    .date-input {
-      font-family: 'Inter', sans-serif; font-size: 12px;
-      color: var(--text); background: var(--bg-card);
-      border: 1px solid var(--border2); border-radius: var(--radius-sm);
-      padding: 5px 8px; outline: none; cursor: pointer;
-      transition: border-color 0.15s; color-scheme: dark;
-    }
-    .date-input:focus { border-color: var(--yellow); }
-    .btn-clear-dates {
-      font-family: 'Inter', sans-serif; font-size: 11px;
-      color: var(--text-soft); background: transparent;
-      border: 1px solid var(--border); border-radius: var(--radius-sm);
-      padding: 5px 9px; cursor: pointer;
-      transition: color 0.15s, border-color 0.15s; white-space: nowrap;
-    }
+    /* ══════════════════════════════════════════
+       FILTROS
+    ══════════════════════════════════════════ */
+    .filter-bar        { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .filter-bar-inner  { max-width: 1340px; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; gap: 7px; }
+    .filter-row        { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .filter-label      { font-size: 11px; color: var(--text-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
+    .update-note       { font-size: 11px; color: var(--text-soft); white-space: nowrap; }
+    .filter-select     { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; outline: none; transition: border-color 0.15s; }
+    .filter-select:focus  { border-color: var(--amber); }
+    .filter-select option { background: var(--bg-card); color: var(--text); }
+    .date-range-group  { display: flex; align-items: center; gap: 6px; }
+    .date-range-sep    { font-size: 11px; color: var(--text-soft); }
+    .date-input        { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 8px; outline: none; cursor: pointer; transition: border-color 0.15s; color-scheme: light; }
+    .date-input:focus  { border-color: var(--amber); }
+    .btn-clear-dates   { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-soft); background: transparent; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 5px 9px; cursor: pointer; white-space: nowrap; transition: color 0.15s, border-color 0.15s; }
     .btn-clear-dates:hover { color: var(--text); border-color: var(--border2); }
 
-    /* ── BOTONES DE RANGO RÁPIDO ── */
-    .range-btns { display: flex; gap: 5px; }
-    .range-btn {
-      font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
-      color: var(--text-soft); background: transparent;
-      border: 1px solid var(--border); border-radius: var(--radius-sm);
-      padding: 5px 10px; cursor: pointer; white-space: nowrap;
-      transition: all 0.15s;
-    }
-    .range-btn:hover { color: var(--text-mid); border-color: var(--border2); }
-    .range-btn.active-range { color: var(--yellow); border-color: rgba(255,209,0,0.4); background: var(--yellow-dim); }
-    .range-warning { font-size: 10px; color: #c96d1a; background: rgba(201,109,26,0.12); border: 1px solid rgba(201,109,26,0.25); border-radius: var(--radius-sm); padding: 3px 9px; display: none; white-space: nowrap; }
+    /* Rango rápido */
+    .range-btns        { display: flex; gap: 5px; }
+    .range-btn         { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; color: var(--text-soft); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+    .range-btn:hover        { color: var(--text-mid); border-color: var(--text-soft); }
+    .range-btn.active-range { color: #ffffff; border-color: #0f2236; background: #0f2236; }
+    .range-warning     { font-size: 10px; color: #c96d1a; background: rgba(201,109,26,0.12); border: 1px solid rgba(201,109,26,0.25); border-radius: var(--radius-sm); padding: 3px 9px; display: none; white-space: nowrap; }
     .range-warning.visible { display: inline-block; }
 
-    /* ── MAIN ── */
-    .main { max-width: 1340px; margin: 0 auto; padding: 22px 32px 48px; }
+    /* ══════════════════════════════════════════
+       TABS
+    ══════════════════════════════════════════ */
+    .tab-bar         { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .tab-bar-inner   { max-width: 1340px; margin: 0 auto; display: flex; }
+    .tab-btn         { display: flex; align-items: center; gap: 7px; padding: 13px 20px; font-size: 12px; font-weight: 600; color: var(--text-soft); background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: 'Inter', sans-serif; letter-spacing: 0.04em; transition: color 0.15s, border-color 0.15s; }
+    .tab-btn:hover   { color: var(--text-mid); }
+    .tab-btn.active  { color: #ffffff; border-bottom-color: #0f2236; background: #0f2236; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+    .tab-btn svg     { width: 14px; height: 14px; }
+    .tab-panel       { display: none; }
+    .tab-panel.active{ display: block; }
 
-    /* ── KPI CARDS ── */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    /* ══════════════════════════════════════════
+       MAIN / LAYOUT
+    ══════════════════════════════════════════ */
+    .main   { max-width: 1340px; margin: 0 auto; padding: 22px 32px 48px; }
+    .footer { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-soft); line-height: 1.9; }
 
-    .kpi-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 18px 17px;
-      box-shadow: var(--shadow-sm);
-      position: relative; overflow: hidden;
-      transition: border-color 0.15s, background 0.15s;
-    }
-    .kpi-card:hover { border-color: var(--border2); background: var(--bg-card2); }
+    /* ══════════════════════════════════════════
+       KPI CARDS
+    ══════════════════════════════════════════ */
+    .kpi-grid        { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .kpi-card        { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 18px 17px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; transition: border-color 0.15s, background 0.15s; }
+    .kpi-card:hover  { border-color: var(--border2); background: var(--bg-card2); }
     .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 2px 2px 0 0; }
     .kpi-card.k-yellow::after { background: var(--yellow); }
     .kpi-card.k-red::after    { background: var(--red); }
@@ -123,128 +133,86 @@
     .kpi-card.k-purple::after { background: var(--purple); }
     .kpi-card.k-teal::after   { background: #2a5466; }
     .kpi-card.k-orange::after { background: #c96d1a; }
-
-    /* ── TABS ── */
-    .tab-bar { background: var(--bg-deep); border-bottom: 1px solid var(--border); padding: 0 32px; }
-    .tab-bar-inner { max-width: 1340px; margin: 0 auto; display: flex; gap: 0; }
-    .tab-btn {
-      display: flex; align-items: center; gap: 7px;
-      padding: 13px 20px; font-size: 12px; font-weight: 600;
-      color: var(--text-soft); background: transparent; border: none;
-      border-bottom: 2px solid transparent; cursor: pointer;
-      font-family: 'Inter', sans-serif; letter-spacing: 0.04em;
-      transition: color 0.15s, border-color 0.15s;
-    }
-    .tab-btn:hover { color: var(--text-mid); }
-    .tab-btn.active { color: var(--yellow); border-bottom-color: var(--yellow); }
-    .tab-btn svg { width: 14px; height: 14px; }
-
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    /* Ícono más grande */
-    .kpi-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 14px;
-    }
+    .kpi-icon  { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
     .kpi-icon svg { width: 24px; height: 24px; }
-
-    .kpi-num { font-size: 33px; font-weight: 700; font-family: 'JetBrains Mono', monospace; line-height: 1; color: var(--text); margin-bottom: 7px; }
+    .kpi-num   { font-size: 33px; font-weight: 700; font-family: 'JetBrains Mono', monospace; line-height: 1; color: var(--text); margin-bottom: 7px; }
     .kpi-label { font-size: 10.5px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.06em; }
 
-    /* ── GRILLA ── */
+    /* ══════════════════════════════════════════
+       CONTENT GRID
+    ══════════════════════════════════════════ */
     .content-grid { display: grid; grid-template-columns: 290px 1fr; gap: 12px; }
     @media (max-width: 960px) { .content-grid { grid-template-columns: 1fr; } }
-    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+    .card       { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
     .card-title { font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
 
-    /* barras */
-    .bar-item { margin-bottom: 10px; }
-    .bar-meta { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-mid); margin-bottom: 5px; }
+    /* Barras de distribución */
+    .bar-item  { margin-bottom: 10px; }
+    .bar-meta  { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-mid); margin-bottom: 5px; }
     .bar-meta span:last-child { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text); }
-    .bar-track { background: rgba(255,255,255,0.07); border-radius: 3px; height: 6px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 3px; transition: width 0.55s ease; }
+    .bar-track { background: rgba(0,0,0,0.07); border-radius: 3px; height: 6px; overflow: hidden; }
+    .bar-fill  { height: 100%; border-radius: 3px; transition: width 0.55s ease; }
 
-    /* tabla */
-    .table-scroll { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    thead th { text-align: left; padding: 8px 10px; font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1px solid var(--border); white-space: nowrap; }
-    tbody td { padding: 9px 10px; color: var(--text-mid); border-bottom: 1px solid var(--border); vertical-align: middle; }
+    /* ══════════════════════════════════════════
+       TABLA
+    ══════════════════════════════════════════ */
+    .table-scroll        { overflow-x: auto; }
+    table                { width: 100%; border-collapse: collapse; font-size: 12px; }
+    thead th             { text-align: left; padding: 8px 10px; font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1.5px solid var(--border); white-space: nowrap; background: var(--bg-card2); }
+    tbody td             { padding: 9px 10px; color: var(--text-mid); border-bottom: 1px solid var(--border); vertical-align: middle; }
     tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover td { background: var(--bg-hover); }
+    tbody tr:hover td    { background: rgba(0,0,0,0.025); }
     .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--blue); font-weight: 500; }
-    .badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 10px; font-weight: 600; white-space: nowrap; }
-    .b-amber  { background: var(--amber-bg);  color: var(--amber); }
-    .b-red    { background: var(--red-bg);    color: var(--red); }
-    .b-green  { background: var(--green-bg);  color: var(--green); }
-    .b-blue   { background: var(--blue-bg);   color: var(--blue); }
-    .b-gray   { background: var(--gray-bg);   color: var(--text-mid); }
-    .b-purple { background: var(--purple-bg); color: var(--purple); }
+    .empty    { text-align: center; padding: 36px 20px; color: var(--text-soft); font-size: 13px; }
+
+    /* Badges */
+    .badge    { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+    .b-amber  { background: var(--amber-bg);       color: var(--amber); }
+    .b-red    { background: var(--red-bg);         color: var(--red); }
+    .b-green  { background: var(--green-bg);       color: var(--green); }
+    .b-blue   { background: var(--blue-bg);        color: var(--blue); }
+    .b-purple { background: var(--purple-bg);      color: var(--purple); }
+    .b-gray   { background: var(--gray-bg);        color: var(--text-mid); }
     .b-orange { background: rgba(201,109,26,0.18); color: #c96d1a; }
-    .empty { text-align: center; padding: 36px 20px; color: var(--text-soft); font-size: 13px; }
 
-    /* loading */
-    #loading-overlay { position: fixed; inset: 0; background: var(--bg-deep); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; z-index: 9999; transition: opacity 0.35s; }
-    #loading-overlay.fade-out { opacity: 0; pointer-events: none; }
-    .spinner { width: 38px; height: 38px; border: 3px solid rgba(255,209,0,0.18); border-top-color: var(--yellow); border-radius: 50%; animation: spin 0.75s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-msg { font-size: 12px; color: var(--text-soft); letter-spacing: 0.08em; text-transform: uppercase; }
-
-    .footer { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-soft); line-height: 1.9; }
-
-    /* ── GRÁFICAS (pestaña) ── */
+    /* ══════════════════════════════════════════
+       GRÁFICAS
+    ══════════════════════════════════════════ */
     .charts-grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-    .charts-grid-full { display: grid; grid-template-columns: 1fr; gap: 14px; }
     @media (max-width: 800px) { .charts-grid-2x2 { grid-template-columns: 1fr; } }
     .chart-wrap { position: relative; height: 260px; }
   </style>
 </head>
 <body>
 
+  <!-- LOADING -->
   <div id="loading-overlay">
     <div class="spinner"></div>
     <div class="loading-msg">Cargando información...</div>
   </div>
 
+  <!-- HEADER -->
   <header class="header">
     <div class="header-inner">
       <div class="header-brand">
-        <!-- Semáforo con viseras laterales -->
         <svg width="44" height="52" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="10" y="2" width="24" height="48" rx="5" fill="#1c2e3e" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
-          <circle cx="22" cy="13" r="7" fill="#e03535"/>
-          <circle cx="22" cy="13" r="4.5" fill="#f05050"/>
-          <circle cx="22" cy="26" r="7" fill="#c98a10"/>
-          <circle cx="22" cy="26" r="4.5" fill="#FFD100"/>
-          <circle cx="22" cy="39" r="7" fill="#1e8a4a"/>
-          <circle cx="22" cy="39" r="4.5" fill="#2ecc71"/>
-          <path d="M10,10 L2,10" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M2,10 Q0,10 0,12 L0,16 Q0,18 2,18 L10,18" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <path d="M10,23 L2,23" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M2,23 Q0,23 0,25 L0,29 Q0,31 2,31 L10,31" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <path d="M10,36 L2,36" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M2,36 Q0,36 0,38 L0,42 Q0,44 2,44 L10,44" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <path d="M34,10 L42,10" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M42,10 Q44,10 44,12 L44,16 Q44,18 42,18 L34,18" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <path d="M34,23 L42,23" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M42,23 Q44,23 44,25 L44,29 Q44,31 42,31 L34,31" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <path d="M34,36 L42,36" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M42,36 Q44,36 44,38 L44,42 Q44,44 42,44 L34,44" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <rect x="10" y="2" width="24" height="48" rx="5" fill="#0f2236" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+          <circle cx="22" cy="13" r="7" fill="#e03535"/><circle cx="22" cy="13" r="4.5" fill="#f05050"/>
+          <circle cx="22" cy="26" r="7" fill="#c98a10"/><circle cx="22" cy="26" r="4.5" fill="#FFD100"/>
+          <circle cx="22" cy="39" r="7" fill="#1e8a4a"/><circle cx="22" cy="39" r="4.5" fill="#2ecc71"/>
+          <path d="M10,10 L2,10 M2,10 Q0,10 0,12 L0,16 Q0,18 2,18 L10,18"       stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M10,23 L2,23 M2,23 Q0,23 0,25 L0,29 Q0,31 2,31 L10,31"       stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M10,36 L2,36 M2,36 Q0,36 0,38 L0,42 Q0,44 2,44 L10,44"       stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M34,10 L42,10 M42,10 Q44,10 44,12 L44,16 Q44,18 42,18 L34,18" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M34,23 L42,23 M42,23 Q44,23 44,25 L44,29 Q44,31 42,31 L34,31" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M34,36 L42,36 M42,36 Q44,36 44,38 L44,42 Q44,44 42,44 L34,44" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
         </svg>
-
         <div class="divider-v"></div>
-
         <div>
           <div class="brand-title">Unidad de Planeamiento Semafórico</div>
           <div class="brand-sub">Centro de Control y Monitoreo &nbsp;·&nbsp; CCM</div>
         </div>
       </div>
-
       <div class="header-right">
         <div class="live-pill">
           <div class="live-dot"></div>
@@ -261,18 +229,15 @@
     </div>
   </header>
 
+  <!-- FILTROS -->
   <div class="filter-bar">
     <div class="filter-bar-inner">
-
-      <!-- Fila 1: Fechas + Selectores + nota -->
       <div class="filter-row">
         <span class="filter-label">Filtros:</span>
         <div class="date-range-group">
-          <input type="date" class="date-input" id="f-fecha-ini"
-                 onchange="onManualDate()" title="Fecha de inicio"/>
+          <input type="date" class="date-input" id="f-fecha-ini" onchange="onManualDate()" title="Fecha de inicio"/>
           <span class="date-range-sep">→</span>
-          <input type="date" class="date-input" id="f-fecha-fin"
-                 onchange="onManualDate()" title="Fecha de fin"/>
+          <input type="date" class="date-input" id="f-fecha-fin" onchange="onManualDate()" title="Fecha de fin"/>
           <button class="btn-clear-dates" onclick="clearDates()">✕ Limpiar</button>
         </div>
         <select class="filter-select" id="f-incidencia" onchange="applyFilters()">
@@ -295,8 +260,6 @@
         </select>
         <span class="update-note" id="update-note">Cargando datos...</span>
       </div>
-
-      <!-- Fila 2: Botones de rango rápido -->
       <div class="filter-row">
         <span class="filter-label">Rango:</span>
         <div class="range-btns">
@@ -307,98 +270,102 @@
         </div>
         <span class="range-warning" id="range-warning">⚠ Puede tardar con muchos datos</span>
       </div>
-
     </div>
   </div>
 
-  <!-- ── TAB BAR ── -->
+  <!-- TABS -->
   <div class="tab-bar">
     <div class="tab-bar-inner">
-      <button class="tab-btn active" onclick="switchTab('dashboard')" id="tab-dashboard">
+      <button class="tab-btn active" id="tab-dashboard" onclick="switchTab('dashboard')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
           <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
         </svg>
         Dashboard
       </button>
-      <button class="tab-btn" onclick="switchTab('graficas')" id="tab-graficas">
+      <button class="tab-btn" id="tab-graficas" onclick="switchTab('graficas')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-          <line x1="6" y1="20" x2="6" y2="14"/>
+          <line x1="18" y1="20" x2="18" y2="10"/>
+          <line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6"  y1="20" x2="6"  y2="14"/>
         </svg>
         Gráficas
       </button>
     </div>
   </div>
 
-  <!-- ── PANEL: DASHBOARD ── -->
+  <!-- PANEL: DASHBOARD -->
   <div class="tab-panel active" id="panel-dashboard">
-  <main class="main">
-    <div class="kpi-grid" id="kpi-grid"></div>
-
-    <div class="content-grid">
-      <div class="card">
-        <div class="card-title">Distribución de incidencias</div>
-        <div id="bar-chart"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Registro de eventos recientes</div>
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Fecha</th><th>Hora</th><th>Código</th>
-                <th>Reporte</th><th>Incidencia</th><th>Dirección</th>
-              </tr>
-            </thead>
-            <tbody id="tabla-body"></tbody>
-          </table>
+    <main class="main">
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="content-grid">
+        <div class="card">
+          <div class="card-title">Distribución de incidencias</div>
+          <div id="bar-chart"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Registro de eventos recientes</div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th><th>Hora</th><th>Código</th>
+                  <th>Reporte</th><th>Incidencia</th><th>Dirección</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-body"></tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="footer">
-      Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp;
-      Ministerio de Obras Públicas y de Transporte<br>
-      Información obtenida en tiempo real desde la base de datos institucional
-    </div>
-  </main>
+      <div class="footer">
+        Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte<br>
+        Información obtenida en tiempo real desde la base de datos institucional
+      </div>
+    </main>
   </div>
 
-  <!-- ── PANEL: GRÁFICAS ── -->
+  <!-- PANEL: GRÁFICAS -->
   <div class="tab-panel" id="panel-graficas">
-  <main class="main">
-    <div class="charts-grid-2x2">
-      <div class="card">
-        <div class="card-title">Incidencias por tipo</div>
-        <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
+    <main class="main">
+      <div class="charts-grid-2x2">
+        <div class="card">
+          <div class="card-title">Incidencias por tipo</div>
+          <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Distribución porcentual</div>
+          <div class="chart-wrap"><canvas id="chart-donut"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Tendencia mensual — Forzamiento vs Apagado</div>
+          <div class="chart-wrap"><canvas id="chart-line"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Revisión VDT — Actividad mensual</div>
+          <div class="chart-wrap"><canvas id="chart-vdt"></canvas></div>
+        </div>
       </div>
-      <div class="card">
-        <div class="card-title">Distribución porcentual</div>
-        <div class="chart-wrap"><canvas id="chart-donut"></canvas></div>
+      <div class="footer">
+        Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte<br>
+        Información obtenida en tiempo real desde la base de datos institucional
       </div>
-      <div class="card">
-        <div class="card-title">Tendencia mensual — Forzamiento vs Apagado</div>
-        <div class="chart-wrap"><canvas id="chart-line"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Revisión VDT — Actividad mensual</div>
-        <div class="chart-wrap"><canvas id="chart-vdt"></canvas></div>
-      </div>
-    </div>
-    <div class="footer">
-      Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp;
-      Ministerio de Obras Públicas y de Transporte<br>
-      Información obtenida en tiempo real desde la base de datos institucional
-    </div>
-  </main>
+    </main>
   </div>
 
   <script>
+    /* ══════════════════════════════════════════
+       CONFIGURACIÓN
+    ══════════════════════════════════════════ */
     const SHEET_ID   = "1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU";
     const SHEET_NAME = "P. Semaforico";
-    const COL = { FECHA:0, HORA:1, CODIGO:2, REPORTE:3, INCIDENCIA:4, DIR:6 };
+    const COL        = { FECHA:0, HORA:1, CODIGO:2, REPORTE:3, INCIDENCIA:4, DIR:6 };
 
+    /* ══════════════════════════════════════════
+       CATÁLOGO DE INCIDENCIAS
+       Fuente única de verdad: label, badge y color.
+       Se eliminó COLOR_MAP redundante.
+    ══════════════════════════════════════════ */
     const TIPOS = {
       'forzamiento de tiempos': { label:'Forzamiento de Tiempos', badge:'b-amber',  color:'#d4941a' },
       'forzamiento de tiempo':  { label:'Forzamiento de Tiempos', badge:'b-amber',  color:'#d4941a' },
@@ -420,66 +387,140 @@
       'chorros':                { label:'Chorros',                badge:'b-purple', color:'#9c7ce0' },
     };
 
-    const tipo    = raw  => TIPOS[(raw||'').toLowerCase().trim()] || { label: raw, badge:'b-gray', color:'#4e6e80' };
-    const countKw = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
+    /* Helpers — usan TIPOS como única fuente de verdad */
+    const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw, badge: 'b-gray', color: '#4e6e80' };
+    const getColor = label => Object.values(TIPOS).find(t => t.label === label)?.color ?? '#4e6e80';
+    const countKw  = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
 
-    // ── Mapa de colores por label (usado en gráficas Chart.js) ──
-    const COLOR_MAP = {
-      'Forzamiento de Tiempos': '#d4941a',
-      'Apagado':                '#c94040',
-      'Mejora de Tiempo':       '#2a9d65',
-      'Intermitencia':          '#3a8fd4',
-      'Error de Comunicación':  '#7c62c4',
-      'Apoyo en Accidentes':    '#c94040',
-      'Funcionamiento':         '#2a9d65',
-      'Programa':               '#7c62c4',
-      'VDT Volumen':            '#c96d1a',
-      'Tiempos':                '#5a8a9f',
-      'Falla':                  '#e05c5c',
-      'Ramas':                  '#4caf7d',
-      'Comunicación':           '#3ab5d4',
-      'Chorros':                '#9c7ce0',
-      'Otros':                  '#4e6e80',
+    /* ══════════════════════════════════════════
+       ÍCONOS SVG
+       Definidos una sola vez, reutilizados en renderKPIs.
+    ══════════════════════════════════════════ */
+    const ICONS = {
+      forzamiento: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#d4941a" stroke-width="1.5"/>
+        <circle cx="12" cy="7"  r="2.8" fill="#c94040"/>
+        <circle cx="12" cy="12" r="2.8" fill="#d4941a"/>
+        <circle cx="12" cy="17" r="2.8" fill="#2a9d65"/>
+        <path d="M7,6 L4,6 M4,6 Q2.5,6 2.5,7.5 L2.5,9 Q2.5,10 4,10 L7,10"         stroke="#d4941a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+        <path d="M17,6 L20,6 M20,6 Q21.5,6 21.5,7.5 L21.5,9 Q21.5,10 20,10 L17,10" stroke="#d4941a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+      </svg>`,
+
+      apagado: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#c94040" stroke-width="1.5"/>
+        <circle cx="12" cy="7"  r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
+        <circle cx="12" cy="12" r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
+        <circle cx="12" cy="17" r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
+        <line x1="6" y1="2" x2="18" y2="22" stroke="#c94040" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>`,
+
+      mejora: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="2 17 8.5 10.5 13.5 15.5 22 7" stroke="#2a9d65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="16 7 22 7 22 13"               stroke="#2a9d65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`,
+
+      intermitencia: `<svg viewBox="0 0 28 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8,12 L3,12 M3,12 Q1,12 1,10 L1,8 Q1,6 3,6 L8,6"       stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <path d="M20,12 L25,12 M25,12 Q27,12 27,10 L27,8 Q27,6 25,6 L20,6" stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <line x1="14" y1="1"    x2="14" y2="3.5"   stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="14" y1="20.5" x2="14" y2="23"    stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="20.2" y1="3.8"  x2="18.5" y2="5.5"  stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="7.8"  y1="3.8"  x2="9.5"  y2="5.5"  stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="20.2" y1="20.2" x2="18.5" y2="18.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="7.8"  y1="20.2" x2="9.5"  y2="18.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
+        <circle cx="14" cy="12" r="5.5" fill="rgba(58,143,212,0.18)" stroke="#3a8fd4" stroke-width="1.4"/>
+        <circle cx="14" cy="12" r="3"   fill="#3a8fd4"/>
+      </svg>`,
+
+      error: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="#7c62c4" stroke-width="1.6" stroke-linejoin="round" fill="rgba(124,98,196,0.15)"/>
+        <line x1="12" y1="9"  x2="12" y2="13" stroke="#7c62c4" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="12" cy="17" r="0.8" fill="#7c62c4"/>
+      </svg>`,
+
+      accidente: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px;">
+        <circle cx="15" cy="4" r="2.2" fill="#c94040"/>
+        <path d="M15 6.8 L13 11.5 L10 14.5"  stroke="#c94040" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M13 11.5 L16.5 14 L15 18"   stroke="#c94040" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M10 14.5 L8.5 18"            stroke="#c94040" stroke-width="1.8" stroke-linecap="round"/>
+        <rect x="1.5" y="7" width="5.5" height="12" rx="1.5" fill="none" stroke="#c94040" stroke-width="1.4"/>
+        <circle cx="4.25" cy="10.5" r="1.4" fill="#c94040"/>
+        <circle cx="4.25" cy="13.5" r="1.4" fill="rgba(201,64,64,0.3)"/>
+        <circle cx="4.25" cy="16.5" r="1.4" fill="rgba(201,64,64,0.3)"/>
+        <path d="M18.5 10 L21.5 15 L15.5 15 Z" stroke="#c94040" stroke-width="1.3" stroke-linejoin="round" fill="rgba(201,64,64,0.22)"/>
+        <line x1="18.5" y1="11.8" x2="18.5" y2="13.2" stroke="#c94040" stroke-width="1.2" stroke-linecap="round"/>
+        <circle cx="18.5" cy="14.2" r="0.5" fill="#c94040"/>
+      </svg>`,
+
+      total: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3"  y="3"  width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
+        <rect x="14" y="3"  width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
+        <rect x="14" y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
+        <rect x="3"  y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
+      </svg>`,
+
+      vdt: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M23 7 L16 12 L23 17 Z" fill="rgba(201,109,26,0.25)" stroke="#c96d1a" stroke-width="1.5" stroke-linejoin="round"/>
+        <rect x="1" y="5" width="15" height="14" rx="2.5" fill="none" stroke="#c96d1a" stroke-width="1.6"/>
+        <circle cx="8.5" cy="12" r="3.5" fill="rgba(201,109,26,0.18)" stroke="#c96d1a" stroke-width="1.4"/>
+        <circle cx="8.5" cy="12" r="1.5" fill="#c96d1a"/>
+      </svg>`,
     };
-    const colorOf = label => COLOR_MAP[label] ?? '#4e6e80';
 
-    let dataset = [];
+    /* ══════════════════════════════════════════
+       ESTADO GLOBAL
+    ══════════════════════════════════════════ */
+    let dataset          = [];
     let lastFilteredRows = [];
+    let chartBar         = null;
+    let chartDonut       = null;
+    let chartLine        = null;
+    let chartVdt         = null;
 
+    /* ══════════════════════════════════════════
+       CARGA DE DATOS
+    ══════════════════════════════════════════ */
     async function loadData() {
       document.getElementById('update-note').textContent = 'Actualizando...';
       try {
-        const url  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
-        const res  = await fetch(url);
-        const text = await res.text();
-        // Parser robusto: extrae el JSON sin depender de posición fija
+        const url   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+        const res   = await fetch(url);
+        const text  = await res.text();
         const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
         if (!match) throw new Error('Respuesta inesperada de Google Sheets');
-        const json = JSON.parse(match[1]);
+        const json  = JSON.parse(match[1]);
 
         dataset = (json.table.rows || [])
           .map(row => {
             const c   = row.c;
             const get = i => (c[i]?.v != null) ? String(c[i].f || c[i].v).trim() : '';
-            return { fecha:get(COL.FECHA), hora:get(COL.HORA), codigo:get(COL.CODIGO), reporte:get(COL.REPORTE), incidencia:get(COL.INCIDENCIA), dir:get(COL.DIR) };
+            return {
+              fecha:      get(COL.FECHA),
+              hora:       get(COL.HORA),
+              codigo:     get(COL.CODIGO),
+              reporte:    get(COL.REPORTE),
+              incidencia: get(COL.INCIDENCIA),
+              dir:        get(COL.DIR),
+            };
           })
           .filter(r => r.fecha || r.codigo);
 
-        // Aplicar "Últimos 3 meses" por defecto al cargar
-        setRange('3m', true);
+        setRange('3m');
 
-        const hora = new Date().toLocaleTimeString('es-SV', { hour:'2-digit', minute:'2-digit' });
+        const hora = new Date().toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit' });
         document.getElementById('update-note').textContent = `Última actualización: ${hora} · ${dataset.length} registros totales`;
         document.getElementById('live-label').textContent  = `Actualizado ${hora}`;
+
       } catch (err) {
         document.getElementById('update-note').textContent = 'Error al obtener datos — intenta actualizar de nuevo.';
-        document.getElementById('live-label').textContent = 'Sin conexión';
+        document.getElementById('live-label').textContent  = 'Sin conexión';
         console.error('Error cargando Sheet:', err);
       }
     }
 
-    // Poblar el filtro de meses según los datos disponibles — eliminado, reemplazado por rango de fechas
-
+    /* ══════════════════════════════════════════
+       FILTROS
+    ══════════════════════════════════════════ */
     function clearDates() {
       document.getElementById('f-fecha-ini').value = '';
       document.getElementById('f-fecha-fin').value = '';
@@ -488,64 +529,44 @@
     }
 
     function onManualDate() {
-      // Si el usuario escribe fecha manualmente, desactiva los botones de rango
       setActiveRangeBtn(null);
       document.getElementById('range-warning').classList.remove('visible');
       applyFilters();
     }
 
-    // Activa visualmente el botón de rango seleccionado
     function setActiveRangeBtn(id) {
-      ['mes','ant','3m','todo'].forEach(k => {
-        const b = document.getElementById('rbtn-' + k);
-        if (b) b.classList.toggle('active-range', k === id);
-      });
+      ['mes', 'ant', '3m', 'todo'].forEach(k =>
+        document.getElementById('rbtn-' + k)?.classList.toggle('active-range', k === id)
+      );
     }
 
-    // Establece rango de fechas rápido y filtra
-    function setRange(tipo, silent) {
-      const hoy    = new Date();
-      const year   = hoy.getFullYear();
-      const month  = hoy.getMonth(); // 0-indexed
+    function setRange(rango) {
+      const hoy   = new Date();
+      const y     = hoy.getFullYear();
+      const m     = hoy.getMonth();
+      const fmt   = d => d.toISOString().slice(0, 10);
+      const warn  = document.getElementById('range-warning');
 
-      const fmt = d => d.toISOString().slice(0,10); // yyyy-mm-dd
+      const rangos = {
+        mes:  { ini: new Date(y, m,     1), fin: new Date(y, m + 1, 0) },
+        ant:  { ini: new Date(y, m - 1, 1), fin: new Date(y, m,     0) },
+        '3m': { ini: new Date(y, m - 2, 1), fin: new Date(y, m + 1, 0) },
+        todo: { ini: null, fin: null },
+      };
 
-      let ini, fin;
-
-      if (tipo === 'mes') {
-        ini = new Date(year, month, 1);
-        fin = new Date(year, month + 1, 0);
-        document.getElementById('range-warning').classList.remove('visible');
-      } else if (tipo === 'ant') {
-        ini = new Date(year, month - 1, 1);
-        fin = new Date(year, month, 0);
-        document.getElementById('range-warning').classList.remove('visible');
-      } else if (tipo === '3m') {
-        ini = new Date(year, month - 2, 1);
-        fin = new Date(year, month + 1, 0);
-        document.getElementById('range-warning').classList.remove('visible');
-      } else if (tipo === 'todo') {
-        ini = null;
-        fin = null;
-        document.getElementById('range-warning').classList.add('visible');
-      }
-
+      const { ini, fin } = rangos[rango] || rangos['3m'];
       document.getElementById('f-fecha-ini').value = ini ? fmt(ini) : '';
       document.getElementById('f-fecha-fin').value = fin ? fmt(fin) : '';
-      setActiveRangeBtn(tipo);
-
-      if (!silent) applyFilters();
-      else {
-        // Primer carga: filtrar sin animar
-        applyFilters();
-      }
+      warn.classList.toggle('visible', rango === 'todo');
+      setActiveRangeBtn(rango);
+      applyFilters();
     }
 
-    // Convierte "d/m/yyyy" del Sheet a objeto Date para comparar
+    /* Convierte "d/m/yyyy" del Sheet a Date */
     function parseSheetDate(str) {
-      const p = str.split('/');
-      if (p.length < 3) return null;
-      return new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
+      const [d, m, y] = str.split('/');
+      if (!y) return null;
+      return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
     }
 
     function applyFilters() {
@@ -553,9 +574,8 @@
       const fechaFin = document.getElementById('f-fecha-fin').value;
       const inc      = document.getElementById('f-incidencia').value.toLowerCase();
       const rep      = document.getElementById('f-reporte').value.toLowerCase();
-
-      const dateIni = fechaIni ? new Date(fechaIni + 'T00:00:00') : null;
-      const dateFin = fechaFin ? new Date(fechaFin + 'T23:59:59') : null;
+      const dateIni  = fechaIni ? new Date(fechaIni + 'T00:00:00') : null;
+      const dateFin  = fechaFin ? new Date(fechaFin + 'T23:59:59') : null;
 
       const filtered = dataset.filter(r => {
         if (dateIni || dateFin) {
@@ -565,7 +585,7 @@
           if (dateFin && d > dateFin) return false;
         }
         if (inc && r.incidencia.toLowerCase() !== inc) return false;
-        if (rep && r.reporte.toLowerCase() !== rep)     return false;
+        if (rep && r.reporte.toLowerCase()    !== rep) return false;
         return true;
       });
 
@@ -573,127 +593,24 @@
       renderKPIs(filtered);
       renderBars(filtered);
       renderTable(filtered);
-      // Si la pestaña Gráficas está activa, actualizar en tiempo real
       if (document.getElementById('panel-graficas').classList.contains('active')) {
         renderCharts(filtered);
       }
     }
 
+    /* ══════════════════════════════════════════
+       RENDER: KPI CARDS
+    ══════════════════════════════════════════ */
     function renderKPIs(rows) {
       const cards = [
-        {
-          label: 'Forzamiento de Tiempos',
-          val: countKw(rows,'forzamiento'),
-          cls: 'k-yellow', bg: 'rgba(212,148,26,0.14)',
-          // Semáforo con luces encendidas — forzamiento
-          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#d4941a" stroke-width="1.5"/>
-            <circle cx="12" cy="7"  r="2.8" fill="#c94040"/>
-            <circle cx="12" cy="12" r="2.8" fill="#d4941a"/>
-            <circle cx="12" cy="17" r="2.8" fill="#2a9d65"/>
-            <path d="M7,6 L4,6 M4,6 Q2.5,6 2.5,7.5 L2.5,9 Q2.5,10 4,10 L7,10" stroke="#d4941a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
-            <path d="M17,6 L20,6 M20,6 Q21.5,6 21.5,7.5 L21.5,9 Q21.5,10 20,10 L17,10" stroke="#d4941a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
-          </svg>`
-        },
-        {
-          label: 'Semáforo Apagado',
-          val: countKw(rows,'apagado'),
-          cls: 'k-red', bg: 'rgba(201,64,64,0.14)',
-          // Semáforo sin luces — apagado
-          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#c94040" stroke-width="1.5"/>
-            <circle cx="12" cy="7"  r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
-            <circle cx="12" cy="12" r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
-            <circle cx="12" cy="17" r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
-            <line x1="6" y1="2" x2="18" y2="22" stroke="#c94040" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>`
-        },
-        {
-          label: 'Mejora de Tiempos',
-          val: countKw(rows,'mejora'),
-          cls: 'k-green', bg: 'rgba(42,157,101,0.14)',
-          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polyline points="2 17 8.5 10.5 13.5 15.5 22 7" stroke="#2a9d65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <polyline points="16 7 22 7 22 13" stroke="#2a9d65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>`
-        },
-        {
-          label: 'Intermitencia',
-          val: countKw(rows,'intermitencia'),
-          cls: 'k-blue', bg: 'rgba(58,143,212,0.14)',
-          /*
-            Semáforo intermitente: sol/luz central radiante con viseras laterales
-            Inspirado en la imagen de referencia (luz ámbar pulsante con alas)
-          */
-          icon: `<svg viewBox="0 0 28 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Visera izquierda -->
-            <path d="M8,12 L3,12" stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
-            <path d="M3,12 Q1,12 1,10 L1,8 Q1,6 3,6 L8,6" stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-            <!-- Visera derecha -->
-            <path d="M20,12 L25,12" stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
-            <path d="M25,12 Q27,12 27,10 L27,8 Q27,6 25,6 L20,6" stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-            <!-- Rayos de luz (intermitencia) -->
-            <line x1="14" y1="1"   x2="14" y2="3.5"  stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
-            <line x1="14" y1="20.5" x2="14" y2="23"  stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
-            <line x1="20.2" y1="3.8" x2="18.5" y2="5.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
-            <line x1="7.8"  y1="3.8" x2="9.5"  y2="5.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
-            <line x1="20.2" y1="20.2" x2="18.5" y2="18.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
-            <line x1="7.8"  y1="20.2" x2="9.5"  y2="18.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
-            <!-- Luz central ámbar/azul pulsante -->
-            <circle cx="14" cy="12" r="5.5" fill="rgba(58,143,212,0.18)" stroke="#3a8fd4" stroke-width="1.4"/>
-            <circle cx="14" cy="12" r="3"   fill="#3a8fd4"/>
-          </svg>`
-        },
-        {
-          label: 'Error de Comunicación',
-          val: countKw(rows,'error'),
-          cls: 'k-purple', bg: 'rgba(124,98,196,0.14)',
-          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="#7c62c4" stroke-width="1.6" stroke-linejoin="round" fill="rgba(124,98,196,0.15)"/>
-            <line x1="12" y1="9"  x2="12" y2="13" stroke="#7c62c4" stroke-width="1.8" stroke-linecap="round"/>
-            <circle cx="12" cy="17" r="0.8" fill="#7c62c4"/>
-          </svg>`
-        },
-        {
-          label: 'Apoyo en Accidentes',
-          val: countKw(rows,'accidente'),
-          cls: 'k-red', bg: 'rgba(201,64,64,0.14)',
-          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px;">
-            <circle cx="15" cy="4" r="2.2" fill="#c94040"/>
-            <path d="M15 6.8 L13 11.5 L10 14.5" stroke="#c94040" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M13 11.5 L16.5 14 L15 18" stroke="#c94040" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10 14.5 L8.5 18" stroke="#c94040" stroke-width="1.8" stroke-linecap="round"/>
-            <rect x="1.5" y="7" width="5.5" height="12" rx="1.5" fill="none" stroke="#c94040" stroke-width="1.4"/>
-            <circle cx="4.25" cy="10.5" r="1.4" fill="#c94040"/>
-            <circle cx="4.25" cy="13.5" r="1.4" fill="rgba(201,64,64,0.3)"/>
-            <circle cx="4.25" cy="16.5" r="1.4" fill="rgba(201,64,64,0.3)"/>
-            <path d="M18.5 10 L21.5 15 L15.5 15 Z" stroke="#c94040" stroke-width="1.3" stroke-linejoin="round" fill="rgba(201,64,64,0.22)"/>
-            <line x1="18.5" y1="11.8" x2="18.5" y2="13.2" stroke="#c94040" stroke-width="1.2" stroke-linecap="round"/>
-            <circle cx="18.5" cy="14.2" r="0.5" fill="#c94040"/>
-          </svg>`
-        },
-        {
-          label: 'Total de Registros',
-          val: rows.length,
-          cls: 'k-teal', bg: 'rgba(42,84,102,0.32)',
-          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="3"  y="3"  width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
-            <rect x="14" y="3"  width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
-            <rect x="14" y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
-            <rect x="3"  y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
-          </svg>`
-        },
-        {
-          label: 'Revisión VDT',
-          val: countKw(rows,'vdt volumen'),
-          cls: 'k-orange', bg: 'rgba(201,109,26,0.16)',
-          icon: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M23 7 L16 12 L23 17 Z" fill="rgba(201,109,26,0.25)" stroke="#c96d1a" stroke-width="1.5" stroke-linejoin="round"/>
-            <rect x="1" y="5" width="15" height="14" rx="2.5" fill="none" stroke="#c96d1a" stroke-width="1.6"/>
-            <circle cx="8.5" cy="12" r="3.5" fill="rgba(201,109,26,0.18)" stroke="#c96d1a" stroke-width="1.4"/>
-            <circle cx="8.5" cy="12" r="1.5" fill="#c96d1a"/>
-          </svg>`
-        },
+        { label:'Forzamiento de Tiempos', val: countKw(rows, 'forzamiento'),  cls:'k-yellow', bg:'rgba(212,148,26,0.14)', icon: ICONS.forzamiento  },
+        { label:'Semáforo Apagado',       val: countKw(rows, 'apagado'),       cls:'k-red',    bg:'rgba(201,64,64,0.14)',  icon: ICONS.apagado      },
+        { label:'Mejora de Tiempos',      val: countKw(rows, 'mejora'),        cls:'k-green',  bg:'rgba(42,157,101,0.14)', icon: ICONS.mejora       },
+        { label:'Intermitencia',          val: countKw(rows, 'intermitencia'), cls:'k-blue',   bg:'rgba(58,143,212,0.14)', icon: ICONS.intermitencia },
+        { label:'Error de Comunicación',  val: countKw(rows, 'error'),         cls:'k-purple', bg:'rgba(124,98,196,0.14)', icon: ICONS.error        },
+        { label:'Apoyo en Accidentes',    val: countKw(rows, 'accidente'),     cls:'k-red',    bg:'rgba(201,64,64,0.14)',  icon: ICONS.accidente    },
+        { label:'Total de Registros',     val: rows.length,                    cls:'k-teal',   bg:'rgba(42,84,102,0.32)',  icon: ICONS.total        },
+        { label:'Revisión VDT',           val: countKw(rows, 'vdt volumen'),   cls:'k-orange', bg:'rgba(201,109,26,0.16)', icon: ICONS.vdt          },
       ];
 
       document.getElementById('kpi-grid').innerHTML = cards.map(c =>
@@ -705,161 +622,150 @@
       ).join('');
     }
 
+    /* ══════════════════════════════════════════
+       RENDER: BARRAS DE DISTRIBUCIÓN
+    ══════════════════════════════════════════ */
     function renderBars(rows) {
       const counts = {};
-      rows.forEach(r => { const t = tipo(r.incidencia); counts[t.label] = (counts[t.label]||0)+1; });
-      const sorted  = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
-      const max     = sorted[0]?.[1] || 1;
+      rows.forEach(r => {
+        const t = getTipo(r.incidencia);
+        counts[t.label] = (counts[t.label] || 0) + 1;
+      });
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const max    = sorted[0]?.[1] || 1;
 
       document.getElementById('bar-chart').innerHTML = sorted.length
-        ? sorted.map(([label,val]) =>
+        ? sorted.map(([label, val]) =>
             `<div class="bar-item">
                <div class="bar-meta"><span>${label}</span><span>${val}</span></div>
-               <div class="bar-track"><div class="bar-fill" style="width:${Math.round(val/max*100)}%;background:${colorOf(label)};"></div></div>
-             </div>`).join('')
+               <div class="bar-track">
+                 <div class="bar-fill" style="width:${Math.round(val / max * 100)}%; background:${getColor(label)};"></div>
+               </div>
+             </div>`
+          ).join('')
         : '<div class="empty">Sin datos para el filtro seleccionado</div>';
     }
 
+    /* ══════════════════════════════════════════
+       RENDER: TABLA DE EVENTOS
+    ══════════════════════════════════════════ */
     function renderTable(rows) {
-      const items = [...rows].slice(-60).reverse().slice(0,30);
+      const items = [...rows].slice(-60).reverse().slice(0, 30);
       document.getElementById('tabla-body').innerHTML = items.length
         ? items.map(r => {
-            const t = tipo(r.incidencia);
+            const t = getTipo(r.incidencia);
             return `<tr>
               <td>${r.fecha}</td>
               <td style="white-space:nowrap">${r.hora}</td>
               <td><span class="code-tag">${r.codigo}</span></td>
               <td>${r.reporte}</td>
               <td><span class="badge ${t.badge}">${t.label}</span></td>
-              <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.dir}">${r.dir}</td>
+              <td style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap" title="${r.dir}">${r.dir}</td>
             </tr>`;
           }).join('')
         : '<tr><td colspan="6" class="empty">Sin registros para mostrar</td></tr>';
     }
 
-    window.addEventListener('DOMContentLoaded', async () => {
-      await loadData();
-      const overlay = document.getElementById('loading-overlay');
-      overlay.classList.add('fade-out');
-      setTimeout(() => overlay.remove(), 400);
-    });
-
-    // ── TABS ──
-    let chartsBuilt = false;
-    let chartBar = null, chartDonut = null, chartLine = null, chartVdt = null;
-
+    /* ══════════════════════════════════════════
+       TABS
+    ══════════════════════════════════════════ */
     function switchTab(name) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b   => b.classList.remove('active'));
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      document.getElementById('tab-' + name).classList.add('active');
+      document.getElementById('tab-'   + name).classList.add('active');
       document.getElementById('panel-' + name).classList.add('active');
-      // Construir gráficas la primera vez que se abre la pestaña (evita bugs de canvas oculto)
-      if (name === 'graficas' && lastFilteredRows.length > 0) {
-        renderCharts(lastFilteredRows);
-      }
+      if (name === 'graficas' && lastFilteredRows.length > 0) renderCharts(lastFilteredRows);
     }
 
-    // ── GRÁFICAS ──
-    Chart.defaults.color = '#8aa4b4';
+    /* ══════════════════════════════════════════
+       RENDER: GRÁFICAS (Chart.js)
+    ══════════════════════════════════════════ */
+    Chart.defaults.color       = '#3a5570';
     Chart.defaults.font.family = "'Inter', sans-serif";
     Chart.defaults.font.size   = 11;
 
+    const GRID      = 'rgba(0,0,0,0.07)';
+    const destroyChart = c => { if (c) try { c.destroy(); } catch (e) {} return null; };
+    const scaleOpts    = (sz = 10) => ({
+      x: { grid: { color: GRID }, ticks: { font: { size: sz } } },
+      y: { grid: { color: GRID }, ticks: { font: { size: sz } } },
+    });
+
     function buildMonthKeys(rows) {
+      const MESES   = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
       const byMonth = {};
       rows.forEach(r => {
         const p = r.fecha.split('/');
         if (p.length < 3) return;
-        const key = `${p[2]}-${String(p[1]).padStart(2,'0')}`;
-        if (!byMonth[key]) byMonth[key] = { forz:0, apagado:0, vdt:0 };
+        const key = `${p[2]}-${String(p[1]).padStart(2, '0')}`;
+        if (!byMonth[key]) byMonth[key] = { forz: 0, apagado: 0, vdt: 0 };
         if (r.incidencia.toLowerCase().includes('forzamiento')) byMonth[key].forz++;
         if (r.incidencia.toLowerCase().includes('apagado'))     byMonth[key].apagado++;
-        if (r.incidencia.toLowerCase().includes('vdt volumen'))   byMonth[key].vdt++;
+        if (r.incidencia.toLowerCase().includes('vdt volumen')) byMonth[key].vdt++;
       });
       const keys   = Object.keys(byMonth).sort().slice(-12);
-      const labels = keys.map(k => {
-        const [y,m] = k.split('-');
-        return `${['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][+m]} ${y.slice(2)}`;
-      });
+      const labels = keys.map(k => { const [y, m] = k.split('-'); return `${MESES[+m]} ${y.slice(2)}`; });
       return { labels, keys, byMonth };
     }
 
-    function destroyChart(c) { if (c) { try { c.destroy(); } catch(e){} } return null; }
-
     function renderCharts(rows) {
-      // Datos barra / donut
+      /* Datos compartidos barra + donut */
       const counts = {};
-      rows.forEach(r => { const t = tipo(r.incidencia); counts[t.label] = (counts[t.label]||0)+1; });
-      const sorted  = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
-      const labels  = sorted.map(([l])=>l);
-      const values  = sorted.map(([,v])=>v);
-      const colors  = labels.map(colorOf);
+      rows.forEach(r => { const t = getTipo(r.incidencia); counts[t.label] = (counts[t.label] || 0) + 1; });
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const labels = sorted.map(([l]) => l);
+      const values = sorted.map(([, v]) => v);
+      const colors = labels.map(getColor);
 
-      // BARRA
+      /* Barras por tipo */
       chartBar = destroyChart(chartBar);
       chartBar = new Chart(document.getElementById('chart-bar'), {
         type: 'bar',
-        data: { labels, datasets:[{ data:values, backgroundColor:colors.map(c=>c+'33'), borderColor:colors, borderWidth:1.5, borderRadius:4 }] },
-        options: {
-          responsive:true, maintainAspectRatio:false,
-          plugins:{ legend:{ display:false } },
-          scales:{
-            x:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ font:{size:10}, maxRotation:28 } },
-            y:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ font:{size:10} } }
-          }
-        }
+        data: { labels, datasets: [{ data: values, backgroundColor: colors.map(c => c + '33'), borderColor: colors, borderWidth: 1.5, borderRadius: 4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: scaleOpts(10) },
       });
 
-      // DONUT
+      /* Doughnut */
       chartDonut = destroyChart(chartDonut);
       chartDonut = new Chart(document.getElementById('chart-donut'), {
         type: 'doughnut',
-        data: { labels, datasets:[{ data:values, backgroundColor:colors.map(c=>c+'cc'), borderColor:'#1c2e3e', borderWidth:2, hoverOffset:6 }] },
-        options: {
-          responsive:true, maintainAspectRatio:false, cutout:'56%',
-          plugins:{ legend:{ position:'bottom', labels:{ boxWidth:9, padding:8, font:{size:9} } } }
-        }
+        data: { labels, datasets: [{ data: values, backgroundColor: colors.map(c => c + 'cc'), borderColor: '#ffffff', borderWidth: 2, hoverOffset: 6 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '56%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, padding: 8, font: { size: 9 } } } } },
       });
 
-      // LÍNEA tendencia mensual
-      const { labels:mLabels, keys, byMonth } = buildMonthKeys(rows);
+      /* Línea tendencia mensual */
+      const { labels: mLabels, keys, byMonth } = buildMonthKeys(rows);
       chartLine = destroyChart(chartLine);
       chartLine = new Chart(document.getElementById('chart-line'), {
         type: 'line',
         data: {
           labels: mLabels,
           datasets: [
-            { label:'Forzamiento', data:keys.map(k=>byMonth[k].forz),   borderColor:'#d4941a', backgroundColor:'rgba(212,148,26,0.08)', tension:0.4, fill:true,  borderWidth:2, pointRadius:3 },
-            { label:'Apagado',     data:keys.map(k=>byMonth[k].apagado), borderColor:'#c94040', backgroundColor:'transparent',           tension:0.4, fill:false, borderWidth:1.5, pointRadius:2 },
-          ]
+            { label: 'Forzamiento', data: keys.map(k => byMonth[k].forz),    borderColor: '#d4941a', backgroundColor: 'rgba(212,148,26,0.08)', tension: 0.4, fill: true,  borderWidth: 2,   pointRadius: 3 },
+            { label: 'Apagado',     data: keys.map(k => byMonth[k].apagado), borderColor: '#c94040', backgroundColor: 'transparent',           tension: 0.4, fill: false, borderWidth: 1.5, pointRadius: 2 },
+          ],
         },
-        options: {
-          responsive:true, maintainAspectRatio:false,
-          plugins:{ legend:{ labels:{ boxWidth:9, padding:8, font:{size:9} } } },
-          scales:{
-            x:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ font:{size:9} } },
-            y:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ font:{size:9} } }
-          }
-        }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { boxWidth: 9, padding: 8, font: { size: 9 } } } }, scales: scaleOpts(9) },
       });
 
-      // VDT mensual
+      /* Barras VDT mensual */
       chartVdt = destroyChart(chartVdt);
       chartVdt = new Chart(document.getElementById('chart-vdt'), {
         type: 'bar',
-        data: {
-          labels: mLabels,
-          datasets:[{ label:'Revisión VDT', data:keys.map(k=>byMonth[k].vdt), backgroundColor:'rgba(201,109,26,0.25)', borderColor:'#c96d1a', borderWidth:1.5, borderRadius:4 }]
-        },
-        options: {
-          responsive:true, maintainAspectRatio:false,
-          plugins:{ legend:{ display:false } },
-          scales:{
-            x:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ font:{size:9} } },
-            y:{ grid:{ color:'rgba(255,255,255,0.05)' }, beginAtZero:true, ticks:{ font:{size:9}, precision:0 } }
-          }
-        }
+        data: { labels: mLabels, datasets: [{ label: 'Revisión VDT', data: keys.map(k => byMonth[k].vdt), backgroundColor: 'rgba(201,109,26,0.25)', borderColor: '#c96d1a', borderWidth: 1.5, borderRadius: 4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid:{ color:GRID }, ticks:{ font:{ size:9 } } }, y: { grid:{ color:GRID }, beginAtZero:true, ticks:{ font:{ size:9 }, precision:0 } } } },
       });
     }
+
+    /* ══════════════════════════════════════════
+       INICIO
+    ══════════════════════════════════════════ */
+    window.addEventListener('DOMContentLoaded', async () => {
+      await loadData();
+      const overlay = document.getElementById('loading-overlay');
+      overlay.classList.add('fade-out');
+      setTimeout(() => overlay.remove(), 400);
+    });
   </script>
 </body>
 </html>

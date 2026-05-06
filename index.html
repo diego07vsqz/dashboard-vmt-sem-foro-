@@ -11,32 +11,26 @@
        VARIABLES GLOBALES
     ══════════════════════════════════════════ */
     :root {
-      /* Fondos */
       --bg-deep:    #0f2236;
       --bg-main:    #f0f3f6;
       --bg-card:    #ffffff;
       --bg-card2:   #f7f9fb;
-      /* Bordes */
       --border:     rgba(0,0,0,0.08);
       --border2:    rgba(0,0,0,0.13);
-      /* Textos */
       --text:       #0f2236;
       --text-mid:   #3a5570;
       --text-soft:  #7a9ab0;
-      /* Paleta MOPT */
       --yellow:     #FFD100;
       --yellow-dim: rgba(255,209,0,0.15);
-      /* Paleta CCM — incidencias */
-      --amber:      #d4941a;   --amber-bg:  rgba(212,148,26,0.10);
-      --red:        #c94040;   --red-bg:    rgba(201,64,64,0.10);
-      --green:      #2a9d65;   --green-bg:  rgba(42,157,101,0.10);
-      --blue:       #3a8fd4;   --blue-bg:   rgba(58,143,212,0.10);
-      --purple:     #7c62c4;   --purple-bg: rgba(124,98,196,0.10);
+      --amber:      #d4941a;  --amber-bg:  rgba(212,148,26,0.10);
+      --red:        #c94040;  --red-bg:    rgba(201,64,64,0.10);
+      --green:      #2a9d65;  --green-bg:  rgba(42,157,101,0.10);
+      --blue:       #3a8fd4;  --blue-bg:   rgba(58,143,212,0.10);
+      --purple:     #7c62c4;  --purple-bg: rgba(124,98,196,0.10);
       --gray-bg:    rgba(100,130,150,0.09);
-      /* Forma */
-      --radius:    8px;
-      --radius-sm: 5px;
-      --shadow-sm: 0 1px 5px rgba(0,0,0,0.08);
+      --radius:     8px;
+      --radius-sm:  5px;
+      --shadow-sm:  0 1px 5px rgba(0,0,0,0.08);
     }
 
     /* ══════════════════════════════════════════
@@ -45,7 +39,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text); min-height: 100vh; }
     @keyframes spin  { to { transform: rotate(360deg); } }
-    @keyframes blink { 0%,100%{ opacity:1 } 50%{ opacity:0.2 } }
+    @keyframes blink { 0%,100%{ opacity: 1 } 50%{ opacity: 0.2 } }
 
     /* ══════════════════════════════════════════
        LOADING OVERLAY
@@ -62,38 +56,36 @@
     /* ══════════════════════════════════════════
        HEADER
     ══════════════════════════════════════════ */
-    .header        { background: var(--bg-deep); border-bottom: 2.5px solid var(--yellow); padding: 0 32px; }
-    .header-inner  { max-width: 1340px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 68px; }
-    .header-brand  { display: flex; align-items: center; gap: 14px; }
-    .divider-v     { width: 1px; height: 38px; background: rgba(255,209,0,0.25); flex-shrink: 0; }
-    .brand-title   { font-size: 15px; font-weight: 700; color: #ffffff; letter-spacing: 0.04em; line-height: 1; text-transform: uppercase; }
-    .brand-sub     { font-size: 10px; font-weight: 400; color: var(--yellow); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 5px; }
-    .header-right  { display: flex; align-items: center; gap: 10px; }
-    .live-pill     { display: flex; align-items: center; gap: 7px; background: rgba(0,0,0,0.05); border: 1px solid var(--border); border-radius: 20px; padding: 5px 13px; font-size: 11px; color: var(--text-mid); font-weight: 500; }
-    .live-dot      { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: blink 2s ease-in-out infinite; }
-    .btn-refresh   { display: flex; align-items: center; gap: 7px; background: var(--yellow-dim); border: 1px solid rgba(255,209,0,0.28); border-radius: var(--radius-sm); color: var(--yellow); font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 600; padding: 7px 15px; cursor: pointer; transition: background 0.15s; }
+    .header       { background: var(--bg-deep); border-bottom: 2.5px solid var(--yellow); padding: 0 32px; }
+    .header-inner { max-width: 1340px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 68px; }
+    .header-brand { display: flex; align-items: center; gap: 14px; }
+    .divider-v    { width: 1px; height: 38px; background: rgba(255,209,0,0.25); flex-shrink: 0; }
+    .brand-title  { font-size: 15px; font-weight: 700; color: #ffffff; letter-spacing: 0.04em; line-height: 1; text-transform: uppercase; }
+    .brand-sub    { font-size: 10px; color: var(--yellow); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 5px; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .live-pill    { display: flex; align-items: center; gap: 7px; background: rgba(0,0,0,0.05); border: 1px solid var(--border); border-radius: 20px; padding: 5px 13px; font-size: 11px; color: var(--text-mid); font-weight: 500; }
+    .live-dot     { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: blink 2s ease-in-out infinite; }
+    .btn-refresh  { display: flex; align-items: center; gap: 7px; background: var(--yellow-dim); border: 1px solid rgba(255,209,0,0.28); border-radius: var(--radius-sm); color: var(--yellow); font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 600; padding: 7px 15px; cursor: pointer; transition: background 0.15s; }
     .btn-refresh:hover { background: rgba(255,209,0,0.18); }
     .btn-refresh svg   { width: 12px; height: 12px; }
 
     /* ══════════════════════════════════════════
        FILTROS
     ══════════════════════════════════════════ */
-    .filter-bar        { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .filter-bar-inner  { max-width: 1340px; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; gap: 7px; }
-    .filter-row        { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .filter-label      { font-size: 11px; color: var(--text-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
-    .update-note       { font-size: 11px; color: var(--text-soft); white-space: nowrap; }
-    .filter-select     { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; outline: none; transition: border-color 0.15s; }
+    .filter-bar       { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .filter-bar-inner { max-width: 1340px; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; gap: 7px; }
+    .filter-row       { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .filter-label     { font-size: 11px; color: var(--text-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
+    .update-note      { font-size: 11px; color: var(--text-soft); white-space: nowrap; }
+    .filter-select    { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; outline: none; transition: border-color 0.15s; }
     .filter-select:focus  { border-color: var(--amber); }
     .filter-select option { background: var(--bg-card); color: var(--text); }
-    .date-range-group  { display: flex; align-items: center; gap: 6px; }
-    .date-range-sep    { font-size: 11px; color: var(--text-soft); }
-    .date-input        { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 8px; outline: none; cursor: pointer; transition: border-color 0.15s; color-scheme: light; }
-    .date-input:focus  { border-color: var(--amber); }
-    .btn-clear-dates   { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-soft); background: transparent; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 5px 9px; cursor: pointer; white-space: nowrap; transition: color 0.15s, border-color 0.15s; }
+    .date-range-group { display: flex; align-items: center; gap: 6px; }
+    .date-range-sep   { font-size: 11px; color: var(--text-soft); }
+    .date-input       { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 8px; outline: none; cursor: pointer; transition: border-color 0.15s; color-scheme: light; }
+    .date-input:focus { border-color: var(--amber); }
+    .btn-clear-dates  { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-soft); background: transparent; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 5px 9px; cursor: pointer; white-space: nowrap; transition: color 0.15s, border-color 0.15s; }
     .btn-clear-dates:hover { color: var(--text); border-color: var(--border2); }
-
-    /* Rango rápido */
     .range-btns        { display: flex; gap: 5px; }
     .range-btn         { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; color: var(--text-soft); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
     .range-btn:hover        { color: var(--text-mid); border-color: var(--text-soft); }
@@ -104,68 +96,53 @@
     /* ══════════════════════════════════════════
        TABS
     ══════════════════════════════════════════ */
-    .tab-bar         { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    .tab-bar-inner   { max-width: 1340px; margin: 0 auto; display: flex; }
-    .tab-btn         { display: flex; align-items: center; gap: 7px; padding: 13px 20px; font-size: 12px; font-weight: 600; color: var(--text-soft); background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: 'Inter', sans-serif; letter-spacing: 0.04em; transition: color 0.15s, border-color 0.15s; }
-    .tab-btn:hover   { color: var(--text-mid); }
-    .tab-btn.active  { color: #ffffff; border-bottom-color: #0f2236; background: #0f2236; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
-    .tab-btn svg     { width: 14px; height: 14px; }
-    .tab-panel       { display: none; }
-    .tab-panel.active{ display: block; }
+    .tab-bar        { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .tab-bar-inner  { max-width: 1340px; margin: 0 auto; display: flex; }
+    .tab-btn        { display: flex; align-items: center; gap: 7px; padding: 13px 20px; font-size: 12px; font-weight: 600; color: var(--text-soft); background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: 'Inter', sans-serif; letter-spacing: 0.04em; transition: color 0.15s, border-color 0.15s; }
+    .tab-btn:hover  { color: var(--text-mid); }
+    .tab-btn.active { color: #ffffff; border-bottom-color: #0f2236; background: #0f2236; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+    .tab-btn svg    { width: 14px; height: 14px; }
+    .tab-panel        { display: none; }
+    .tab-panel.active { display: block; }
 
     /* ══════════════════════════════════════════
        MAIN / LAYOUT
     ══════════════════════════════════════════ */
-    .main   { max-width: 1340px; margin: 0 auto; padding: 22px 32px 48px; }
-    .footer { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-soft); line-height: 1.9; }
+    .main       { max-width: 1340px; margin: 0 auto; padding: 22px 32px 48px; }
+    .footer     { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-soft); line-height: 1.9; }
+    .card       { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+    .card-title { font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .empty      { text-align: center; padding: 36px 20px; color: var(--text-soft); font-size: 13px; }
 
     /* ══════════════════════════════════════════
        KPI CARDS
     ══════════════════════════════════════════ */
-    .kpi-grid        { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
-    .kpi-card        { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 18px 17px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; transition: border-color 0.15s, background 0.15s; }
-    .kpi-card:hover  { border-color: var(--border2); background: var(--bg-card2); }
-    .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 2px 2px 0 0; }
-    .kpi-card.k-yellow::after { background: var(--yellow); }
-    .kpi-card.k-red::after    { background: var(--red); }
-    .kpi-card.k-green::after  { background: var(--green); }
-    .kpi-card.k-blue::after   { background: var(--blue); }
-    .kpi-card.k-purple::after { background: var(--purple); }
-    .kpi-card.k-teal::after   { background: #2a5466; }
-    .kpi-card.k-orange::after { background: #c96d1a; }
+    .kpi-grid       { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .kpi-card       { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 18px 17px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; transition: border-color 0.15s, background 0.15s; }
+    .kpi-card:hover { border-color: var(--border2); background: var(--bg-card2); }
+    .kpi-card::after            { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 2px 2px 0 0; }
+    .kpi-card.k-yellow::after   { background: var(--yellow); }
+    .kpi-card.k-red::after      { background: var(--red); }
+    .kpi-card.k-green::after    { background: var(--green); }
+    .kpi-card.k-blue::after     { background: var(--blue); }
+    .kpi-card.k-purple::after   { background: var(--purple); }
+    .kpi-card.k-teal::after     { background: #2a5466; }
+    .kpi-card.k-orange::after   { background: #c96d1a; }
     .kpi-icon  { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
     .kpi-icon svg { width: 24px; height: 24px; }
     .kpi-num   { font-size: 33px; font-weight: 700; font-family: 'JetBrains Mono', monospace; line-height: 1; color: var(--text); margin-bottom: 7px; }
     .kpi-label { font-size: 10.5px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.06em; }
 
     /* ══════════════════════════════════════════
-       CONTENT GRID
+       TABLA DE EVENTOS
     ══════════════════════════════════════════ */
-    .content-grid { display: grid; grid-template-columns: 290px 1fr; gap: 12px; }
-    @media (max-width: 960px) { .content-grid { grid-template-columns: 1fr; } }
-    .card       { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
-    .card-title { font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-
-    /* Barras de distribución */
-    .bar-item  { margin-bottom: 10px; }
-    .bar-meta  { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-mid); margin-bottom: 5px; }
-    .bar-meta span:last-child { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text); }
-    .bar-track { background: rgba(0,0,0,0.07); border-radius: 3px; height: 6px; overflow: hidden; }
-    .bar-fill  { height: 100%; border-radius: 3px; transition: width 0.55s ease; }
-
-    /* ══════════════════════════════════════════
-       TABLA
-    ══════════════════════════════════════════ */
-    .table-scroll        { overflow-x: auto; }
-    table                { width: 100%; border-collapse: collapse; font-size: 12px; }
-    thead th             { text-align: left; padding: 8px 10px; font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1.5px solid var(--border); white-space: nowrap; background: var(--bg-card2); }
-    tbody td             { padding: 9px 10px; color: var(--text-mid); border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .table-scroll          { overflow-x: auto; }
+    table                  { width: 100%; border-collapse: collapse; font-size: 12px; }
+    thead th               { text-align: left; padding: 8px 10px; font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1.5px solid var(--border); white-space: nowrap; background: var(--bg-card2); }
+    tbody td               { padding: 9px 10px; color: var(--text-mid); border-bottom: 1px solid var(--border); vertical-align: middle; }
     tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover td    { background: rgba(0,0,0,0.025); }
+    tbody tr:hover td      { background: rgba(0,0,0,0.025); }
     .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--blue); font-weight: 500; }
-    .empty    { text-align: center; padding: 36px 20px; color: var(--text-soft); font-size: 13px; }
-
-    /* Badges */
     .badge    { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 10px; font-weight: 600; white-space: nowrap; }
     .b-amber  { background: var(--amber-bg);       color: var(--amber); }
     .b-red    { background: var(--red-bg);         color: var(--red); }
@@ -176,11 +153,29 @@
     .b-orange { background: rgba(201,109,26,0.18); color: #c96d1a; }
 
     /* ══════════════════════════════════════════
-       GRÁFICAS
+       TARJETAS DE RESUMEN (Dashboard)
     ══════════════════════════════════════════ */
-    .charts-grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-    @media (max-width: 800px) { .charts-grid-2x2 { grid-template-columns: 1fr; } }
+    .summary-grid            { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    @media (max-width: 700px){ .summary-grid { grid-template-columns: 1fr; } }
+    .activity-row            { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 12px; color: var(--text-mid); border-bottom: 1px solid var(--border); }
+    .activity-row:last-child { border-bottom: none; }
+    .activity-row .a-label   { display: flex; align-items: center; gap: 7px; }
+    .activity-row .a-val     { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--text); }
+    .a-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+
+    /* ══════════════════════════════════════════
+       PESTAÑA GRÁFICAS
+    ══════════════════════════════════════════ */
+    .charts-grid-3col  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    @media (max-width: 1100px) { .charts-grid-3col { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 700px)  { .charts-grid-3col { grid-template-columns: 1fr; } }
     .chart-wrap { position: relative; height: 260px; }
+    .dist-item  { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+    .dist-item:last-child { border-bottom: none; }
+    .dist-dot   { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dist-label { flex: 1; font-size: 12px; color: var(--text-mid); }
+    .dist-val   { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text); }
+    .dist-pct   { font-size: 10px; color: var(--text-soft); min-width: 36px; text-align: right; }
   </style>
 </head>
 <body>
@@ -297,27 +292,35 @@
   <!-- PANEL: DASHBOARD -->
   <div class="tab-panel active" id="panel-dashboard">
     <main class="main">
+
       <div class="kpi-grid" id="kpi-grid"></div>
-      <div class="content-grid">
-        <div class="card">
-          <div class="card-title">Distribución de incidencias</div>
-          <div id="bar-chart"></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Registro de eventos recientes</div>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Fecha</th><th>Hora</th><th>Código</th>
-                  <th>Reporte</th><th>Incidencia</th><th>Dirección</th>
-                </tr>
-              </thead>
-              <tbody id="tabla-body"></tbody>
-            </table>
-          </div>
+
+      <div class="card" style="margin-bottom:12px;">
+        <div class="card-title">Registro de eventos recientes</div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th><th>Hora</th><th>Código</th>
+                <th>Reporte</th><th>Incidencia</th><th>Dirección</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-body"></tbody>
+          </table>
         </div>
       </div>
+
+      <div class="summary-grid">
+        <div class="card">
+          <div class="card-title">Top incidencias — período</div>
+          <div id="summary-top"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Registros por tipo de reporte</div>
+          <div id="summary-reporte"></div>
+        </div>
+      </div>
+
       <div class="footer">
         Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte<br>
         Información obtenida en tiempo real desde la base de datos institucional
@@ -328,7 +331,8 @@
   <!-- PANEL: GRÁFICAS -->
   <div class="tab-panel" id="panel-graficas">
     <main class="main">
-      <div class="charts-grid-2x2">
+
+      <div class="charts-grid-3col">
         <div class="card">
           <div class="card-title">Incidencias por tipo</div>
           <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
@@ -338,14 +342,16 @@
           <div class="chart-wrap"><canvas id="chart-donut"></canvas></div>
         </div>
         <div class="card">
-          <div class="card-title">Tendencia mensual — Forzamiento vs Apagado</div>
-          <div class="chart-wrap"><canvas id="chart-line"></canvas></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Revisión VDT — Actividad mensual</div>
-          <div class="chart-wrap"><canvas id="chart-vdt"></canvas></div>
+          <div class="card-title">Distribución de incidencias</div>
+          <div id="dist-numerica" style="overflow-y:auto; max-height:260px;"></div>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-title">Tendencia mensual — Forzamiento vs Apagado</div>
+        <div class="chart-wrap"><canvas id="chart-line"></canvas></div>
+      </div>
+
       <div class="footer">
         Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte<br>
         Información obtenida en tiempo real desde la base de datos institucional
@@ -364,18 +370,17 @@
     /* ══════════════════════════════════════════
        CATÁLOGO DE INCIDENCIAS
        Fuente única de verdad: label, badge y color.
-       Se eliminó COLOR_MAP redundante.
     ══════════════════════════════════════════ */
     const TIPOS = {
       'forzamiento de tiempos': { label:'Forzamiento de Tiempos', badge:'b-amber',  color:'#d4941a' },
       'forzamiento de tiempo':  { label:'Forzamiento de Tiempos', badge:'b-amber',  color:'#d4941a' },
       'apagado':                { label:'Apagado',                badge:'b-red',    color:'#c94040' },
-      'mejora de tiempo':       { label:'Mejora de Tiempo',       badge:'b-green',  color:'#2a9d65' },
-      'mejora de tiempos':      { label:'Mejora de Tiempo',       badge:'b-green',  color:'#2a9d65' },
+      'mejora de tiempo':       { label:'Mejora de Tiempo',       badge:'b-green',  color:'#16a34a' },
+      'mejora de tiempos':      { label:'Mejora de Tiempo',       badge:'b-green',  color:'#16a34a' },
       'intermitencia':          { label:'Intermitencia',          badge:'b-blue',   color:'#3a8fd4' },
       'error de comunicación':  { label:'Error de Comunicación',  badge:'b-purple', color:'#7c62c4' },
       'error de comunicacion':  { label:'Error de Comunicación',  badge:'b-purple', color:'#7c62c4' },
-      'funcionamiento':         { label:'Funcionamiento',         badge:'b-green',  color:'#2a9d65' },
+      'funcionamiento':         { label:'Funcionamiento',         badge:'b-green',  color:'#0d9488' },
       'programa':               { label:'Programa',               badge:'b-purple', color:'#7c62c4' },
       'accidente':              { label:'Apoyo en Accidentes',    badge:'b-red',    color:'#c94040' },
       'vdt volumen':            { label:'VDT Volumen',            badge:'b-orange', color:'#c96d1a' },
@@ -393,8 +398,7 @@
     const countKw  = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
 
     /* ══════════════════════════════════════════
-       ÍCONOS SVG
-       Definidos una sola vez, reutilizados en renderKPIs.
+       ÍCONOS SVG — definidos una sola vez
     ══════════════════════════════════════════ */
     const ICONS = {
       forzamiento: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -405,7 +409,6 @@
         <path d="M7,6 L4,6 M4,6 Q2.5,6 2.5,7.5 L2.5,9 Q2.5,10 4,10 L7,10"         stroke="#d4941a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
         <path d="M17,6 L20,6 M20,6 Q21.5,6 21.5,7.5 L21.5,9 Q21.5,10 20,10 L17,10" stroke="#d4941a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
       </svg>`,
-
       apagado: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#c94040" stroke-width="1.5"/>
         <circle cx="12" cy="7"  r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
@@ -413,12 +416,10 @@
         <circle cx="12" cy="17" r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
         <line x1="6" y1="2" x2="18" y2="22" stroke="#c94040" stroke-width="1.5" stroke-linecap="round"/>
       </svg>`,
-
       mejora: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <polyline points="2 17 8.5 10.5 13.5 15.5 22 7" stroke="#2a9d65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <polyline points="16 7 22 7 22 13"               stroke="#2a9d65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>`,
-
       intermitencia: `<svg viewBox="0 0 28 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M8,12 L3,12 M3,12 Q1,12 1,10 L1,8 Q1,6 3,6 L8,6"       stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round" fill="none"/>
         <path d="M20,12 L25,12 M25,12 Q27,12 27,10 L27,8 Q27,6 25,6 L20,6" stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round" fill="none"/>
@@ -431,13 +432,11 @@
         <circle cx="14" cy="12" r="5.5" fill="rgba(58,143,212,0.18)" stroke="#3a8fd4" stroke-width="1.4"/>
         <circle cx="14" cy="12" r="3"   fill="#3a8fd4"/>
       </svg>`,
-
       error: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="#7c62c4" stroke-width="1.6" stroke-linejoin="round" fill="rgba(124,98,196,0.15)"/>
         <line x1="12" y1="9"  x2="12" y2="13" stroke="#7c62c4" stroke-width="1.8" stroke-linecap="round"/>
         <circle cx="12" cy="17" r="0.8" fill="#7c62c4"/>
       </svg>`,
-
       accidente: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px;">
         <circle cx="15" cy="4" r="2.2" fill="#c94040"/>
         <path d="M15 6.8 L13 11.5 L10 14.5"  stroke="#c94040" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -451,14 +450,12 @@
         <line x1="18.5" y1="11.8" x2="18.5" y2="13.2" stroke="#c94040" stroke-width="1.2" stroke-linecap="round"/>
         <circle cx="18.5" cy="14.2" r="0.5" fill="#c94040"/>
       </svg>`,
-
       total: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="3"  y="3"  width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
         <rect x="14" y="3"  width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
         <rect x="14" y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
         <rect x="3"  y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
       </svg>`,
-
       vdt: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M23 7 L16 12 L23 17 Z" fill="rgba(201,109,26,0.25)" stroke="#c96d1a" stroke-width="1.5" stroke-linejoin="round"/>
         <rect x="1" y="5" width="15" height="14" rx="2.5" fill="none" stroke="#c96d1a" stroke-width="1.6"/>
@@ -475,7 +472,6 @@
     let chartBar         = null;
     let chartDonut       = null;
     let chartLine        = null;
-    let chartVdt         = null;
 
     /* ══════════════════════════════════════════
        CARGA DE DATOS
@@ -519,7 +515,7 @@
     }
 
     /* ══════════════════════════════════════════
-       FILTROS
+       FILTROS Y RANGO DE FECHAS
     ══════════════════════════════════════════ */
     function clearDates() {
       document.getElementById('f-fecha-ini').value = '';
@@ -541,11 +537,11 @@
     }
 
     function setRange(rango) {
-      const hoy   = new Date();
-      const y     = hoy.getFullYear();
-      const m     = hoy.getMonth();
-      const fmt   = d => d.toISOString().slice(0, 10);
-      const warn  = document.getElementById('range-warning');
+      const hoy  = new Date();
+      const y    = hoy.getFullYear();
+      const m    = hoy.getMonth();
+      const fmt  = d => d.toISOString().slice(0, 10);
+      const warn = document.getElementById('range-warning');
 
       const rangos = {
         mes:  { ini: new Date(y, m,     1), fin: new Date(y, m + 1, 0) },
@@ -591,8 +587,8 @@
 
       lastFilteredRows = filtered;
       renderKPIs(filtered);
-      renderBars(filtered);
       renderTable(filtered);
+      renderSummary(filtered);
       if (document.getElementById('panel-graficas').classList.contains('active')) {
         renderCharts(filtered);
       }
@@ -623,30 +619,6 @@
     }
 
     /* ══════════════════════════════════════════
-       RENDER: BARRAS DE DISTRIBUCIÓN
-    ══════════════════════════════════════════ */
-    function renderBars(rows) {
-      const counts = {};
-      rows.forEach(r => {
-        const t = getTipo(r.incidencia);
-        counts[t.label] = (counts[t.label] || 0) + 1;
-      });
-      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
-      const max    = sorted[0]?.[1] || 1;
-
-      document.getElementById('bar-chart').innerHTML = sorted.length
-        ? sorted.map(([label, val]) =>
-            `<div class="bar-item">
-               <div class="bar-meta"><span>${label}</span><span>${val}</span></div>
-               <div class="bar-track">
-                 <div class="bar-fill" style="width:${Math.round(val / max * 100)}%; background:${getColor(label)};"></div>
-               </div>
-             </div>`
-          ).join('')
-        : '<div class="empty">Sin datos para el filtro seleccionado</div>';
-    }
-
-    /* ══════════════════════════════════════════
        RENDER: TABLA DE EVENTOS
     ══════════════════════════════════════════ */
     function renderTable(rows) {
@@ -667,6 +639,39 @@
     }
 
     /* ══════════════════════════════════════════
+       RENDER: TARJETAS DE RESUMEN (Dashboard)
+    ══════════════════════════════════════════ */
+    function renderSummary(rows) {
+      /* Helper: fila de actividad reutilizable */
+      const rowHtml = (color, label, extra, val) =>
+        `<div class="activity-row">
+           <span class="a-label"><span class="a-dot" style="background:${color}"></span>${label}</span>
+           <span style="display:flex; align-items:center; gap:8px;">${extra}<span class="a-val">${val}</span></span>
+         </div>`;
+
+      /* Top incidencias del período */
+      const counts = {};
+      rows.forEach(r => { const t = getTipo(r.incidencia); counts[t.label] = (counts[t.label] || 0) + 1; });
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+      document.getElementById('summary-top').innerHTML =
+        sorted.slice(0, 6).map(([label, val]) => rowHtml(getColor(label), label, '', val)).join('')
+        || '<div class="empty">Sin datos</div>';
+
+      /* Registros por tipo de reporte */
+      const REP_COLORS = { Planeamiento:'#3a8fd4', Monitoreo:'#7c62c4', Spinnaker:'#d4941a' };
+      const repCount   = {};
+      rows.forEach(r => { const k = r.reporte || 'Sin reporte'; repCount[k] = (repCount[k] || 0) + 1; });
+
+      document.getElementById('summary-reporte').innerHTML =
+        Object.entries(repCount).sort((a, b) => b[1] - a[1]).map(([rep, val]) => {
+          const pct   = Math.round(val / (rows.length || 1) * 100);
+          const extra = `<span style="font-size:10px; color:var(--text-soft)">${pct}%</span>`;
+          return rowHtml(REP_COLORS[rep] || '#5a8a9f', rep, extra, val);
+        }).join('') || '<div class="empty">Sin datos</div>';
+    }
+
+    /* ══════════════════════════════════════════
        TABS
     ══════════════════════════════════════════ */
     function switchTab(name) {
@@ -684,13 +689,14 @@
     Chart.defaults.font.family = "'Inter', sans-serif";
     Chart.defaults.font.size   = 11;
 
-    const GRID      = 'rgba(0,0,0,0.07)';
+    const GRID_COLOR   = 'rgba(0,0,0,0.07)';
     const destroyChart = c => { if (c) try { c.destroy(); } catch (e) {} return null; };
     const scaleOpts    = (sz = 10) => ({
-      x: { grid: { color: GRID }, ticks: { font: { size: sz } } },
-      y: { grid: { color: GRID }, ticks: { font: { size: sz } } },
+      x: { grid: { color: GRID_COLOR }, ticks: { font: { size: sz } } },
+      y: { grid: { color: GRID_COLOR }, ticks: { font: { size: sz } } },
     });
 
+    /* Agrupa por mes y cuenta forzamiento y apagado */
     function buildMonthKeys(rows) {
       const MESES   = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
       const byMonth = {};
@@ -698,18 +704,37 @@
         const p = r.fecha.split('/');
         if (p.length < 3) return;
         const key = `${p[2]}-${String(p[1]).padStart(2, '0')}`;
-        if (!byMonth[key]) byMonth[key] = { forz: 0, apagado: 0, vdt: 0 };
+        if (!byMonth[key]) byMonth[key] = { forz: 0, apagado: 0 };
         if (r.incidencia.toLowerCase().includes('forzamiento')) byMonth[key].forz++;
         if (r.incidencia.toLowerCase().includes('apagado'))     byMonth[key].apagado++;
-        if (r.incidencia.toLowerCase().includes('vdt volumen')) byMonth[key].vdt++;
       });
       const keys   = Object.keys(byMonth).sort().slice(-12);
       const labels = keys.map(k => { const [y, m] = k.split('-'); return `${MESES[+m]} ${y.slice(2)}`; });
       return { labels, keys, byMonth };
     }
 
+    /* Tabla numérica en pestaña Gráficas */
+    function renderDistNumerica(rows) {
+      const counts = {};
+      rows.forEach(r => { const t = getTipo(r.incidencia); counts[t.label] = (counts[t.label] || 0) + 1; });
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      const total  = rows.length || 1;
+
+      document.getElementById('dist-numerica').innerHTML = sorted.length
+        ? sorted.map(([label, val]) => {
+            const pct = Math.round(val / total * 100);
+            return `<div class="dist-item">
+              <div class="dist-dot" style="background:${getColor(label)}"></div>
+              <div class="dist-label">${label}</div>
+              <div class="dist-val">${val}</div>
+              <div class="dist-pct">${pct}%</div>
+            </div>`;
+          }).join('')
+        : '<div class="empty">Sin datos</div>';
+    }
+
     function renderCharts(rows) {
-      /* Datos compartidos barra + donut */
+      /* Datos compartidos: barra y doughnut */
       const counts = {};
       rows.forEach(r => { const t = getTipo(r.incidencia); counts[t.label] = (counts[t.label] || 0) + 1; });
       const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
@@ -717,7 +742,8 @@
       const values = sorted.map(([, v]) => v);
       const colors = labels.map(getColor);
 
-      /* Barras por tipo */
+      renderDistNumerica(rows);
+
       chartBar = destroyChart(chartBar);
       chartBar = new Chart(document.getElementById('chart-bar'), {
         type: 'bar',
@@ -725,7 +751,6 @@
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: scaleOpts(10) },
       });
 
-      /* Doughnut */
       chartDonut = destroyChart(chartDonut);
       chartDonut = new Chart(document.getElementById('chart-donut'), {
         type: 'doughnut',
@@ -733,7 +758,6 @@
         options: { responsive: true, maintainAspectRatio: false, cutout: '56%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, padding: 8, font: { size: 9 } } } } },
       });
 
-      /* Línea tendencia mensual */
       const { labels: mLabels, keys, byMonth } = buildMonthKeys(rows);
       chartLine = destroyChart(chartLine);
       chartLine = new Chart(document.getElementById('chart-line'), {
@@ -746,14 +770,6 @@
           ],
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { boxWidth: 9, padding: 8, font: { size: 9 } } } }, scales: scaleOpts(9) },
-      });
-
-      /* Barras VDT mensual */
-      chartVdt = destroyChart(chartVdt);
-      chartVdt = new Chart(document.getElementById('chart-vdt'), {
-        type: 'bar',
-        data: { labels: mLabels, datasets: [{ label: 'Revisión VDT', data: keys.map(k => byMonth[k].vdt), backgroundColor: 'rgba(201,109,26,0.25)', borderColor: '#c96d1a', borderWidth: 1.5, borderRadius: 4 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid:{ color:GRID }, ticks:{ font:{ size:9 } } }, y: { grid:{ color:GRID }, beginAtZero:true, ticks:{ font:{ size:9 }, precision:0 } } } },
       });
     }
 

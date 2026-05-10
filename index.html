@@ -135,22 +135,25 @@
 
     /* ══════════════════════════════════════════
        DASHBOARD — LAYOUT PRINCIPAL
-       Izquierda: resumen Normal/Extraordinario
-       Derecha: tabla de eventos (reducida)
+       Izquierda: Normal/Extraordinario (col L)
+       Derecha:   tabla de eventos reducida
     ══════════════════════════════════════════ */
     .dashboard-grid { display: grid; grid-template-columns: 280px 1fr; gap: 12px; }
     @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
 
     /* Tarjeta Normal / Extraordinario */
-    .norex-section { margin-bottom: 12px; }
-    .norex-item    { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .norex-item            { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
     .norex-item:last-child { border-bottom: none; }
-    .norex-label   { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-mid); font-weight: 500; }
-    .norex-icon    { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .norex-val     { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--text); }
-    .norex-sub     { font-size: 10px; color: var(--text-soft); margin-top: 2px; }
+    .norex-label           { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-mid); font-weight: 500; }
+    .norex-icon            { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .norex-val             { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; }
+    .norex-sub             { font-size: 10px; color: var(--text-soft); margin-top: 2px; }
+    .norex-desglose-title  { font-size: 9.5px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 0 6px; border-top: 1px solid var(--border); margin-top: 4px; }
+    .norex-desglose-row    { display: flex; justify-content: space-between; padding: 4px 0 4px 36px; font-size: 11px; color: var(--text-soft); border-bottom: 1px solid var(--border); }
+    .norex-desglose-row:last-child { border-bottom: none; }
+    .norex-desglose-val    { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-mid); }
 
-    /* Tabla de eventos (reducida) */
+    /* Tabla de eventos */
     .table-scroll          { overflow-x: auto; }
     table                  { width: 100%; border-collapse: collapse; font-size: 12px; }
     thead th               { text-align: left; padding: 7px 9px; font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1.5px solid var(--border); white-space: nowrap; background: var(--bg-card2); }
@@ -176,8 +179,6 @@
     @media (max-width: 1100px) { .charts-grid-3col { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 700px)  { .charts-grid-3col { grid-template-columns: 1fr; } }
     .chart-wrap { position: relative; height: 260px; }
-
-    /* Distribución numérica (sin porcentaje) */
     .dist-item  { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
     .dist-item:last-child { border-bottom: none; }
     .dist-dot   { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
@@ -300,19 +301,17 @@
   <div class="tab-panel active" id="panel-dashboard">
     <main class="main">
 
-      <!-- KPI Cards -->
       <div class="kpi-grid" id="kpi-grid"></div>
 
-      <!-- Layout: izquierda Normal/Extraordinario · derecha tabla reducida -->
       <div class="dashboard-grid">
 
-        <!-- Columna izquierda: Normal vs Extraordinario -->
+        <!-- Izquierda: Normal vs Extraordinario (fuente: col L = Anomalia) -->
         <div class="card">
           <div class="card-title">Tipo de registro — período</div>
           <div id="norex-panel"></div>
         </div>
 
-        <!-- Columna derecha: tabla de eventos recientes -->
+        <!-- Derecha: tabla de eventos recientes -->
         <div class="card">
           <div class="card-title">Registro de eventos recientes</div>
           <div class="table-scroll">
@@ -341,7 +340,6 @@
   <div class="tab-panel" id="panel-graficas">
     <main class="main">
 
-      <!-- Fila superior: Barras + Pastel + Distribución numérica (sin porcentaje) -->
       <div class="charts-grid-3col">
         <div class="card">
           <div class="card-title">Incidencias por tipo</div>
@@ -357,7 +355,6 @@
         </div>
       </div>
 
-      <!-- Tendencia mensual a ancho completo -->
       <div class="card">
         <div class="card-title">Tendencia mensual — Forzamiento vs Apagado</div>
         <div class="chart-wrap"><canvas id="chart-line"></canvas></div>
@@ -373,13 +370,23 @@
   <script>
     /* ══════════════════════════════════════════
        CONFIGURACIÓN
+       Índices de columna del Sheet (base 0):
+       A=0  FECHA       B=1  HORA        C=2  CÓDIGO
+       D=3  REPORTO     E=4  INCIDENCIA  G=6  DIRECCIÓN
+       K=10 OPERADOR    L=11 ANOMALIA (Normal / Extraordinario)
     ══════════════════════════════════════════ */
     const SHEET_ID   = "1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU";
     const SHEET_NAME = "P. Semaforico";
-    const COL        = { FECHA:0, HORA:1, CODIGO:2, REPORTE:3, INCIDENCIA:4, DIR:6 };
-
-    /* Reportes que se consideran "Normal" — cualquier otro es "Extraordinario" */
-    const REPORTES_NORMAL = new Set(['planeamiento', 'monitoreo', 'spinnaker']);
+    const COL = {
+      FECHA:      0,
+      HORA:       1,
+      CODIGO:     2,
+      REPORTE:    3,
+      INCIDENCIA: 4,
+      DIR:        6,
+      OPERADOR:   10,  // col K — nombre del operador en turno
+      ANOMALIA:   11,  // col L — valor: "Normal" o "Extraordinario"
+    };
 
     /* ══════════════════════════════════════════
        CATÁLOGO DE INCIDENCIAS
@@ -410,7 +417,9 @@
     const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw, badge: 'b-gray', color: '#4e6e80' };
     const getColor = label => Object.values(TIPOS).find(t => t.label === label)?.color ?? '#4e6e80';
     const countKw  = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
-    const isNormal = r => REPORTES_NORMAL.has((r.reporte || '').toLowerCase().trim());
+
+    /* Clasifica según col L (Anomalia): "normal" → true, cualquier otro → false */
+    const isNormal = r => (r.anomalia || '').toLowerCase().trim() === 'normal';
 
     /* ══════════════════════════════════════════
        ÍCONOS SVG — definidos una sola vez
@@ -512,6 +521,8 @@
               reporte:    get(COL.REPORTE),
               incidencia: get(COL.INCIDENCIA),
               dir:        get(COL.DIR),
+              operador:   get(COL.OPERADOR),  // col K
+              anomalia:   get(COL.ANOMALIA),  // col L → "Normal" / "Extraordinario"
             };
           })
           .filter(r => r.fecha || r.codigo);
@@ -635,70 +646,68 @@
 
     /* ══════════════════════════════════════════
        RENDER: NORMAL vs EXTRAORDINARIO
-       Normal    = Planeamiento, Monitoreo, Spinnaker
-       Extraordinario = cualquier otro reporte
+       Clasificación: col L (anomalia) = "Normal" o "Extraordinario"
+       Desglose:      col K (operador) — nombre del operador en turno
     ══════════════════════════════════════════ */
     function renderNorEx(rows) {
       const normal = rows.filter(isNormal);
       const extra  = rows.filter(r => !isNormal(r));
 
-      /* Desglose de extraordinarios por nombre de operador */
-      const extraDesglose = {};
+      /* Conteo agrupado por operador (col K) */
+      const desgloseMap = {};
       extra.forEach(r => {
-        const k = r.reporte || 'Sin reporte';
-        extraDesglose[k] = (extraDesglose[k] || 0) + 1;
+        const k = r.operador || 'Sin operador';
+        desgloseMap[k] = (desgloseMap[k] || 0) + 1;
       });
-      const extraItems = Object.entries(extraDesglose)
+
+      const desgloseItems = Object.entries(desgloseMap)
         .sort((a, b) => b[1] - a[1])
         .map(([nombre, val]) =>
-          `<div style="display:flex; justify-content:space-between; padding:4px 0 4px 36px; font-size:11px; color:var(--text-soft); border-bottom:1px solid var(--border);">
+          `<div class="norex-desglose-row">
              <span>${nombre}</span>
-             <span style="font-family:'JetBrains Mono',monospace; font-weight:600; color:var(--text-mid);">${val}</span>
+             <span class="norex-desglose-val">${val}</span>
            </div>`
         ).join('');
 
+      const desgloseHtml = Object.keys(desgloseMap).length > 0
+        ? `<div class="norex-desglose-title">Desglose extraordinarios</div>${desgloseItems}`
+        : '';
+
       document.getElementById('norex-panel').innerHTML = `
-        <div class="norex-section">
-          <div class="norex-item">
-            <div class="norex-label">
-              <div class="norex-icon" style="background:rgba(58,143,212,0.12);">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#3a8fd4" stroke-width="2" stroke-linecap="round" width="16" height="16">
-                  <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                </svg>
-              </div>
-              <div>
-                <div>Normal</div>
-                <div class="norex-sub">Planeamiento · Monitoreo · Spinnaker</div>
-              </div>
+        <div class="norex-item">
+          <div class="norex-label">
+            <div class="norex-icon" style="background:rgba(58,143,212,0.12);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#3a8fd4" stroke-width="2" stroke-linecap="round" width="16" height="16">
+                <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
             </div>
-            <div class="norex-val" style="color:#3a8fd4;">${normal.length}</div>
-          </div>
-          <div class="norex-item" style="border-bottom:none;">
-            <div class="norex-label">
-              <div class="norex-icon" style="background:rgba(201,109,26,0.12);">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#c96d1a" stroke-width="2" stroke-linecap="round" width="16" height="16">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-              </div>
-              <div>
-                <div>Extraordinario</div>
-                <div class="norex-sub">Otros operadores</div>
-              </div>
+            <div>
+              <div>Normal</div>
+              <div class="norex-sub">Planeamiento · Monitoreo · Spinnaker</div>
             </div>
-            <div class="norex-val" style="color:#c96d1a;">${extra.length}</div>
           </div>
+          <div class="norex-val" style="color:#3a8fd4;">${normal.length}</div>
         </div>
-        ${extraDesglose && Object.keys(extraDesglose).length > 0 ? `
-          <div style="font-size:9.5px; font-weight:700; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.08em; padding:10px 0 6px; border-top:1px solid var(--border);">
-            Desglose extraordinarios
+        <div class="norex-item" style="border-bottom:none;">
+          <div class="norex-label">
+            <div class="norex-icon" style="background:rgba(201,109,26,0.12);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#c96d1a" stroke-width="2" stroke-linecap="round" width="16" height="16">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <div>
+              <div>Extraordinario</div>
+              <div class="norex-sub">Otros operadores</div>
+            </div>
           </div>
-          ${extraItems}
-        ` : ''}
+          <div class="norex-val" style="color:#c96d1a;">${extra.length}</div>
+        </div>
+        ${desgloseHtml}
       `;
     }
 
     /* ══════════════════════════════════════════
-       RENDER: TABLA DE EVENTOS (reducida a 15 filas)
+       RENDER: TABLA DE EVENTOS (últimos 15)
     ══════════════════════════════════════════ */
     function renderTable(rows) {
       const items = [...rows].slice(-30).reverse().slice(0, 15);

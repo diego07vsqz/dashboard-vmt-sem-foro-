@@ -4,216 +4,556 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Unidad de Planeamiento Semafórico — CCM</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+ 
   <style>
-    /* ══════════════════════════════════════════
+    /* ═══════════════════════════════════════════════
        VARIABLES GLOBALES
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════════════ */
     :root {
-      --bg-deep:    #0f2236;
-      --bg-main:    #f0f3f6;
+      /* Paleta base */
+      --bg-deep:    #0d1b2e;
+      --bg-main:    #eef1f6;
       --bg-card:    #ffffff;
-      --bg-card2:   #f7f9fb;
-      --border:     rgba(0,0,0,0.08);
-      --border2:    rgba(0,0,0,0.13);
-      --text:       #0f2236;
-      --text-mid:   #3a5570;
-      --text-soft:  #7a9ab0;
-      --yellow:     #FFD100;
-      --yellow-dim: rgba(255,209,0,0.15);
-      --amber:      #d4941a;  --amber-bg:  rgba(212,148,26,0.10);
-      --red:        #c94040;  --red-bg:    rgba(201,64,64,0.10);
-      --green:      #2a9d65;  --green-bg:  rgba(42,157,101,0.10);
-      --blue:       #3a8fd4;  --blue-bg:   rgba(58,143,212,0.10);
-      --purple:     #7c62c4;  --purple-bg: rgba(124,98,196,0.10);
-      --gray-bg:    rgba(100,130,150,0.09);
-      --radius:     8px;
-      --radius-sm:  5px;
-      --shadow-sm:  0 1px 5px rgba(0,0,0,0.08);
+      --bg-card2:   #f6f8fc;
+      --bg-sidebar: #f0f4fa;
+ 
+      /* Bordes */
+      --border:     rgba(0,0,0,0.07);
+      --border2:    rgba(0,0,0,0.12);
+ 
+      /* Tipografía */
+      --text:       #111827;
+      --text-mid:   #374151;
+      --text-soft:  #6b7280;
+      --text-muted: #9ca3af;
+ 
+      /* Colores de acento */
+      --yellow:     #f59e0b;
+      --yellow-dim: rgba(245,158,11,0.12);
+      --amber:      #d97706;   --amber-bg: rgba(217,119,6,0.10);
+      --red:        #dc2626;   --red-bg:   rgba(220,38,38,0.10);
+      --green:      #16a34a;   --green-bg: rgba(22,163,74,0.10);
+      --blue:       #2563eb;   --blue-bg:  rgba(37,99,235,0.10);
+      --purple:     #7c3aed;   --purple-bg:rgba(124,58,237,0.10);
+      --teal:       #0d9488;   --teal-bg:  rgba(13,148,136,0.10);
+      --orange:     #ea580c;   --orange-bg:rgba(234,88,12,0.10);
+ 
+      /* Forma */
+      --radius:    10px;
+      --radius-sm:  6px;
+      --radius-lg: 14px;
+ 
+      /* Sombras */
+      --shadow-xs: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
+ 
+      /* Cabecera */
+      --header-h: 64px;
     }
-
-    /* ══════════════════════════════════════════
+ 
+    /* ═══════════════════════════════════════════════
        RESET Y BASE
-    ══════════════════════════════════════════ */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text); min-height: 100vh; }
-    @keyframes spin  { to { transform: rotate(360deg); } }
-    @keyframes blink { 0%,100%{ opacity: 1 } 50%{ opacity: 0.2 } }
-
-    /* ══════════════════════════════════════════
+    ═══════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    body {
+      font-family: 'Figtree', sans-serif;
+      background: var(--bg-main);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+ 
+    /* ═══════════════════════════════════════════════
+       ANIMACIONES
+    ═══════════════════════════════════════════════ */
+    @keyframes spin      { to { transform: rotate(360deg); } }
+    @keyframes blink     { 0%,100%{ opacity:1 } 50%{ opacity:0.25 } }
+    @keyframes fadeIn    { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes countUp   { from { opacity:0; } to { opacity:1; } }
+    @keyframes shimmer   {
+      0%   { background-position: -600px 0; }
+      100% { background-position:  600px 0; }
+    }
+ 
+    /* ═══════════════════════════════════════════════
        LOADING OVERLAY
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════════════ */
     #loading-overlay {
-      position: fixed; inset: 0; background: var(--bg-deep);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 18px; z-index: 9999; transition: opacity 0.35s;
+      position: fixed; inset: 0;
+      background: var(--bg-deep);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 20px; z-index: 9999;
+      transition: opacity 0.4s ease;
     }
     #loading-overlay.fade-out { opacity: 0; pointer-events: none; }
-    .spinner     { width: 38px; height: 38px; border: 3px solid rgba(255,209,0,0.18); border-top-color: var(--yellow); border-radius: 50%; animation: spin 0.75s linear infinite; }
-    .loading-msg { font-size: 12px; color: var(--text-soft); letter-spacing: 0.08em; text-transform: uppercase; }
-
-    /* ══════════════════════════════════════════
+ 
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(245,158,11,0.15);
+      border-top-color: var(--yellow);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .loading-msg {
+      font-size: 11.5px; color: #6b7280;
+      letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500;
+    }
+    .loading-brand {
+      font-size: 15px; font-weight: 700; color: #ffffff;
+      letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;
+    }
+    .loading-sub { font-size: 11px; color: var(--yellow); letter-spacing: 0.08em; text-transform: uppercase; }
+ 
+    /* ═══════════════════════════════════════════════
        HEADER
-    ══════════════════════════════════════════ */
-    .header       { background: var(--bg-deep); border-bottom: 2.5px solid var(--yellow); padding: 0 32px; }
-    .header-inner { max-width: 1340px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 68px; }
+    ═══════════════════════════════════════════════ */
+    .header {
+      background: var(--bg-deep);
+      border-bottom: 2px solid var(--yellow);
+      padding: 0 28px;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+    .header-inner {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: var(--header-h);
+    }
     .header-brand { display: flex; align-items: center; gap: 14px; }
-    .divider-v    { width: 1px; height: 38px; background: rgba(255,209,0,0.25); flex-shrink: 0; }
-    .brand-title  { font-size: 15px; font-weight: 700; color: #ffffff; letter-spacing: 0.04em; line-height: 1; text-transform: uppercase; }
-    .brand-sub    { font-size: 10px; color: var(--yellow); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 5px; }
+ 
+    .divider-v { width: 1px; height: 36px; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+ 
+    .brand-title {
+      font-size: 14px; font-weight: 700; color: #ffffff;
+      letter-spacing: 0.04em; line-height: 1.2; text-transform: uppercase;
+    }
+    .brand-sub {
+      font-size: 10px; color: var(--yellow);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px;
+      opacity: 0.9;
+    }
+ 
     .header-right { display: flex; align-items: center; gap: 10px; }
-    .live-pill    { display: flex; align-items: center; gap: 7px; background: rgba(0,0,0,0.05); border: 1px solid var(--border); border-radius: 20px; padding: 5px 13px; font-size: 11px; color: var(--text-mid); font-weight: 500; }
-    .live-dot     { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: blink 2s ease-in-out infinite; }
-    .btn-refresh  { display: flex; align-items: center; gap: 7px; background: var(--yellow-dim); border: 1px solid rgba(255,209,0,0.28); border-radius: var(--radius-sm); color: var(--yellow); font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 600; padding: 7px 15px; cursor: pointer; transition: background 0.15s; }
-    .btn-refresh:hover { background: rgba(255,209,0,0.18); }
-    .btn-refresh svg   { width: 12px; height: 12px; }
-
-    /* ══════════════════════════════════════════
-       FILTROS
-    ══════════════════════════════════════════ */
-    .filter-bar       { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .filter-bar-inner { max-width: 1340px; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; gap: 7px; }
-    .filter-row       { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .filter-label     { font-size: 11px; color: var(--text-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
-    .update-note      { font-size: 11px; color: var(--text-soft); white-space: nowrap; }
-    .filter-select    { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; outline: none; transition: border-color 0.15s; }
-    .filter-select:focus  { border-color: var(--amber); }
-    .filter-select option { background: var(--bg-card); color: var(--text); }
+ 
+    .live-pill {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 20px; padding: 5px 13px;
+      font-size: 11px; color: #d1d5db; font-weight: 500;
+    }
+    .live-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #4ade80;
+      animation: blink 2s ease-in-out infinite;
+      box-shadow: 0 0 6px rgba(74,222,128,0.5);
+    }
+ 
+    .btn-refresh {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--yellow-dim);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: var(--radius-sm);
+      color: var(--yellow); font-size: 12px;
+      font-family: 'Figtree', sans-serif; font-weight: 600;
+      padding: 7px 16px; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-refresh:hover { background: rgba(245,158,11,0.2); transform: translateY(-1px); }
+    .btn-refresh:active { transform: translateY(0); }
+    .btn-refresh svg { width: 13px; height: 13px; }
+ 
+    /* ═══════════════════════════════════════════════
+       BARRA DE FILTROS
+    ═══════════════════════════════════════════════ */
+    .filter-bar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .filter-bar-inner {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; flex-direction: column;
+      padding: 9px 0; gap: 7px;
+    }
+    .filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+ 
+    .filter-label {
+      font-size: 10.5px; color: var(--text-muted);
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+    .update-note { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+ 
+    .filter-select {
+      font-family: 'Figtree', sans-serif; font-size: 12px;
+      color: var(--text-mid); background: var(--bg-card2);
+      border: 1px solid var(--border2); border-radius: var(--radius-sm);
+      padding: 5px 10px; cursor: pointer; outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .filter-select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+ 
     .date-range-group { display: flex; align-items: center; gap: 6px; }
-    .date-range-sep   { font-size: 11px; color: var(--text-soft); }
-    .date-input       { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 8px; outline: none; cursor: pointer; transition: border-color 0.15s; color-scheme: light; }
-    .date-input:focus { border-color: var(--amber); }
-    .btn-clear-dates  { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-soft); background: transparent; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 5px 9px; cursor: pointer; white-space: nowrap; transition: color 0.15s, border-color 0.15s; }
-    .btn-clear-dates:hover { color: var(--text); border-color: var(--border2); }
-    .range-btns            { display: flex; gap: 5px; }
-    .range-btn             { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; color: var(--text-soft); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
-    .range-btn:hover        { color: var(--text-mid); border-color: var(--text-soft); }
-    .range-btn.active-range { color: #ffffff; border-color: #0f2236; background: #0f2236; }
-    .range-warning          { font-size: 10px; color: #c96d1a; background: rgba(201,109,26,0.12); border: 1px solid rgba(201,109,26,0.25); border-radius: var(--radius-sm); padding: 3px 9px; display: none; white-space: nowrap; }
-    .range-warning.visible  { display: inline-block; }
-
-    /* ══════════════════════════════════════════
+    .date-range-sep   { font-size: 11px; color: var(--text-muted); }
+ 
+    .date-input {
+      font-family: 'Figtree', sans-serif; font-size: 12px;
+      color: var(--text-mid); background: var(--bg-card2);
+      border: 1px solid var(--border2); border-radius: var(--radius-sm);
+      padding: 5px 9px; outline: none; cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      color-scheme: light;
+    }
+    .date-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+ 
+    .btn-clear-dates {
+      font-family: 'Figtree', sans-serif; font-size: 11px;
+      color: var(--text-muted); background: transparent;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 5px 10px; cursor: pointer; white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-clear-dates:hover { color: var(--text-mid); border-color: var(--border2); }
+ 
+    .range-btns { display: flex; gap: 4px; }
+    .range-btn {
+      font-family: 'Figtree', sans-serif; font-size: 11px; font-weight: 600;
+      color: var(--text-muted); background: var(--bg-card2);
+      border: 1px solid var(--border2); border-radius: var(--radius-sm);
+      padding: 5px 11px; cursor: pointer; white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .range-btn:hover         { color: var(--text-mid); border-color: #9ca3af; background: #fff; }
+    .range-btn.active-range  { color: #fff; border-color: var(--bg-deep); background: var(--bg-deep); }
+ 
+    .range-warning {
+      font-size: 10px; color: var(--amber);
+      background: var(--amber-bg); border: 1px solid rgba(217,119,6,0.2);
+      border-radius: var(--radius-sm); padding: 3px 9px;
+      display: none; white-space: nowrap;
+    }
+    .range-warning.visible { display: inline-block; }
+ 
+    /* ═══════════════════════════════════════════════
        TABS
-    ══════════════════════════════════════════ */
-    .tab-bar        { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    .tab-bar-inner  { max-width: 1340px; margin: 0 auto; display: flex; }
-    .tab-btn        { display: flex; align-items: center; gap: 7px; padding: 13px 20px; font-size: 12px; font-weight: 600; color: var(--text-soft); background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: 'Inter', sans-serif; letter-spacing: 0.04em; transition: color 0.15s, border-color 0.15s; }
-    .tab-btn:hover  { color: var(--text-mid); }
-    .tab-btn.active { color: #ffffff; border-bottom-color: #0f2236; background: #0f2236; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
-    .tab-btn svg    { width: 14px; height: 14px; }
+    ═══════════════════════════════════════════════ */
+    .tab-bar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+    }
+    .tab-bar-inner {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; gap: 2px;
+    }
+    .tab-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 12px 18px;
+      font-size: 12.5px; font-weight: 600;
+      color: var(--text-soft); background: transparent;
+      border: none; border-bottom: 2.5px solid transparent;
+      cursor: pointer; font-family: 'Figtree', sans-serif;
+      letter-spacing: 0.02em; transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover   { color: var(--text-mid); }
+    .tab-btn.active  {
+      color: var(--bg-deep); border-bottom-color: var(--yellow);
+      background: rgba(245,158,11,0.05);
+    }
+    .tab-btn svg { width: 14px; height: 14px; }
+ 
     .tab-panel        { display: none; }
-    .tab-panel.active { display: block; }
-
-    /* ══════════════════════════════════════════
-       MAIN / LAYOUT
-    ══════════════════════════════════════════ */
-    .main       { max-width: 1340px; margin: 0 auto; padding: 22px 32px 48px; }
-    .footer     { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-soft); line-height: 1.9; }
-    .card       { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
-    .card-title { font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-    .empty      { text-align: center; padding: 36px 20px; color: var(--text-soft); font-size: 13px; }
-
-    /* ══════════════════════════════════════════
-       KPI CARDS
-    ══════════════════════════════════════════ */
-    .kpi-grid       { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
-    .kpi-card       { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 18px 17px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; transition: border-color 0.15s, background 0.15s; }
-    .kpi-card:hover { border-color: var(--border2); background: var(--bg-card2); }
-    .kpi-card::after            { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 2px 2px 0 0; }
-    .kpi-card.k-yellow::after   { background: var(--yellow); }
-    .kpi-card.k-red::after      { background: var(--red); }
-    .kpi-card.k-green::after    { background: var(--green); }
-    .kpi-card.k-blue::after     { background: var(--blue); }
-    .kpi-card.k-purple::after   { background: var(--purple); }
-    .kpi-card.k-teal::after     { background: #2a5466; }
-    .kpi-card.k-orange::after   { background: #c96d1a; }
-    .kpi-icon  { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
-    .kpi-icon svg { width: 24px; height: 24px; }
-    .kpi-num   { font-size: 33px; font-weight: 700; font-family: 'JetBrains Mono', monospace; line-height: 1; color: var(--text); margin-bottom: 7px; }
-    .kpi-label { font-size: 10.5px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.06em; }
-
-    /* ══════════════════════════════════════════
-       DASHBOARD — LAYOUT PRINCIPAL
-       Izquierda: Normal/Extraordinario (col L)
-       Derecha:   tabla de eventos reducida
-    ══════════════════════════════════════════ */
-    .dashboard-grid { display: grid; grid-template-columns: 280px 1fr; gap: 12px; }
-    @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
-
-    /* Tarjeta Normal / Extraordinario */
-    .norex-item            { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .tab-panel.active { display: block; animation: fadeIn 0.25s ease; }
+ 
+    /* ═══════════════════════════════════════════════
+       LAYOUT PRINCIPAL
+    ═══════════════════════════════════════════════ */
+    .main {
+      max-width: 1400px; margin: 0 auto;
+      padding: 20px 28px 52px;
+    }
+ 
+    /* ═══════════════════════════════════════════════
+       SECCIÓN ENCABEZADO DE PÁGINA
+    ═══════════════════════════════════════════════ */
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .page-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .page-sub   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+ 
+    /* ═══════════════════════════════════════════════
+       KPI CARDS — estilo Power BI moderno
+    ═══════════════════════════════════════════════ */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+ 
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px 18px 16px;
+      box-shadow: var(--shadow-xs);
+      position: relative; overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+ 
+    /* Barra de color superior */
+    .kpi-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; border-radius: 3px 3px 0 0;
+    }
+    .kpi-card.k-yellow::before  { background: linear-gradient(90deg, var(--yellow), #fbbf24); }
+    .kpi-card.k-red::before     { background: linear-gradient(90deg, var(--red), #ef4444); }
+    .kpi-card.k-green::before   { background: linear-gradient(90deg, var(--green), #22c55e); }
+    .kpi-card.k-blue::before    { background: linear-gradient(90deg, var(--blue), #60a5fa); }
+    .kpi-card.k-purple::before  { background: linear-gradient(90deg, var(--purple), #a78bfa); }
+    .kpi-card.k-teal::before    { background: linear-gradient(90deg, var(--teal), #2dd4bf); }
+    .kpi-card.k-orange::before  { background: linear-gradient(90deg, var(--orange), #fb923c); }
+ 
+    /* Fondo decorativo sutil */
+    .kpi-card::after {
+      content: '';
+      position: absolute; bottom: -16px; right: -16px;
+      width: 72px; height: 72px; border-radius: 50%;
+      opacity: 0.06; pointer-events: none;
+    }
+    .kpi-card.k-yellow::after  { background: var(--yellow); }
+    .kpi-card.k-red::after     { background: var(--red); }
+    .kpi-card.k-green::after   { background: var(--green); }
+    .kpi-card.k-blue::after    { background: var(--blue); }
+    .kpi-card.k-purple::after  { background: var(--purple); }
+    .kpi-card.k-teal::after    { background: var(--teal); }
+    .kpi-card.k-orange::after  { background: var(--orange); }
+ 
+    .kpi-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+    .kpi-icon   {
+      width: 38px; height: 38px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .kpi-icon svg { width: 20px; height: 20px; }
+ 
+    .kpi-num {
+      font-size: 32px; font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1; color: var(--text);
+      margin-bottom: 5px;
+      animation: countUp 0.4s ease;
+    }
+    .kpi-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.07em; line-height: 1.3;
+    }
+ 
+    /* ═══════════════════════════════════════════════
+       DASHBOARD GRID PRINCIPAL
+    ═══════════════════════════════════════════════ */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 960px) { .dashboard-grid { grid-template-columns: 1fr; } }
+ 
+    /* ═══════════════════════════════════════════════
+       CARD BASE
+    ═══════════════════════════════════════════════ */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-xs);
+    }
+    .card-title {
+      font-size: 10px; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 14px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .card-title-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--yellow); flex-shrink: 0;
+    }
+ 
+    .empty {
+      text-align: center; padding: 36px 20px;
+      color: var(--text-muted); font-size: 13px;
+    }
+ 
+    /* ═══════════════════════════════════════════════
+       NORMAL vs EXTRAORDINARIO
+    ═══════════════════════════════════════════════ */
+    .norex-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 0; border-bottom: 1px solid var(--border);
+    }
     .norex-item:last-child { border-bottom: none; }
-    .norex-label           { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-mid); font-weight: 500; }
-    .norex-icon            { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .norex-val             { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; }
-    .norex-sub             { font-size: 10px; color: var(--text-soft); margin-top: 2px; }
-    .norex-desglose-title  { font-size: 9.5px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 0 6px; border-top: 1px solid var(--border); margin-top: 4px; }
-    .norex-desglose-row    { display: flex; justify-content: space-between; padding: 4px 0 4px 36px; font-size: 11px; color: var(--text-soft); border-bottom: 1px solid var(--border); }
+ 
+    .norex-label { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-mid); font-weight: 500; }
+    .norex-icon  {
+      width: 30px; height: 30px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .norex-val   { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; }
+    .norex-sub   { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+ 
+    .norex-desglose-title {
+      font-size: 9.5px; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 10px 0 6px; border-top: 1px solid var(--border); margin-top: 4px;
+    }
+    .norex-desglose-row {
+      display: flex; justify-content: space-between;
+      padding: 4px 0 4px 38px; font-size: 11px;
+      color: var(--text-soft); border-bottom: 1px solid var(--border);
+    }
     .norex-desglose-row:last-child { border-bottom: none; }
-    .norex-desglose-val    { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-mid); }
-
-    /* Tabla de eventos */
-    .table-scroll          { overflow-x: auto; }
-    table                  { width: 100%; border-collapse: collapse; font-size: 12px; }
-    thead th               { text-align: left; padding: 7px 9px; font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1.5px solid var(--border); white-space: nowrap; background: var(--bg-card2); }
-    tbody td               { padding: 7px 9px; color: var(--text-mid); border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .norex-desglose-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600; color: var(--text-mid);
+    }
+ 
+    /* ═══════════════════════════════════════════════
+       TABLA DE EVENTOS
+    ═══════════════════════════════════════════════ */
+    .table-scroll { overflow-x: auto; }
+ 
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+ 
+    thead th {
+      text-align: left; padding: 8px 10px;
+      font-size: 9.5px; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.07em; border-bottom: 1.5px solid var(--border);
+      white-space: nowrap; background: var(--bg-card2);
+    }
+    thead th:first-child { border-radius: var(--radius-sm) 0 0 0; }
+    thead th:last-child  { border-radius: 0 var(--radius-sm) 0 0; }
+ 
+    tbody td {
+      padding: 8px 10px; color: var(--text-mid);
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
     tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover td      { background: rgba(0,0,0,0.025); }
-    .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--blue); font-weight: 500; }
-
-    /* Badges de incidencias */
-    .badge    { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 600; white-space: nowrap; }
-    .b-amber  { background: var(--amber-bg);       color: var(--amber); }
-    .b-red    { background: var(--red-bg);         color: var(--red); }
-    .b-green  { background: var(--green-bg);       color: var(--green); }
-    .b-blue   { background: var(--blue-bg);        color: var(--blue); }
-    .b-purple { background: var(--purple-bg);      color: var(--purple); }
-    .b-gray   { background: var(--gray-bg);        color: var(--text-mid); }
-    .b-orange { background: rgba(201,109,26,0.18); color: #c96d1a; }
-
-    /* ══════════════════════════════════════════
+    tbody tr { transition: background 0.1s; }
+    tbody tr:hover td { background: rgba(37,99,235,0.03); }
+ 
+    .code-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--blue); font-weight: 500;
+      background: var(--blue-bg); padding: 2px 7px;
+      border-radius: 4px; display: inline-block;
+    }
+ 
+    /* ═══════════════════════════════════════════════
+       BADGES
+    ═══════════════════════════════════════════════ */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 2px 8px; border-radius: 99px;
+      font-size: 10px; font-weight: 600; white-space: nowrap;
+    }
+    .b-amber  { background: var(--amber-bg);  color: var(--amber); }
+    .b-red    { background: var(--red-bg);    color: var(--red); }
+    .b-green  { background: var(--green-bg);  color: var(--green); }
+    .b-blue   { background: var(--blue-bg);   color: var(--blue); }
+    .b-purple { background: var(--purple-bg); color: var(--purple); }
+    .b-gray   { background: rgba(107,114,128,0.1); color: var(--text-soft); }
+    .b-orange { background: var(--orange-bg); color: var(--orange); }
+ 
+    /* ═══════════════════════════════════════════════
        PESTAÑA GRÁFICAS
-    ══════════════════════════════════════════ */
-    .charts-grid-3col  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    ═══════════════════════════════════════════════ */
+    .charts-grid-3col {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px; margin-bottom: 12px;
+    }
     @media (max-width: 1100px) { .charts-grid-3col { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 700px)  { .charts-grid-3col { grid-template-columns: 1fr; } }
+ 
     .chart-wrap { position: relative; height: 260px; }
-    .dist-item  { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+ 
+    .dist-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
     .dist-item:last-child { border-bottom: none; }
-    .dist-dot   { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dist-dot   { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
     .dist-label { flex: 1; font-size: 12px; color: var(--text-mid); }
-    .dist-val   { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text); }
+    .dist-val   {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; font-weight: 700; color: var(--text);
+    }
+    .dist-bar-wrap { width: 60px; }
+    .dist-bar-bg   { height: 4px; background: var(--border2); border-radius: 2px; }
+    .dist-bar-fill { height: 4px; border-radius: 2px; transition: width 0.5s ease; }
+ 
+    /* ═══════════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════════ */
+    .footer {
+      margin-top: 24px; padding-top: 16px;
+      border-top: 1px solid var(--border);
+      text-align: center; font-size: 11px;
+      color: var(--text-muted); line-height: 1.9;
+    }
   </style>
 </head>
+ 
 <body>
-
-  <!-- LOADING -->
+ 
+  <!-- ═══ LOADING ═══ -->
   <div id="loading-overlay">
+    <div class="loading-brand">Unidad de Planeamiento Semafórico</div>
+    <div class="loading-sub">Centro de Control y Monitoreo · CCM</div>
     <div class="spinner"></div>
     <div class="loading-msg">Cargando información...</div>
   </div>
-
-  <!-- HEADER -->
+ 
+  <!-- ═══ HEADER ═══ -->
   <header class="header">
     <div class="header-inner">
       <div class="header-brand">
-        <svg width="44" height="52" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="10" y="2" width="24" height="48" rx="5" fill="#0f2236" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
-          <circle cx="22" cy="13" r="7" fill="#e03535"/><circle cx="22" cy="13" r="4.5" fill="#f05050"/>
-          <circle cx="22" cy="26" r="7" fill="#c98a10"/><circle cx="22" cy="26" r="4.5" fill="#FFD100"/>
-          <circle cx="22" cy="39" r="7" fill="#1e8a4a"/><circle cx="22" cy="39" r="4.5" fill="#2ecc71"/>
-          <path d="M10,10 L2,10 M2,10 Q0,10 0,12 L0,16 Q0,18 2,18 L10,18"       stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <path d="M10,23 L2,23 M2,23 Q0,23 0,25 L0,29 Q0,31 2,31 L10,31"       stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <path d="M10,36 L2,36 M2,36 Q0,36 0,38 L0,42 Q0,44 2,44 L10,44"       stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <path d="M34,10 L42,10 M42,10 Q44,10 44,12 L44,16 Q44,18 42,18 L34,18" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <path d="M34,23 L42,23 M42,23 Q44,23 44,25 L44,29 Q44,31 42,31 L34,31" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-          <path d="M34,36 L42,36 M42,36 Q44,36 44,38 L44,42 Q44,44 42,44 L34,44" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <!-- Logo semáforo SVG -->
+        <svg width="38" height="46" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="2" width="24" height="48" rx="5" fill="#0d1b2e" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+          <circle cx="22" cy="13" r="7" fill="#b91c1c"/><circle cx="22" cy="13" r="4.5" fill="#ef4444"/>
+          <circle cx="22" cy="26" r="7" fill="#a16207"/><circle cx="22" cy="26" r="4.5" fill="#f59e0b"/>
+          <circle cx="22" cy="39" r="7" fill="#15803d"/><circle cx="22" cy="39" r="4.5" fill="#22c55e"/>
+          <path d="M10,10 L2,10 M2,10 Q0,10 0,12 L0,16 Q0,18 2,18 L10,18"        stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M10,23 L2,23 M2,23 Q0,23 0,25 L0,29 Q0,31 2,31 L10,31"        stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M10,36 L2,36 M2,36 Q0,36 0,38 L0,42 Q0,44 2,44 L10,44"        stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M34,10 L42,10 M42,10 Q44,10 44,12 L44,16 Q44,18 42,18 L34,18"  stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M34,23 L42,23 M42,23 Q44,23 44,25 L44,29 Q44,31 42,31 L34,31"  stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M34,36 L42,36 M42,36 Q44,36 44,38 L44,42 Q44,44 42,44 L34,44"  stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
         </svg>
         <div class="divider-v"></div>
         <div>
           <div class="brand-title">Unidad de Planeamiento Semafórico</div>
-          <div class="brand-sub">Centro de Control y Monitoreo &nbsp;·&nbsp; CCM</div>
+          <div class="brand-sub">Centro de Control y Monitoreo &nbsp;·&nbsp; CCM &nbsp;·&nbsp; MOPT</div>
         </div>
       </div>
       <div class="header-right">
@@ -231,8 +571,8 @@
       </div>
     </div>
   </header>
-
-  <!-- FILTROS -->
+ 
+  <!-- ═══ FILTROS ═══ -->
   <div class="filter-bar">
     <div class="filter-bar-inner">
       <div class="filter-row">
@@ -255,6 +595,9 @@
           <option>Accidente</option>
           <option>VDT Volumen</option>
         </select>
+        <select class="filter-select" id="f-ciudad" onchange="applyFilters()">
+          <option value="">Todas las ciudades</option>
+        </select>
         <select class="filter-select" id="f-reporte" onchange="applyFilters()">
           <option value="">Todos los reportes</option>
           <option>Planeamiento</option>
@@ -275,8 +618,8 @@
       </div>
     </div>
   </div>
-
-  <!-- TABS -->
+ 
+  <!-- ═══ TABS ═══ -->
   <div class="tab-bar">
     <div class="tab-bar-inner">
       <button class="tab-btn active" id="tab-dashboard" onclick="switchTab('dashboard')">
@@ -296,24 +639,29 @@
       </button>
     </div>
   </div>
-
-  <!-- PANEL: DASHBOARD -->
+ 
+  <!-- ═══ PANEL: DASHBOARD ═══ -->
   <div class="tab-panel active" id="panel-dashboard">
     <main class="main">
-
+ 
       <div class="kpi-grid" id="kpi-grid"></div>
-
+ 
       <div class="dashboard-grid">
-
-        <!-- Izquierda: Normal vs Extraordinario (fuente: col L = Anomalia) -->
+        <!-- Izquierda: Normal vs Extraordinario -->
         <div class="card">
-          <div class="card-title">Tipo de registro — período</div>
+          <div class="card-title">
+            <span class="card-title-dot"></span>
+            Tipo de registro — período
+          </div>
           <div id="norex-panel"></div>
         </div>
-
+ 
         <!-- Derecha: tabla de eventos recientes -->
         <div class="card">
-          <div class="card-title">Registro de eventos recientes</div>
+          <div class="card-title">
+            <span class="card-title-dot"></span>
+            Registro de eventos recientes
+          </div>
           <div class="table-scroll">
             <table>
               <thead>
@@ -326,57 +674,57 @@
             </table>
           </div>
         </div>
-
       </div>
-
+ 
       <div class="footer">
         Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte<br>
         Información obtenida en tiempo real desde la base de datos institucional
       </div>
     </main>
   </div>
-
-  <!-- PANEL: GRÁFICAS -->
+ 
+  <!-- ═══ PANEL: GRÁFICAS ═══ -->
   <div class="tab-panel" id="panel-graficas">
     <main class="main">
-
       <div class="charts-grid-3col">
         <div class="card">
-          <div class="card-title">Incidencias por tipo</div>
+          <div class="card-title"><span class="card-title-dot"></span>Incidencias por tipo</div>
           <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
         </div>
         <div class="card">
-          <div class="card-title">Distribución porcentual</div>
+          <div class="card-title"><span class="card-title-dot"></span>Distribución porcentual</div>
           <div class="chart-wrap"><canvas id="chart-donut"></canvas></div>
         </div>
         <div class="card">
-          <div class="card-title">Distribución de incidencias</div>
+          <div class="card-title"><span class="card-title-dot"></span>Distribución de incidencias</div>
           <div id="dist-numerica" style="overflow-y:auto; max-height:260px;"></div>
         </div>
       </div>
-
+ 
       <div class="card">
-        <div class="card-title">Tendencia mensual — Forzamiento vs Apagado</div>
+        <div class="card-title"><span class="card-title-dot"></span>Tendencia mensual — Forzamiento vs Apagado</div>
         <div class="chart-wrap"><canvas id="chart-line"></canvas></div>
       </div>
-
+ 
       <div class="footer">
         Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte<br>
         Información obtenida en tiempo real desde la base de datos institucional
       </div>
     </main>
   </div>
-
+ 
+  <!-- ═══ SCRIPTS ═══ -->
   <script>
-    /* ══════════════════════════════════════════
-       CONFIGURACIÓN
-       Índices de columna del Sheet (base 0):
-       A=0  FECHA       B=1  HORA        C=2  CÓDIGO
-       D=3  REPORTO     E=4  INCIDENCIA  G=6  DIRECCIÓN
-       K=10 OPERADOR    L=11 ANOMALIA (Normal / Extraordinario)
-    ══════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════
+       CONFIGURACIÓN DE COLUMNAS DEL SHEET
+       A=0 FECHA      B=1 HORA       C=2 CÓDIGO
+       D=3 REPORTO    E=4 INCIDENCIA F=5 OBSERVACIONES
+       G=6 DIRECCIÓN  H=7 CIUDAD     I=8 LAT (no usada)
+       J=9 LONGITUD   K=10 OPERADOR  L=11 ANOMALIA
+    ═══════════════════════════════════════════════ */
     const SHEET_ID   = "1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU";
     const SHEET_NAME = "P. Semaforico";
+ 
     const COL = {
       FECHA:      0,
       HORA:       1,
@@ -384,122 +732,118 @@
       REPORTE:    3,
       INCIDENCIA: 4,
       DIR:        6,
-      OPERADOR:   10,  // col K — nombre del operador en turno
-      ANOMALIA:   11,  // col L — valor: "Normal" o "Extraordinario"
+      CIUDAD:     7,
+      OPERADOR:   10,
+      ANOMALIA:   11,
     };
-
-    /* ══════════════════════════════════════════
-       CATÁLOGO DE INCIDENCIAS
-       Fuente única de verdad: label, badge y color.
-    ══════════════════════════════════════════ */
+ 
+    /* ═══════════════════════════════════════════════
+       CATÁLOGO DE INCIDENCIAS — fuente única de verdad
+    ═══════════════════════════════════════════════ */
     const TIPOS = {
-      'forzamiento de tiempos': { label:'Forzamiento de Tiempos', badge:'b-amber',  color:'#d4941a' },
-      'forzamiento de tiempo':  { label:'Forzamiento de Tiempos', badge:'b-amber',  color:'#d4941a' },
-      'apagado':                { label:'Apagado',                badge:'b-red',    color:'#c94040' },
-      'mejora de tiempo':       { label:'Mejora de Tiempo',       badge:'b-green',  color:'#16a34a' },
-      'mejora de tiempos':      { label:'Mejora de Tiempo',       badge:'b-green',  color:'#16a34a' },
-      'intermitencia':          { label:'Intermitencia',          badge:'b-blue',   color:'#3a8fd4' },
-      'error de comunicación':  { label:'Error de Comunicación',  badge:'b-purple', color:'#7c62c4' },
-      'error de comunicacion':  { label:'Error de Comunicación',  badge:'b-purple', color:'#7c62c4' },
-      'funcionamiento':         { label:'Funcionamiento',         badge:'b-green',  color:'#0d9488' },
-      'programa':               { label:'Programa',               badge:'b-purple', color:'#7c62c4' },
-      'accidente':              { label:'Apoyo en Accidentes',    badge:'b-red',    color:'#c94040' },
-      'vdt volumen':            { label:'VDT Volumen',            badge:'b-orange', color:'#c96d1a' },
-      'tiempos':                { label:'Tiempos',                badge:'b-gray',   color:'#5a8a9f' },
-      'falla':                  { label:'Falla',                  badge:'b-red',    color:'#e05c5c' },
-      'ramas':                  { label:'Ramas',                  badge:'b-green',  color:'#4caf7d' },
-      'comunicación':           { label:'Comunicación',           badge:'b-blue',   color:'#3ab5d4' },
-      'comunicacion':           { label:'Comunicación',           badge:'b-blue',   color:'#3ab5d4' },
-      'chorros':                { label:'Chorros',                badge:'b-purple', color:'#9c7ce0' },
+      'forzamiento de tiempos': { label: 'Forzamiento de Tiempos', badge: 'b-amber',  color: '#d97706' },
+      'forzamiento de tiempo':  { label: 'Forzamiento de Tiempos', badge: 'b-amber',  color: '#d97706' },
+      'apagado':                { label: 'Apagado',                badge: 'b-red',    color: '#dc2626' },
+      'mejora de tiempo':       { label: 'Mejora de Tiempo',       badge: 'b-green',  color: '#16a34a' },
+      'mejora de tiempos':      { label: 'Mejora de Tiempo',       badge: 'b-green',  color: '#16a34a' },
+      'intermitencia':          { label: 'Intermitencia',          badge: 'b-blue',   color: '#2563eb' },
+      'error de comunicación':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#7c3aed' },
+      'error de comunicacion':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#7c3aed' },
+      'funcionamiento':         { label: 'Funcionamiento',         badge: 'b-green',  color: '#0d9488' },
+      'programa':               { label: 'Programa',               badge: 'b-purple', color: '#7c3aed' },
+      'accidente':              { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#dc2626' },
+      'vdt volumen':            { label: 'VDT Volumen',            badge: 'b-orange', color: '#ea580c' },
+      'tiempos':                { label: 'Tiempos',                badge: 'b-gray',   color: '#6b7280' },
+      'falla':                  { label: 'Falla',                  badge: 'b-red',    color: '#ef4444' },
+      'ramas':                  { label: 'Ramas',                  badge: 'b-green',  color: '#4ade80' },
+      'comunicación':           { label: 'Comunicación',           badge: 'b-blue',   color: '#38bdf8' },
+      'comunicacion':           { label: 'Comunicación',           badge: 'b-blue',   color: '#38bdf8' },
+      'chorros':                { label: 'Chorros',                badge: 'b-purple', color: '#a78bfa' },
     };
-
-    /* Helpers — usan TIPOS como única fuente de verdad */
-    const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw, badge: 'b-gray', color: '#4e6e80' };
-    const getColor = label => Object.values(TIPOS).find(t => t.label === label)?.color ?? '#4e6e80';
+ 
+    /* Helpers */
+    const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw, badge: 'b-gray', color: '#6b7280' };
+    const getColor = label => Object.values(TIPOS).find(t => t.label === label)?.color ?? '#6b7280';
     const countKw  = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
-
-    /* Clasifica según col L (Anomalia): "normal" → true, cualquier otro → false */
     const isNormal = r => (r.anomalia || '').toLowerCase().trim() === 'normal';
-
-    /* ══════════════════════════════════════════
-       ÍCONOS SVG — definidos una sola vez
-    ══════════════════════════════════════════ */
+ 
+    /* ═══════════════════════════════════════════════
+       ÍCONOS SVG
+    ═══════════════════════════════════════════════ */
     const ICONS = {
       forzamiento: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#d4941a" stroke-width="1.5"/>
-        <circle cx="12" cy="7"  r="2.8" fill="#c94040"/>
-        <circle cx="12" cy="12" r="2.8" fill="#d4941a"/>
-        <circle cx="12" cy="17" r="2.8" fill="#2a9d65"/>
-        <path d="M7,6 L4,6 M4,6 Q2.5,6 2.5,7.5 L2.5,9 Q2.5,10 4,10 L7,10"         stroke="#d4941a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
-        <path d="M17,6 L20,6 M20,6 Q21.5,6 21.5,7.5 L21.5,9 Q21.5,10 20,10 L17,10" stroke="#d4941a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+        <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#d97706" stroke-width="1.5"/>
+        <circle cx="12" cy="7"  r="2.8" fill="#dc2626"/>
+        <circle cx="12" cy="12" r="2.8" fill="#d97706"/>
+        <circle cx="12" cy="17" r="2.8" fill="#16a34a"/>
+        <path d="M7,6 L4,6 M4,6 Q2.5,6 2.5,7.5 L2.5,9 Q2.5,10 4,10 L7,10"          stroke="#d97706" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+        <path d="M17,6 L20,6 M20,6 Q21.5,6 21.5,7.5 L21.5,9 Q21.5,10 20,10 L17,10"  stroke="#d97706" stroke-width="1.2" stroke-linecap="round" fill="none"/>
       </svg>`,
+ 
       apagado: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#c94040" stroke-width="1.5"/>
-        <circle cx="12" cy="7"  r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
-        <circle cx="12" cy="12" r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
-        <circle cx="12" cy="17" r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
-        <line x1="6" y1="2" x2="18" y2="22" stroke="#c94040" stroke-width="1.5" stroke-linecap="round"/>
+        <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+        <circle cx="12" cy="7"  r="2.8" fill="rgba(220,38,38,0.22)" stroke="#dc2626" stroke-width="0.8"/>
+        <circle cx="12" cy="12" r="2.8" fill="rgba(220,38,38,0.22)" stroke="#dc2626" stroke-width="0.8"/>
+        <circle cx="12" cy="17" r="2.8" fill="rgba(220,38,38,0.22)" stroke="#dc2626" stroke-width="0.8"/>
+        <line x1="6" y1="2" x2="18" y2="22" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/>
       </svg>`,
+ 
       mejora: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polyline points="2 17 8.5 10.5 13.5 15.5 22 7" stroke="#2a9d65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <polyline points="16 7 22 7 22 13"               stroke="#2a9d65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="2 17 8.5 10.5 13.5 15.5 22 7" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="16 7 22 7 22 13"               stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>`,
+ 
       intermitencia: `<svg viewBox="0 0 28 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M8,12 L3,12 M3,12 Q1,12 1,10 L1,8 Q1,6 3,6 L8,6"       stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-        <path d="M20,12 L25,12 M25,12 Q27,12 27,10 L27,8 Q27,6 25,6 L20,6" stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-        <line x1="14" y1="1"    x2="14" y2="3.5"   stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
-        <line x1="14" y1="20.5" x2="14" y2="23"    stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
-        <line x1="20.2" y1="3.8"  x2="18.5" y2="5.5"  stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
-        <line x1="7.8"  y1="3.8"  x2="9.5"  y2="5.5"  stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
-        <line x1="20.2" y1="20.2" x2="18.5" y2="18.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
-        <line x1="7.8"  y1="20.2" x2="9.5"  y2="18.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
-        <circle cx="14" cy="12" r="5.5" fill="rgba(58,143,212,0.18)" stroke="#3a8fd4" stroke-width="1.4"/>
-        <circle cx="14" cy="12" r="3"   fill="#3a8fd4"/>
+        <path d="M8,12 L3,12 M3,12 Q1,12 1,10 L1,8 Q1,6 3,6 L8,6"        stroke="#2563eb" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <path d="M20,12 L25,12 M25,12 Q27,12 27,10 L27,8 Q27,6 25,6 L20,6" stroke="#2563eb" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+        <circle cx="14" cy="12" r="5.5" fill="rgba(37,99,235,0.15)" stroke="#2563eb" stroke-width="1.4"/>
+        <circle cx="14" cy="12" r="3"   fill="#2563eb"/>
       </svg>`,
+ 
       error: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="#7c62c4" stroke-width="1.6" stroke-linejoin="round" fill="rgba(124,98,196,0.15)"/>
-        <line x1="12" y1="9"  x2="12" y2="13" stroke="#7c62c4" stroke-width="1.8" stroke-linecap="round"/>
-        <circle cx="12" cy="17" r="0.8" fill="#7c62c4"/>
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="#7c3aed" stroke-width="1.6" stroke-linejoin="round" fill="rgba(124,58,237,0.13)"/>
+        <line x1="12" y1="9"  x2="12" y2="13" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="12" cy="17" r="0.8" fill="#7c3aed"/>
       </svg>`,
-      accidente: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px;">
-        <circle cx="15" cy="4" r="2.2" fill="#c94040"/>
-        <path d="M15 6.8 L13 11.5 L10 14.5"  stroke="#c94040" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M13 11.5 L16.5 14 L15 18"   stroke="#c94040" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M10 14.5 L8.5 18"            stroke="#c94040" stroke-width="1.8" stroke-linecap="round"/>
-        <rect x="1.5" y="7" width="5.5" height="12" rx="1.5" fill="none" stroke="#c94040" stroke-width="1.4"/>
-        <circle cx="4.25" cy="10.5" r="1.4" fill="#c94040"/>
-        <circle cx="4.25" cy="13.5" r="1.4" fill="rgba(201,64,64,0.3)"/>
-        <circle cx="4.25" cy="16.5" r="1.4" fill="rgba(201,64,64,0.3)"/>
-        <path d="M18.5 10 L21.5 15 L15.5 15 Z" stroke="#c94040" stroke-width="1.3" stroke-linejoin="round" fill="rgba(201,64,64,0.22)"/>
-        <line x1="18.5" y1="11.8" x2="18.5" y2="13.2" stroke="#c94040" stroke-width="1.2" stroke-linecap="round"/>
-        <circle cx="18.5" cy="14.2" r="0.5" fill="#c94040"/>
+ 
+      accidente: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="15" cy="4" r="2.2" fill="#dc2626"/>
+        <path d="M15 6.8 L13 11.5 L10 14.5"  stroke="#dc2626" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M13 11.5 L16.5 14 L15 18"   stroke="#dc2626" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M10 14.5 L8.5 18"            stroke="#dc2626" stroke-width="1.8" stroke-linecap="round"/>
+        <rect x="1.5" y="7" width="5.5" height="12" rx="1.5" fill="none" stroke="#dc2626" stroke-width="1.4"/>
+        <circle cx="4.25" cy="10.5" r="1.4" fill="#dc2626"/>
+        <circle cx="4.25" cy="13.5" r="1.4" fill="rgba(220,38,38,0.3)"/>
+        <circle cx="4.25" cy="16.5" r="1.4" fill="rgba(220,38,38,0.3)"/>
       </svg>`,
+ 
       total: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3"  y="3"  width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
-        <rect x="14" y="3"  width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
-        <rect x="14" y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
-        <rect x="3"  y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
+        <rect x="3"  y="3"  width="7" height="7" rx="1" stroke="#9ca3af" stroke-width="1.6" fill="rgba(156,163,175,0.12)"/>
+        <rect x="14" y="3"  width="7" height="7" rx="1" stroke="#9ca3af" stroke-width="1.6" fill="rgba(156,163,175,0.12)"/>
+        <rect x="14" y="14" width="7" height="7" rx="1" stroke="#9ca3af" stroke-width="1.6" fill="rgba(156,163,175,0.12)"/>
+        <rect x="3"  y="14" width="7" height="7" rx="1" stroke="#9ca3af" stroke-width="1.6" fill="rgba(156,163,175,0.12)"/>
       </svg>`,
+ 
       vdt: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M23 7 L16 12 L23 17 Z" fill="rgba(201,109,26,0.25)" stroke="#c96d1a" stroke-width="1.5" stroke-linejoin="round"/>
-        <rect x="1" y="5" width="15" height="14" rx="2.5" fill="none" stroke="#c96d1a" stroke-width="1.6"/>
-        <circle cx="8.5" cy="12" r="3.5" fill="rgba(201,109,26,0.18)" stroke="#c96d1a" stroke-width="1.4"/>
-        <circle cx="8.5" cy="12" r="1.5" fill="#c96d1a"/>
+        <path d="M23 7 L16 12 L23 17 Z" fill="rgba(234,88,12,0.22)" stroke="#ea580c" stroke-width="1.5" stroke-linejoin="round"/>
+        <rect x="1" y="5" width="15" height="14" rx="2.5" fill="none" stroke="#ea580c" stroke-width="1.6"/>
+        <circle cx="8.5" cy="12" r="3.5" fill="rgba(234,88,12,0.16)" stroke="#ea580c" stroke-width="1.4"/>
+        <circle cx="8.5" cy="12" r="1.5" fill="#ea580c"/>
       </svg>`,
     };
-
-    /* ══════════════════════════════════════════
+ 
+    /* ═══════════════════════════════════════════════
        ESTADO GLOBAL
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════════════ */
     let dataset          = [];
     let lastFilteredRows = [];
     let chartBar         = null;
     let chartDonut       = null;
     let chartLine        = null;
-
-    /* ══════════════════════════════════════════
+ 
+    /* ═══════════════════════════════════════════════
        CARGA DE DATOS
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════════════ */
     async function loadData() {
       document.getElementById('update-note').textContent = 'Actualizando...';
       try {
@@ -509,7 +853,7 @@
         const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
         if (!match) throw new Error('Respuesta inesperada de Google Sheets');
         const json  = JSON.parse(match[1]);
-
+ 
         dataset = (json.table.rows || [])
           .map(row => {
             const c   = row.c;
@@ -521,61 +865,71 @@
               reporte:    get(COL.REPORTE),
               incidencia: get(COL.INCIDENCIA),
               dir:        get(COL.DIR),
-              operador:   get(COL.OPERADOR),  // col K
-              anomalia:   get(COL.ANOMALIA),  // col L → "Normal" / "Extraordinario"
+              ciudad:     get(COL.CIUDAD),
+              operador:   get(COL.OPERADOR),
+              anomalia:   get(COL.ANOMALIA),
             };
           })
           .filter(r => r.fecha || r.codigo);
-
+ 
         setRange('3m');
-
+        populateCiudades();
+ 
         const hora = new Date().toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit' });
         document.getElementById('update-note').textContent = `Última actualización: ${hora} · ${dataset.length} registros totales`;
         document.getElementById('live-label').textContent  = `Actualizado ${hora}`;
-
+ 
       } catch (err) {
         document.getElementById('update-note').textContent = 'Error al obtener datos — intenta actualizar de nuevo.';
         document.getElementById('live-label').textContent  = 'Sin conexión';
         console.error('Error cargando Sheet:', err);
       }
     }
-
-    /* ══════════════════════════════════════════
+ 
+    /* Puebla dropdown de ciudades con valores únicos */
+    function populateCiudades() {
+      const ciudades = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
+      const sel = document.getElementById('f-ciudad');
+      sel.innerHTML = '<option value="">Todas las ciudades</option>' +
+        ciudades.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+ 
+    /* ═══════════════════════════════════════════════
        FILTROS Y RANGO DE FECHAS
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════════════ */
     function clearDates() {
       document.getElementById('f-fecha-ini').value = '';
       document.getElementById('f-fecha-fin').value = '';
       setActiveRangeBtn(null);
       applyFilters();
     }
-
+ 
     function onManualDate() {
       setActiveRangeBtn(null);
       document.getElementById('range-warning').classList.remove('visible');
       applyFilters();
     }
-
+ 
     function setActiveRangeBtn(id) {
       ['mes', 'ant', '3m', 'todo'].forEach(k =>
         document.getElementById('rbtn-' + k)?.classList.toggle('active-range', k === id)
       );
     }
-
+ 
     function setRange(rango) {
       const hoy  = new Date();
       const y    = hoy.getFullYear();
       const m    = hoy.getMonth();
       const fmt  = d => d.toISOString().slice(0, 10);
       const warn = document.getElementById('range-warning');
-
+ 
       const rangos = {
         mes:  { ini: new Date(y, m,     1), fin: new Date(y, m + 1, 0) },
         ant:  { ini: new Date(y, m - 1, 1), fin: new Date(y, m,     0) },
         '3m': { ini: new Date(y, m - 2, 1), fin: new Date(y, m + 1, 0) },
         todo: { ini: null, fin: null },
       };
-
+ 
       const { ini, fin } = rangos[rango] || rangos['3m'];
       document.getElementById('f-fecha-ini').value = ini ? fmt(ini) : '';
       document.getElementById('f-fecha-fin').value = fin ? fmt(fin) : '';
@@ -583,22 +937,23 @@
       setActiveRangeBtn(rango);
       applyFilters();
     }
-
+ 
     /* Convierte "d/m/yyyy" del Sheet a Date */
     function parseSheetDate(str) {
       const [d, m, y] = str.split('/');
       if (!y) return null;
       return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
     }
-
+ 
     function applyFilters() {
       const fechaIni = document.getElementById('f-fecha-ini').value;
       const fechaFin = document.getElementById('f-fecha-fin').value;
       const inc      = document.getElementById('f-incidencia').value.toLowerCase();
+      const ciudad   = document.getElementById('f-ciudad').value.toLowerCase();
       const rep      = document.getElementById('f-reporte').value.toLowerCase();
       const dateIni  = fechaIni ? new Date(fechaIni + 'T00:00:00') : null;
       const dateFin  = fechaFin ? new Date(fechaFin + 'T23:59:59') : null;
-
+ 
       const filtered = dataset.filter(r => {
         if (dateIni || dateFin) {
           const d = parseSheetDate(r.fecha);
@@ -606,60 +961,63 @@
           if (dateIni && d < dateIni) return false;
           if (dateFin && d > dateFin) return false;
         }
-        if (inc && r.incidencia.toLowerCase() !== inc) return false;
-        if (rep && r.reporte.toLowerCase()    !== rep) return false;
+        if (inc    && r.incidencia.toLowerCase() !== inc)    return false;
+        if (ciudad && r.ciudad.toLowerCase()     !== ciudad) return false;
+        if (rep    && r.reporte.toLowerCase()    !== rep)    return false;
         return true;
       });
-
+ 
       lastFilteredRows = filtered;
       renderKPIs(filtered);
       renderNorEx(filtered);
       renderTable(filtered);
+ 
       if (document.getElementById('panel-graficas').classList.contains('active')) {
         renderCharts(filtered);
       }
     }
-
-    /* ══════════════════════════════════════════
+ 
+    /* ═══════════════════════════════════════════════
        RENDER: KPI CARDS
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════════════ */
     function renderKPIs(rows) {
       const cards = [
-        { label:'Forzamiento de Tiempos', val: countKw(rows, 'forzamiento'),  cls:'k-yellow', bg:'rgba(212,148,26,0.14)', icon: ICONS.forzamiento  },
-        { label:'Semáforo Apagado',       val: countKw(rows, 'apagado'),       cls:'k-red',    bg:'rgba(201,64,64,0.14)',  icon: ICONS.apagado      },
-        { label:'Mejora de Tiempos',      val: countKw(rows, 'mejora'),        cls:'k-green',  bg:'rgba(42,157,101,0.14)', icon: ICONS.mejora       },
-        { label:'Intermitencia',          val: countKw(rows, 'intermitencia'), cls:'k-blue',   bg:'rgba(58,143,212,0.14)', icon: ICONS.intermitencia },
-        { label:'Error de Comunicación',  val: countKw(rows, 'error'),         cls:'k-purple', bg:'rgba(124,98,196,0.14)', icon: ICONS.error        },
-        { label:'Apoyo en Accidentes',    val: countKw(rows, 'accidente'),     cls:'k-red',    bg:'rgba(201,64,64,0.14)',  icon: ICONS.accidente    },
-        { label:'Total de Registros',     val: rows.length,                    cls:'k-teal',   bg:'rgba(42,84,102,0.32)',  icon: ICONS.total        },
-        { label:'Revisión VDT',           val: countKw(rows, 'vdt volumen'),   cls:'k-orange', bg:'rgba(201,109,26,0.16)', icon: ICONS.vdt          },
+        { label: 'Forzamiento de Tiempos', val: countKw(rows, 'forzamiento'),  cls: 'k-yellow', bg: 'rgba(217,119,6,0.12)',   icon: ICONS.forzamiento  },
+        { label: 'Semáforo Apagado',       val: countKw(rows, 'apagado'),       cls: 'k-red',    bg: 'rgba(220,38,38,0.12)',   icon: ICONS.apagado      },
+        { label: 'Mejora de Tiempos',      val: countKw(rows, 'mejora'),        cls: 'k-green',  bg: 'rgba(22,163,74,0.12)',   icon: ICONS.mejora       },
+        { label: 'Intermitencia',          val: countKw(rows, 'intermitencia'), cls: 'k-blue',   bg: 'rgba(37,99,235,0.12)',   icon: ICONS.intermitencia },
+        { label: 'Error de Comunicación',  val: countKw(rows, 'error'),         cls: 'k-purple', bg: 'rgba(124,58,237,0.12)',  icon: ICONS.error        },
+        { label: 'Apoyo en Accidentes',    val: countKw(rows, 'accidente'),     cls: 'k-red',    bg: 'rgba(220,38,38,0.12)',   icon: ICONS.accidente    },
+        { label: 'Total de Registros',     val: rows.length,                    cls: 'k-teal',   bg: 'rgba(13,148,136,0.12)',  icon: ICONS.total        },
+        { label: 'Revisión VDT',           val: countKw(rows, 'vdt volumen'),   cls: 'k-orange', bg: 'rgba(234,88,12,0.12)',   icon: ICONS.vdt          },
       ];
-
+ 
       document.getElementById('kpi-grid').innerHTML = cards.map(c =>
         `<div class="kpi-card ${c.cls}">
-           <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
+           <div class="kpi-header">
+             <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
+           </div>
            <div class="kpi-num">${c.val}</div>
            <div class="kpi-label">${c.label}</div>
          </div>`
       ).join('');
     }
-
-    /* ══════════════════════════════════════════
+ 
+    /* ═══════════════════════════════════════════════
        RENDER: NORMAL vs EXTRAORDINARIO
-       Clasificación: col L (anomalia) = "Normal" o "Extraordinario"
-       Desglose:      col K (operador) — nombre del operador en turno
-    ══════════════════════════════════════════ */
+       Col L (anomalia) = "Normal" o "Extraordinario"
+       Desglose: col K (operador)
+    ═══════════════════════════════════════════════ */
     function renderNorEx(rows) {
       const normal = rows.filter(isNormal);
       const extra  = rows.filter(r => !isNormal(r));
-
-      /* Conteo agrupado por operador (col K) */
+ 
       const desgloseMap = {};
       extra.forEach(r => {
         const k = r.operador || 'Sin operador';
         desgloseMap[k] = (desgloseMap[k] || 0) + 1;
       });
-
+ 
       const desgloseItems = Object.entries(desgloseMap)
         .sort((a, b) => b[1] - a[1])
         .map(([nombre, val]) =>
@@ -668,16 +1026,16 @@
              <span class="norex-desglose-val">${val}</span>
            </div>`
         ).join('');
-
+ 
       const desgloseHtml = Object.keys(desgloseMap).length > 0
         ? `<div class="norex-desglose-title">Desglose extraordinarios</div>${desgloseItems}`
         : '';
-
+ 
       document.getElementById('norex-panel').innerHTML = `
         <div class="norex-item">
           <div class="norex-label">
-            <div class="norex-icon" style="background:rgba(58,143,212,0.12);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#3a8fd4" stroke-width="2" stroke-linecap="round" width="16" height="16">
+            <div class="norex-icon" style="background:rgba(37,99,235,0.10);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" width="16" height="16">
                 <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
               </svg>
             </div>
@@ -686,12 +1044,12 @@
               <div class="norex-sub">Planeamiento · Monitoreo · Spinnaker</div>
             </div>
           </div>
-          <div class="norex-val" style="color:#3a8fd4;">${normal.length}</div>
+          <div class="norex-val" style="color:#2563eb;">${normal.length}</div>
         </div>
         <div class="norex-item" style="border-bottom:none;">
           <div class="norex-label">
-            <div class="norex-icon" style="background:rgba(201,109,26,0.12);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#c96d1a" stroke-width="2" stroke-linecap="round" width="16" height="16">
+            <div class="norex-icon" style="background:rgba(234,88,12,0.10);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" width="16" height="16">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
               </svg>
             </div>
@@ -700,15 +1058,15 @@
               <div class="norex-sub">Otros operadores</div>
             </div>
           </div>
-          <div class="norex-val" style="color:#c96d1a;">${extra.length}</div>
+          <div class="norex-val" style="color:#ea580c;">${extra.length}</div>
         </div>
         ${desgloseHtml}
       `;
     }
-
-    /* ══════════════════════════════════════════
+ 
+    /* ═══════════════════════════════════════════════
        RENDER: TABLA DE EVENTOS (últimos 15)
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════════════ */
     function renderTable(rows) {
       const items = [...rows].slice(-30).reverse().slice(0, 15);
       document.getElementById('tabla-body').innerHTML = items.length
@@ -725,10 +1083,10 @@
           }).join('')
         : '<tr><td colspan="6" class="empty">Sin registros para mostrar</td></tr>';
     }
-
-    /* ══════════════════════════════════════════
+ 
+    /* ═══════════════════════════════════════════════
        TABS
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════════════ */
     function switchTab(name) {
       document.querySelectorAll('.tab-btn').forEach(b   => b.classList.remove('active'));
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -736,22 +1094,23 @@
       document.getElementById('panel-' + name).classList.add('active');
       if (name === 'graficas' && lastFilteredRows.length > 0) renderCharts(lastFilteredRows);
     }
-
-    /* ══════════════════════════════════════════
-       RENDER: GRÁFICAS (Chart.js)
-    ══════════════════════════════════════════ */
-    Chart.defaults.color       = '#3a5570';
-    Chart.defaults.font.family = "'Inter', sans-serif";
+ 
+    /* ═══════════════════════════════════════════════
+       GRÁFICAS — Chart.js 4.4.1
+    ═══════════════════════════════════════════════ */
+    Chart.defaults.color       = '#6b7280';
+    Chart.defaults.font.family = "'Figtree', sans-serif";
     Chart.defaults.font.size   = 11;
-
-    const GRID_COLOR   = 'rgba(0,0,0,0.07)';
+ 
+    const GRID_COLOR   = 'rgba(0,0,0,0.055)';
     const destroyChart = c => { if (c) try { c.destroy(); } catch (e) {} return null; };
-    const scaleOpts    = (sz = 10) => ({
-      x: { grid: { color: GRID_COLOR }, ticks: { font: { size: sz } } },
-      y: { grid: { color: GRID_COLOR }, ticks: { font: { size: sz } } },
+ 
+    const scaleOpts = (sz = 10) => ({
+      x: { grid: { color: GRID_COLOR }, ticks: { font: { size: sz }, color: '#9ca3af' } },
+      y: { grid: { color: GRID_COLOR }, ticks: { font: { size: sz }, color: '#9ca3af' } },
     });
-
-    /* Agrupa por mes y cuenta forzamiento y apagado */
+ 
+    /* Agrupa por mes — forzamiento y apagado */
     function buildMonthKeys(rows) {
       const MESES   = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
       const byMonth = {};
@@ -767,49 +1126,90 @@
       const labels = keys.map(k => { const [y, m] = k.split('-'); return `${MESES[+m]} ${y.slice(2)}`; });
       return { labels, keys, byMonth };
     }
-
-    /* Distribución numérica sin porcentaje */
+ 
+    /* Lista numérica con mini-barras */
     function renderDistNumerica(rows) {
       const counts = {};
       rows.forEach(r => { const t = getTipo(r.incidencia); counts[t.label] = (counts[t.label] || 0) + 1; });
       const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-
+      const maxVal = sorted[0]?.[1] || 1;
+ 
       document.getElementById('dist-numerica').innerHTML = sorted.length
-        ? sorted.map(([label, val]) =>
-            `<div class="dist-item">
-              <div class="dist-dot" style="background:${getColor(label)}"></div>
+        ? sorted.map(([label, val]) => {
+            const pct   = Math.round((val / maxVal) * 100);
+            const color = getColor(label);
+            return `<div class="dist-item">
+              <div class="dist-dot" style="background:${color}"></div>
               <div class="dist-label">${label}</div>
+              <div class="dist-bar-wrap">
+                <div class="dist-bar-bg">
+                  <div class="dist-bar-fill" style="width:${pct}%;background:${color}"></div>
+                </div>
+              </div>
               <div class="dist-val">${val}</div>
-            </div>`
-          ).join('')
+            </div>`;
+          }).join('')
         : '<div class="empty">Sin datos</div>';
     }
-
+ 
     function renderCharts(rows) {
-      /* Datos compartidos: barra y doughnut */
       const counts = {};
       rows.forEach(r => { const t = getTipo(r.incidencia); counts[t.label] = (counts[t.label] || 0) + 1; });
       const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
       const labels = sorted.map(([l]) => l);
       const values = sorted.map(([, v]) => v);
       const colors = labels.map(getColor);
-
+ 
       renderDistNumerica(rows);
-
+ 
+      /* Gráfica de barras */
       chartBar = destroyChart(chartBar);
       chartBar = new Chart(document.getElementById('chart-bar'), {
         type: 'bar',
-        data: { labels, datasets: [{ data: values, backgroundColor: colors.map(c => c + '33'), borderColor: colors, borderWidth: 1.5, borderRadius: 4 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: scaleOpts(10) },
+        data: {
+          labels,
+          datasets: [{
+            data: values,
+            backgroundColor: colors.map(c => c + '28'),
+            borderColor: colors,
+            borderWidth: 1.5,
+            borderRadius: 5,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: scaleOpts(10),
+        },
       });
-
+ 
+      /* Gráfica de dona */
       chartDonut = destroyChart(chartDonut);
       chartDonut = new Chart(document.getElementById('chart-donut'), {
         type: 'doughnut',
-        data: { labels, datasets: [{ data: values, backgroundColor: colors.map(c => c + 'cc'), borderColor: '#ffffff', borderWidth: 2, hoverOffset: 6 }] },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '56%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, padding: 8, font: { size: 9 } } } } },
+        data: {
+          labels,
+          datasets: [{
+            data: values,
+            backgroundColor: colors.map(c => c + 'cc'),
+            borderColor: '#ffffff',
+            borderWidth: 2,
+            hoverOffset: 7,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '60%',
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 9, padding: 9, font: { size: 9.5 } } },
+          },
+        },
       });
-
+ 
+      /* Gráfica de línea */
       const { labels: mLabels, keys, byMonth } = buildMonthKeys(rows);
       chartLine = destroyChart(chartLine);
       chartLine = new Chart(document.getElementById('chart-line'), {
@@ -817,22 +1217,41 @@
         data: {
           labels: mLabels,
           datasets: [
-            { label: 'Forzamiento', data: keys.map(k => byMonth[k].forz),    borderColor: '#d4941a', backgroundColor: 'rgba(212,148,26,0.08)', tension: 0.4, fill: true,  borderWidth: 2,   pointRadius: 3 },
-            { label: 'Apagado',     data: keys.map(k => byMonth[k].apagado), borderColor: '#c94040', backgroundColor: 'transparent',           tension: 0.4, fill: false, borderWidth: 1.5, pointRadius: 2 },
+            {
+              label: 'Forzamiento',
+              data: keys.map(k => byMonth[k].forz),
+              borderColor: '#d97706',
+              backgroundColor: 'rgba(217,119,6,0.08)',
+              tension: 0.4, fill: true, borderWidth: 2, pointRadius: 3,
+              pointBackgroundColor: '#d97706',
+            },
+            {
+              label: 'Apagado',
+              data: keys.map(k => byMonth[k].apagado),
+              borderColor: '#dc2626',
+              backgroundColor: 'transparent',
+              tension: 0.4, fill: false, borderWidth: 2, pointRadius: 2.5,
+              pointBackgroundColor: '#dc2626',
+            },
           ],
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { boxWidth: 9, padding: 8, font: { size: 9 } } } }, scales: scaleOpts(9) },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { boxWidth: 9, padding: 10, font: { size: 10 } } } },
+          scales: scaleOpts(9),
+        },
       });
     }
-
-    /* ══════════════════════════════════════════
+ 
+    /* ═══════════════════════════════════════════════
        INICIO
-    ══════════════════════════════════════════ */
+    ═══════════════════════════════════════════════ */
     window.addEventListener('DOMContentLoaded', async () => {
       await loadData();
       const overlay = document.getElementById('loading-overlay');
       overlay.classList.add('fade-out');
-      setTimeout(() => overlay.remove(), 400);
+      setTimeout(() => overlay.remove(), 450);
     });
   </script>
 </body>

@@ -245,7 +245,13 @@
     .kpi-card.k-blue::before   { background: var(--blue); }
     .kpi-card.k-purple::before { background: var(--purple); }
     .kpi-card.k-orange::before { background: var(--orange); }
-    .kpi-card.k-teal::before   { background: var(--teal); }
+    .kpi-card.k-intermitencia::before {
+      background: linear-gradient(180deg,
+        #dc2626 0%,   #dc2626 33%,
+        #f59e0b 33%,  #f59e0b 66%,
+        #16a34a 66%,  #16a34a 100%
+      );
+    }
  
     .kpi-icon {
       width: 60px; height: 60px; border-radius: var(--r-md);
@@ -283,7 +289,6 @@
     .norex-icon  { width: 36px; height: 36px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .norex-icon svg { width: 20px; height: 20px; }
     .norex-val   { font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 800; }
-    .norex-sub   { font-size: 9px; color: var(--text-light); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
  
     .norex-desglose-title {
       font-size: 9px; font-weight: 800; color: var(--text-light);
@@ -584,7 +589,7 @@
   ─────────────────────────────────────────────────────────────── */
   const TIPOS = {
     'forzamiento de tiempos': { label: 'Forzamiento de Tiempos', badge: 'b-amber', color: '#ca8a04' },
-    'forzamiento de tiempo': { label: 'Forzamiento de Tiempos', badge: 'b-amber', color: '#ca8a04' },
+    'forzamiento de tiempo':  { label: 'Forzamiento de Tiempos', badge: 'b-amber', color: '#ca8a04' },
     'apagado':                { label: 'Apagado',                badge: 'b-red',    color: '#dc2626' },
     'mejora de tiempo':       { label: 'Mejora de Tiempos',      badge: 'b-green',  color: '#65a30d' },
     'mejora de tiempos':      { label: 'Mejora de Tiempos',      badge: 'b-green',  color: '#65a30d' },
@@ -596,10 +601,10 @@
     'accidente':              { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#ea580c' },
     'vdt volumen':            { label: 'Revisión VDT',           badge: 'b-orange', color: '#0d9488' },
     'vdt':                    { label: 'Revisión VDT',           badge: 'b-orange', color: '#0d9488' },
-    'falla':                  { label: 'Falla',                   badge: 'b-red',    color: '#ec4899' },
-    'tiempos':                { label: 'Ajuste de Tiempos',       badge: 'b-blue',   color: '#06b6d4' },
-    'mantenimiento':          { label: 'Mantenimiento',           badge: 'b-gray',   color: '#f43f5e' },
-    'vandalismo':             { label: 'Vandalismo',              badge: 'b-red',    color: '#f59e0b' },
+    'falla':                  { label: 'Falla',                  badge: 'b-red',    color: '#ec4899' },
+    'tiempos':                { label: 'Ajuste de Tiempos',      badge: 'b-blue',   color: '#06b6d4' },
+    'mantenimiento':          { label: 'Mantenimiento',          badge: 'b-gray',   color: '#f43f5e' },
+    'vandalismo':             { label: 'Vandalismo',             badge: 'b-red',    color: '#f59e0b' },
     'visita tecnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
     'visita técnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
     'chorros':                { label: 'Chorros',                 badge: 'b-purple', color: '#c026d3' },
@@ -902,7 +907,7 @@
       { label: 'FORZAMIENTO DE TIEMPOS', val: countKw(rows, 'forzamiento'),  cls: 'k-yellow', bg: '#fffbeb', icon: ICONS.forzamiento  },
       { label: 'SEMÁFORO APAGADO',       val: countKw(rows, 'apagado'),       cls: 'k-red',    bg: '#fef2f2', icon: ICONS.apagado      },
       { label: 'MEJORA DE TIEMPOS',      val: countKw(rows, 'mejora'),        cls: 'k-green',  bg: '#ecfdf5', icon: ICONS.mejora       },
-      { label: 'INTERMITENCIA',          val: countKw(rows, 'intermitencia'), cls: 'k-blue',   bg: '#eff6ff', icon: ICONS.intermitencia },
+      { label: 'INTERMITENCIA',          val: countKw(rows, 'intermitencia'), cls: 'k-intermitencia', bg: '#fff7ed', icon: ICONS.intermitencia },
       { label: 'ERROR DE COMUNICACIÓN',  val: countKw(rows, 'error'),         cls: 'k-purple', bg: '#f5f3ff', icon: ICONS.error        },
       { label: 'APOYO EN ACCIDENTES',    val: countKw(rows, 'accidente'),     cls: 'k-red',    bg: '#fff1f2', icon: ICONS.accidente    },
       { label: 'REVISIÓN VDT',           val: countKw(rows, 'vdt'),           cls: 'k-orange', bg: '#fff7ed', icon: ICONS.vdt          },

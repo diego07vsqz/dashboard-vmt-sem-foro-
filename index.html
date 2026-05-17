@@ -282,6 +282,110 @@
       line-height: 1.4; letter-spacing: .03em;
     }
  
+    /* Nota al pie del KPI grid (opción 3 — reserva)
+       Para activar: quitar la clase "hidden" del elemento en el HTML.
+       Para desactivar: añadir la clase "hidden". */
+    .kpi-footnote {
+      font-size: 9px; color: var(--text-light);
+      margin-top: -10px; margin-bottom: 20px;
+      padding: 8px 14px;
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      line-height: 1.6;
+    }
+    .kpi-footnote strong { color: var(--text-mid); font-weight: 600; }
+    .kpi-footnote.hidden { display: none; }
+ 
+    /* Placeholder — se elimina el bloque duplicado de .kpi-sub a continuación */
+ 
+ 
+ 
+    /* ── Card explicativa del Total Operativo ───────────────
+       Se muestra debajo del grid de KPIs con una flecha que
+       apunta visualmente al Total Operativo.
+    ────────────────────────────────────────────────────────── */
+    .operativo-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      margin-bottom: 26px;
+    }
+ 
+    /* Flecha curva que conecta la card con el Total Operativo */
+    .operativo-arrow {
+      display: flex;
+      align-items: center;
+      padding-top: 14px;
+      flex-shrink: 0;
+    }
+    .operativo-arrow svg {
+      width: 48px;
+      height: 48px;
+      color: var(--blue);
+      opacity: 0.55;
+    }
+ 
+    /* Card de desglose */
+    .operativo-card {
+      flex: 1;
+      background: var(--bg-white);
+      border: 1.5px solid #bfdbfe;       /* azul claro — mismo tono que k-blue */
+      border-radius: var(--r-lg);
+      padding: 16px 20px;
+      position: relative;
+    }
+    .operativo-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 14px; bottom: 14px;
+      width: 3px;
+      background: var(--blue);
+      border-radius: 0 3px 3px 0;
+    }
+ 
+    /* Encabezado de la card */
+    .operativo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .operativo-title {
+      font-size: 10px; font-weight: 800;
+      color: var(--flag-blue); text-transform: uppercase;
+      letter-spacing: .1em; display: flex; align-items: center; gap: 7px;
+    }
+ 
+ 
+    /* Filas de desglose */
+    .operativo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 6px 20px;
+    }
+    .operativo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .operativo-row:last-child { border-bottom: none; }
+ 
+    .operativo-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%; flex-shrink: 0;
+    }
+    .operativo-name {
+      flex: 1;
+      font-size: 11px; font-weight: 500;
+      color: var(--text-mid);
+    }
+ 
+ 
     /* ── Grid del dashboard (Normal/Extra + tabla) ────────── */
     .dashboard-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; }
     @media (max-width: 1000px) { .dashboard-grid { grid-template-columns: 1fr; } }
@@ -527,6 +631,31 @@
 <div class="tab-panel active" id="panel-dashboard">
   <main class="main">
     <div class="kpi-grid" id="kpi-grid"></div>
+ 
+    <!-- Card explicativa: desglose del Total Operativo con flecha -->
+    <div class="operativo-wrap">
+      <!-- Flecha curva SVG apuntando hacia la card -->
+      <div class="operativo-arrow">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+          <!-- Línea curva de izquierda a derecha con punta de flecha -->
+          <path d="M8 8 Q8 36 40 36" stroke-linecap="round" fill="none"/>
+          <polyline points="34,30 40,36 34,42" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="card operativo-card" id="operativo-panel">
+        <!-- Contenido renderizado dinámicamente por renderOperativo() -->
+      </div>
+    </div>
+ 
+    <!-- Opción 3 (reserva): nota al pie explicando el Total Operativo.
+         Para activar como principal: quitar la clase "hidden".
+         Para usar la opción 2 (subtítulo en card): mantener "hidden". -->
+    <p class="kpi-footnote hidden">
+      <strong>* Total Operativo</strong> incluye:
+      Forzamiento de Tiempos, Semáforo Apagado, Mejora de Tiempos,
+      Intermitencia, Error de Comunicación, Apoyo en Accidentes y Revisión VDT.
+    </p>
+ 
     <div class="dashboard-grid">
       <div class="card">
         <div class="card-title">CLASIFICACIÓN DE REGISTROS</div>
@@ -923,6 +1052,7 @@
  
     lastFilteredRows = filtered;
     renderKPIs(filtered);
+    renderOperativo(filtered);
     renderNorEx(filtered);
     renderTable(filtered);
     if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(filtered);
@@ -953,8 +1083,7 @@
       { label: 'ERROR DE COMUNICACIÓN',  val: countKw(rows, 'error'),         cls: 'k-purple',        bg: '#f5f3ff', icon: ICONS.error,        sub: '' },
       { label: 'APOYO EN ACCIDENTES',    val: countKw(rows, 'accidente'),     cls: 'k-red',           bg: '#fff1f2', icon: ICONS.accidente,    sub: '' },
       { label: 'REVISIÓN VDT',           val: countKw(rows, 'vdt'),           cls: 'k-orange',        bg: '#fff7ed', icon: ICONS.vdt,          sub: '' },
-      { label: 'TOTAL OPERATIVO',        val: totalOperativo,                 cls: 'k-blue',          bg: '#eff6ff', icon: ICONS.total,
-        sub: 'Forz. · Apagado · Mejora · Intermit. · Error · Accidente · VDT' },
+      { label: 'TOTAL OPERATIVO',        val: totalOperativo,                 cls: 'k-blue',          bg: '#eff6ff', icon: ICONS.total,        sub: '' },
       { label: 'TOTAL GENERAL',          val: totalGeneral,                   cls: 'k-slate',         bg: '#f1f5f9', icon: ICONS.totalGeneral, sub: '' },
     ];
     document.getElementById('kpi-grid').innerHTML = cards.map(c => `
@@ -967,6 +1096,40 @@
         </div>
       </div>
     `).join('');
+  }
+ 
+  // Renderiza la card explicativa con el desglose del Total Operativo
+  function renderOperativo(rows) {
+    const categorias = [
+      { nombre: 'Forzamiento de Tiempos', kw: 'forzamiento', color: '#ca8a04' },
+      { nombre: 'Semáforo Apagado',       kw: 'apagado',     color: '#dc2626' },
+      { nombre: 'Mejora de Tiempos',      kw: 'mejora',      color: '#65a30d' },
+      { nombre: 'Intermitencia',          kw: 'intermitencia', color: '#2563eb' },
+      { nombre: 'Error de Comunicación',  kw: 'error',       color: '#9333ea' },
+      { nombre: 'Apoyo en Accidentes',    kw: 'accidente',   color: '#ea580c' },
+      { nombre: 'Revisión VDT',           kw: 'vdt',         color: '#0d9488' },
+    ];
+ 
+    const filas = categorias
+      .map(cat => `
+        <div class="operativo-row">
+          <div class="operativo-dot" style="background:${cat.color}"></div>
+          <div class="operativo-name">${cat.nombre}</div>
+        </div>`)
+      .join('');
+ 
+    document.getElementById('operativo-panel').innerHTML = `
+      <div class="operativo-header">
+        <div class="operativo-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Composición del Total Operativo
+        </div>
+      </div>
+      <div class="operativo-grid">${filas}</div>`;
   }
  
   // Renderiza la clasificación Normal vs Extraordinario con desglose por operador

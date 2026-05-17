@@ -7,6 +7,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
+ 
+    /* ── Variables globales (design tokens) ─────────────────
+       Modifica aquí colores, sombras y radios sin tocar
+       el resto del código.
+    ─────────────────────────────────────────────────────── */
     :root {
       --bg-page:         #f5f7fb;
       --bg-white:        #ffffff;
@@ -40,6 +45,7 @@
       --r-xl: 20px;
     }
  
+    /* ── Reset y tipografía base ─────────────────────────── */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
  
     body {
@@ -50,11 +56,12 @@
       -webkit-font-smoothing: antialiased;
     }
  
+    /* ── Animaciones ─────────────────────────────────────── */
     @keyframes spin    { to { transform: rotate(360deg); } }
     @keyframes pulse   { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
     @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
  
-    /* Loading */
+    /* ── Loading overlay (se elimina del DOM al cargar datos) */
     #loading-overlay {
       position: fixed; inset: 0;
       background: var(--bg-header);
@@ -75,7 +82,7 @@
     .loading-sub   { font-size: 10px; color: var(--yellow); letter-spacing: .12em; text-transform: uppercase; }
     .loading-msg   { font-size: 11px; color: rgba(255,255,255,.4); letter-spacing: .1em; text-transform: uppercase; }
  
-    /* Header */
+    /* ── Header principal (posición sticky) ─────────────── */
     .header {
       background: rgba(11,17,32,.97);
       border-bottom: 2px solid var(--yellow);
@@ -116,7 +123,7 @@
     }
     .btn-refresh:hover { background: rgba(245,158,11,.18); transform: translateY(-1px); }
  
-    /* Filtros */
+    /* ── Barra de filtros ───────────────────────────────── */
     .filter-bar { background: var(--bg-white); border-bottom: 1px solid var(--border); }
     .filter-bar-inner { max-width: 1400px; margin: 0 auto; padding: 11px 32px; }
     .filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -193,10 +200,10 @@
     .tab-panel        { display: none; animation: slideUp .25s ease; }
     .tab-panel.active { display: block; }
  
-    /* Layout */
+    /* ── Contenedor principal ───────────────────────────── */
     .main { max-width: 1400px; margin: 0 auto; padding: 26px 32px 52px; }
  
-    /* Card base */
+    /* ── Card base — todos los paneles comparten esta clase */
     .card {
       background: var(--bg-white);
       border: 1px solid var(--border);
@@ -218,7 +225,7 @@
       background: var(--flag-blue); border-radius: 3px; flex-shrink: 0;
     }
  
-    /* KPI grid */
+    /* ── KPI cards ──────────────────────────────────────── */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(225px, 1fr));
@@ -268,11 +275,11 @@
       letter-spacing: .07em; margin-top: 3px;
     }
  
-    /* Dashboard grid */
+    /* ── Grid del dashboard (Normal/Extra + tabla) ────────── */
     .dashboard-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; }
     @media (max-width: 1000px) { .dashboard-grid { grid-template-columns: 1fr; } }
  
-    /* Normal / Extraordinario */
+    /* ── Panel Normal / Extraordinario ─────────────────── */
     .norex-item {
       display: flex; align-items: center; justify-content: space-between;
       padding: 13px 0; border-bottom: 1px solid var(--border);
@@ -304,7 +311,7 @@
       padding: 2px 9px; border-radius: 20px; font-size: 11px;
     }
  
-    /* Tabla */
+    /* ── Tabla de últimos eventos ───────────────────────── */
     .table-scroll { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
     thead th {
@@ -327,7 +334,7 @@
       padding: 2px 7px; border-radius: 5px; display: inline-block;
     }
  
-    /* Badges */
+    /* ── Badges de tipo de incidencia ───────────────────── */
     .badge {
       display: inline-block; padding: 2px 9px; border-radius: 20px;
       font-size: 9px; font-weight: 700; white-space: nowrap;
@@ -341,7 +348,7 @@
     .b-gray   { background: var(--bg-page);     color: var(--text-mid); }
     .b-orange { background: var(--orange-soft); color: var(--orange); }
  
-    /* Gráficas */
+    /* ── Gráficas — grid de 3 cols en escritorio ────────── */
     .charts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px; }
     .full-width   { grid-column: span 3; }
     @media (max-width: 1100px) { .charts-grid { grid-template-columns: repeat(2, 1fr); } .full-width { grid-column: span 2; } }
@@ -376,6 +383,8 @@
  
 <body>
  
+ 
+<!-- ── Loading overlay ─────────────────────────────────────── -->
 <div id="loading-overlay">
   <div style="filter:drop-shadow(0 0 10px rgba(255,209,0,.4))">
     <svg width="60" height="70" viewBox="0 0 44 52" fill="none">
@@ -397,6 +406,8 @@
   <div class="loading-msg">Cargando datos...</div>
 </div>
  
+ 
+<!-- ── Header ──────────────────────────────────────────────── -->
 <header class="header">
   <div class="header-inner">
     <div class="header-brand">
@@ -436,6 +447,8 @@
   </div>
 </header>
  
+ 
+<!-- ── Barra de filtros (fechas, incidencia, ciudad, reporte) ── -->
 <div class="filter-bar">
   <div class="filter-bar-inner">
     <div class="filter-row">
@@ -482,6 +495,8 @@
   </div>
 </div>
  
+ 
+<!-- ── Navegación de pestañas ───────────────────────────────── -->
 <div class="tab-bar">
   <div class="tab-bar-inner">
     <button class="tab-btn active" id="tab-dashboard" onclick="switchTab('dashboard')">
@@ -504,6 +519,8 @@
   </div>
 </div>
  
+ 
+<!-- ── Pestaña: Dashboard (KPIs + clasificación + tabla) ──── -->
 <div class="tab-panel active" id="panel-dashboard">
   <main class="main">
     <div class="kpi-grid" id="kpi-grid"></div>
@@ -533,6 +550,8 @@
   </main>
 </div>
  
+ 
+<!-- ── Pestaña: Gráficas (barras, dona, distribución, tendencia) -->
 <div class="tab-panel" id="panel-graficas">
   <main class="main">
     <div class="charts-grid">
@@ -564,6 +583,11 @@
 <script>
   'use strict';
  
+  /* ─── Configuración ───────────────────────────────────────────
+     Actualizar SHEET_ID / SHEET_NAME si cambia la fuente de datos.
+     Los índices de COL corresponden a columnas del Sheet (base 0).
+  ─────────────────────────────────────────────────────────────── */
+ 
   // Configuración del Sheet
   const SHEET_ID   = '1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU';
   const SHEET_NAME = 'P. Semaforico';
@@ -574,7 +598,10 @@
     DIR: 6, CIUDAD: 7, OPERADOR: 10, ANOMALIA: 11,
   };
  
-  // Catálogo de incidencias — claves en minúsculas para comparación directa
+  /* ─── Catálogo de incidencias ─────────────────────────────────
+     Fuente única de verdad para etiquetas, badges y colores.
+     Las claves van en minúsculas para que toLowerCase() funcione.
+  ─────────────────────────────────────────────────────────────── */
   const TIPOS = {
     'forzamiento de tiempos': { label: 'Forzamiento de Tiempos', badge: 'b-amber',  color: '#f59e0b' },
     'forzamiento de tiempo':  { label: 'Forzamiento de Tiempos', badge: 'b-amber',  color: '#f59e0b' },
@@ -591,12 +618,16 @@
     'vdt':                    { label: 'Revisión VDT',           badge: 'b-orange', color: '#f97316' },
   };
  
+  // Helpers — derivados del catálogo TIPOS
   const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw || 'Otro', badge: 'b-gray', color: '#6b7280' };
   const getColor = label => Object.values(TIPOS).find(t => t.label === label)?.color ?? '#6b7280';
   const isNormal = r     => (r.anomalia || '').toLowerCase().trim() === 'normal';
   const countKw  = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
  
-  // Íconos SVG de las KPI cards
+  /* ─── Íconos SVG de las KPI cards ─────────────────────────────
+     Cada ícono es SVG inline (48×48 px) con paleta oscura (#1e293b)
+     y el color de acento de su categoría.
+  ─────────────────────────────────────────────────────────────── */
   const ICONS = {
     forzamiento: `<svg viewBox="0 0 48 48" fill="none">
       <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
@@ -710,7 +741,7 @@
     </svg>`,
   };
  
-  // Colores de las gráficas Chart.js
+  // Paleta de colores para Chart.js — coincide con la de TIPOS
   const CHART_COLORS = {
     'Forzamiento de Tiempos': { bg: 'rgba(245,158,11,0.7)',  border: '#f59e0b' },
     'Apagado':                { bg: 'rgba(220,38,38,0.7)',   border: '#dc2626' },
@@ -723,11 +754,18 @@
     'Revisión VDT':           { bg: 'rgba(249,115,22,0.7)',  border: '#f97316' },
   };
  
-  // Estado global
-  let dataset = [], lastFilteredRows = [];
-  let chartBar = null, chartDonut = null, chartLine = null;
+  /* ─── Estado global ─────────────────────────────────────────── */
+  let dataset = [];          // Filas cargadas desde el Sheet
+  let lastFilteredRows = []; // Último resultado de applyFilters()
+  let chartBar   = null; // Instancia Chart.js — barras
+  let chartDonut = null; // Instancia Chart.js — dona
+  let chartLine  = null; // Instancia Chart.js — línea
  
-  // Carga de datos desde Google Sheets (GViz API)
+  /* ─── Carga de datos ────────────────────────────────────────────
+     Usa la API GViz de Google Sheets (no requiere clave de API).
+     El regex extrae el JSON del wrapper setResponse({...}).
+     NOTA: usar substring(47) es frágil; el regex es más robusto.
+  ─────────────────────────────────────────────────────────────── */
   async function loadData() {
     document.getElementById('update-note').textContent = 'ACTUALIZANDO...';
     try {
@@ -769,18 +807,22 @@
     }
   }
  
-  // Helpers de fechas y filtros
+  /* ─── Filtros y rango de fechas ─────────────────────────────── */
+ 
+  // Convierte "d/m/yyyy" del Sheet a objeto Date; retorna null si inválido
   function parseSheetDate(str) {
     const [d, m, y] = str.split('/');
     return y ? new Date(+y, +m - 1, +d) : null;
   }
  
+  // Marca visualmente el botón de rango activo (pasa null para desmarcar todos)
   function setActiveRangeBtn(id) {
     ['mes', 'ant', '3m', 'todo'].forEach(k =>
       document.getElementById('rbtn-' + k)?.classList.toggle('active-range', k === id)
     );
   }
  
+  // Limpia los inputs de fecha y vuelve a filtrar
   function clearDates() {
     document.getElementById('f-fecha-ini').value = '';
     document.getElementById('f-fecha-fin').value = '';
@@ -788,12 +830,14 @@
     applyFilters();
   }
  
+  // Se llama cuando el usuario edita una fecha manualmente
   function onManualDate() {
     setActiveRangeBtn(null);
     document.getElementById('range-warning').classList.remove('visible');
     applyFilters();
   }
  
+  // Aplica un rango de fechas predefinido: mes, ant, 3m o todo
   function setRange(rango) {
     const hoy = new Date(), y = hoy.getFullYear(), m = hoy.getMonth();
     const fmt = d => d.toISOString().slice(0, 10);
@@ -811,6 +855,7 @@
     applyFilters();
   }
  
+  /* Aplica todos los filtros activos y actualiza KPIs, tabla y gráficas */
   function applyFilters() {
     const fechaIni = document.getElementById('f-fecha-ini').value;
     const fechaFin = document.getElementById('f-fecha-fin').value;
@@ -838,7 +883,9 @@
     if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(filtered);
   }
  
-  // Render de KPI cards
+  /* ─── Render ────────────────────────────────────────────────── */
+ 
+  // Construye y renderiza las 8 tarjetas KPI en #kpi-grid
   function renderKPIs(rows) {
     const cards = [
       { label: 'FORZAMIENTO DE TIEMPOS', val: countKw(rows, 'forzamiento'),  cls: 'k-yellow', bg: '#fffbeb', icon: ICONS.forzamiento  },
@@ -861,7 +908,7 @@
     `).join('');
   }
  
-  // Render del panel Normal / Extraordinario
+  // Renderiza la clasificación Normal vs Extraordinario con desglose por operador
   function renderNorEx(rows) {
     const normal = rows.filter(isNormal);
     const extra  = rows.filter(r => !isNormal(r));
@@ -903,7 +950,7 @@
     `;
   }
  
-  // Render de la tabla de eventos
+  // Muestra los últimos 15 registros del período en #tabla-body
   function renderTable(rows) {
     const items = [...rows].slice(-30).reverse().slice(0, 15);
     document.getElementById('tabla-body').innerHTML = items.length
@@ -921,7 +968,7 @@
       : '<tr><td colspan="6" class="empty">Sin registros para el período seleccionado</td></tr>';
   }
  
-  // Navegación de tabs
+  // Activa la pestaña seleccionada; renderiza gráficas si es necesario
   function switchTab(name) {
     document.querySelectorAll('.tab-btn').forEach(b   => b.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -930,7 +977,10 @@
     if (name === 'graficas' && lastFilteredRows.length) renderCharts(lastFilteredRows);
   }
  
-  // Render de gráficas
+  /* ─── Gráficas ──────────────────────────────────────────────────
+     Cada instancia Chart.js debe destruirse antes de recrearse
+     para evitar el bug de canvas reutilizado.
+  ─────────────────────────────────────────────────────────────── */
   function renderCharts(rows) {
     const counts = {};
     rows.forEach(r => { const t = getTipo(r.incidencia); counts[t.label] = (counts[t.label] || 0) + 1; });
@@ -951,6 +1001,7 @@
         ).join('')
       : '<div class="empty">Sin datos</div>';
  
+    // Gráfica de barras: cantidad por tipo de incidencia
     if (chartBar) chartBar.destroy();
     chartBar = new Chart(document.getElementById('chart-bar'), {
       type: 'bar',
@@ -965,6 +1016,7 @@
       },
     });
  
+    // Gráfica de dona: distribución porcentual
     if (chartDonut) chartDonut.destroy();
     chartDonut = new Chart(document.getElementById('chart-donut'), {
       type: 'doughnut',
@@ -978,6 +1030,7 @@
       },
     });
  
+    // Gráfica de línea: agrupa por mes y cuenta forzamiento vs apagado
     const byMonth = {};
     rows.forEach(r => {
       const p = r.fecha.split('/');
@@ -1016,6 +1069,7 @@
     });
   }
  
+  // Punto de entrada: espera el DOM, carga datos y quita el loading
   window.addEventListener('DOMContentLoaded', async () => {
     await loadData();
     const overlay = document.getElementById('loading-overlay');

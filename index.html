@@ -7,7 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
- 
     /* ── Variables globales (design tokens) ─────────────────
        Modifica aquí colores, sombras y radios sin tocar
        el resto del código.
@@ -37,7 +36,6 @@
       --flag-blue-soft:  #e6ebf5;
       --border:          #f1f5f9;
       --border-mid:      #e2e8f0;
-      --shadow-sm:       0 1px 2px rgba(0,0,0,0.04);
       --shadow-md:       0 4px 12px rgba(0,0,0,0.08);
       --r-sm: 8px;
       --r-md: 12px;
@@ -202,9 +200,8 @@
     .main { max-width: 1400px; margin: 0 auto; padding: 26px 32px 52px; }
  
     /* ── Card base — todos los paneles comparten esta clase
-       El hover está desactivado intencionalmente para evitar
-       distracciones visuales durante la operación del dashboard.
-    */
+       El hover está desactivado para evitar distracciones durante
+       la operación del dashboard. ─────────────────────────────── */
     .card {
       background: var(--bg-white);
       border: 1px solid var(--border);
@@ -546,16 +543,16 @@
       <!-- Fila 1: dona + numérica, una columna cada una -->
       <div class="card">
         <div class="card-title">DISTRIBUCIÓN PORCENTUAL</div>
-        <div class="chart-box"><canvas id="chart-donut"></canvas></div>
+        <div class="chart-box" style="height:320px"><canvas id="chart-donut"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">DISTRIBUCIÓN NUMÉRICA</div>
-        <div id="dist-numerica" style="max-height:275px;overflow-y:auto"></div>
+        <div id="dist-numerica" style="overflow-y:auto"></div>
       </div>
       <!-- Fila 2: barras a ancho completo -->
       <div class="card full-width">
         <div class="card-title">INCIDENCIAS POR TIPO</div>
-        <div class="chart-box" style="height:300px"><canvas id="chart-bar"></canvas></div>
+        <div class="chart-box" style="height:340px"><canvas id="chart-bar"></canvas></div>
       </div>
     </div>
     <div class="footer">
@@ -606,7 +603,6 @@
     'visita técnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#0369a1' },
     'chorros':                { label: 'Chorros',                 badge: 'b-purple', color: '#6d28d9' },
     'ramas':                  { label: 'Ramas / Vegetación',      badge: 'b-green',  color: '#15803d' },
-    'comunicacion':           { label: 'Error de Comunicación',   badge: 'b-purple', color: '#8b5cf6' },
   };
  
   // Helpers — derivados del catálogo TIPOS
@@ -791,7 +787,7 @@
       const ciudades = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
       document.getElementById('f-ciudad').innerHTML =
         '<option value="">TODAS LAS CIUDADES</option>' +
-        ciudades.map(c => `<option value="${c}">${c}</option>`).join('');
+        ciudades.map(ciudad => `<option value="${ciudad}">${ciudad}</option>`).join('');
  
       const hora = new Date().toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit' });
       document.getElementById('update-note').textContent  = `${hora} · ${dataset.length} registros`;
@@ -977,19 +973,34 @@
   /* ─── Gráficas ──────────────────────────────────────────────────
      Cada instancia Chart.js debe destruirse antes de recrearse
      para evitar el bug de canvas reutilizado.
+     Se muestran TODOS los tipos presentes en el período filtrado,
+     ordenados de mayor a menor. Las etiquetas largas se parten en
+     dos líneas para evitar solapamiento en el eje X.
   ─────────────────────────────────────────────────────────────── */
   function renderCharts(rows) {
+    // Contar ocurrencias por tipo de incidencia normalizado
     const counts = {};
-    rows.forEach(r => { const t = getTipo(r.incidencia); counts[t.label] = (counts[t.label] || 0) + 1; });
+    rows.forEach(r => {
+      const t = getTipo(r.incidencia);
+      counts[t.label] = (counts[t.label] || 0) + 1;
+    });
  
-    // Mostrar hasta 12 tipos para mayor detalle sin saturar visualmente
-    const sorted  = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 12);
+    // Todos los tipos presentes, ordenados de mayor a menor
+    const sorted  = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     const labels  = sorted.map(([l]) => l);
     const values  = sorted.map(([, v]) => v);
     const bgs     = labels.map(l => CHART_COLORS[l]?.bg     || 'rgba(107,114,128,0.7)');
     const borders = labels.map(l => CHART_COLORS[l]?.border || '#6b7280');
  
-    // Lista numérica: dot + label + valor por cada tipo de incidencia
+    // Parte etiquetas largas en dos líneas para el eje X de barras
+    // Chart.js acepta arrays de strings como etiqueta multilínea
+    const labelsMultiline = labels.map(l => {
+      if (l.length <= 14) return l;
+      const mid = l.lastIndexOf(' ', Math.floor(l.length / 2) + 4);
+      return mid > 0 ? [l.slice(0, mid), l.slice(mid + 1)] : l;
+    });
+ 
+    // Lista numérica: dot + label + valor — muestra todos
     document.getElementById('dist-numerica').innerHTML = sorted.length
       ? sorted.map(([label, val]) => `
           <div class="dist-item">
@@ -1000,31 +1011,87 @@
         ).join('')
       : '<div class="empty">Sin datos</div>';
  
-    // Gráfica de barras: cantidad por tipo de incidencia
+    // Gráfica de barras: todos los tipos con etiquetas en 2 líneas
     if (chartBar) chartBar.destroy();
     chartBar = new Chart(document.getElementById('chart-bar'), {
       type: 'bar',
-      data: { labels, datasets: [{ data: values, backgroundColor: bgs, borderColor: borders, borderWidth: 1.5, borderRadius: 5, barPercentage: 0.7, categoryPercentage: 0.8 }] },
+      data: {
+        labels: labelsMultiline,
+        datasets: [{
+          data: values,
+          backgroundColor: bgs,
+          borderColor: borders,
+          borderWidth: 1.5,
+          borderRadius: 5,
+          barPercentage: 0.65,
+          categoryPercentage: 0.75,
+        }],
+      },
       options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.raw} registros` } } },
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              // Mostrar el label completo (sin partir) en el tooltip
+              title: items => labels[items[0].dataIndex],
+              label: ctx  => ` ${ctx.raw} registros`,
+            },
+          },
+        },
         scales: {
-          y: { beginAtZero: true, grid: { color: '#e5e7eb' }, title: { display: true, text: 'Cantidad', font: { size: 11, weight: '600' }, color: '#6b7280' } },
-          x: { ticks: { font: { size: 11, weight: '500' }, color: '#374151', maxRotation: 35 }, grid: { display: false } },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#e5e7eb' },
+            title: { display: true, text: 'Cantidad', font: { size: 11, weight: '600' }, color: '#6b7280' },
+          },
+          x: {
+            // maxRotation: 0 evita que Chart.js rote las etiquetas
+            // la partición en 2 líneas las mantiene legibles en vertical
+            ticks: { font: { size: 10, weight: '500' }, color: '#374151', maxRotation: 0, autoSkip: false },
+            grid: { display: false },
+          },
         },
       },
     });
  
-    // Gráfica de dona: distribución porcentual
+    // Gráfica de dona: distribución porcentual con leyenda en la parte inferior
     if (chartDonut) chartDonut.destroy();
     chartDonut = new Chart(document.getElementById('chart-donut'), {
       type: 'doughnut',
-      data: { labels, datasets: [{ data: values, backgroundColor: borders.map(c => c + 'dd'), borderColor: '#fff', borderWidth: 2, hoverOffset: 7 }] },
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          backgroundColor: borders.map(c => c + 'dd'),
+          borderColor: '#fff',
+          borderWidth: 2,
+          hoverOffset: 6,
+        }],
+      },
       options: {
-        responsive: true, maintainAspectRatio: false, cutout: '62%',
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '55%',
+        layout: { padding: { bottom: 8 } },
         plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 11, font: { size: 11 }, color: '#374151', usePointStyle: true, pointStyle: 'circle', padding: 14 } },
-          tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.raw} (${((ctx.raw / rows.length) * 100).toFixed(1)}%)` } },
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 9,
+              font: { size: 10 },
+              color: '#374151',
+              usePointStyle: true,
+              pointStyle: 'circle',
+              padding: 10,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.label}: ${ctx.raw} (${((ctx.raw / rows.length) * 100).toFixed(1)}%)`,
+            },
+          },
         },
       },
     });

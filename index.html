@@ -903,6 +903,16 @@
  
   // Construye y renderiza las 8 tarjetas KPI en #kpi-grid
   function renderKPIs(rows) {
+    // Total = suma de las 7 categorías operativas principales
+    const totalKPI =
+      countKw(rows, 'forzamiento') +
+      countKw(rows, 'apagado')     +
+      countKw(rows, 'mejora')      +
+      countKw(rows, 'intermitencia') +
+      countKw(rows, 'error')       +
+      countKw(rows, 'accidente')   +
+      countKw(rows, 'vdt');
+ 
     const cards = [
       { label: 'FORZAMIENTO DE TIEMPOS', val: countKw(rows, 'forzamiento'),  cls: 'k-yellow', bg: '#fffbeb', icon: ICONS.forzamiento  },
       { label: 'SEMÁFORO APAGADO',       val: countKw(rows, 'apagado'),       cls: 'k-red',    bg: '#fef2f2', icon: ICONS.apagado      },
@@ -911,7 +921,7 @@
       { label: 'ERROR DE COMUNICACIÓN',  val: countKw(rows, 'error'),         cls: 'k-purple', bg: '#f5f3ff', icon: ICONS.error        },
       { label: 'APOYO EN ACCIDENTES',    val: countKw(rows, 'accidente'),     cls: 'k-red',    bg: '#fff1f2', icon: ICONS.accidente    },
       { label: 'REVISIÓN VDT',           val: countKw(rows, 'vdt'),           cls: 'k-orange', bg: '#fff7ed', icon: ICONS.vdt          },
-      { label: 'TOTAL DE REGISTROS',     val: rows.length,                    cls: 'k-blue',   bg: '#eff6ff', icon: ICONS.total        },
+      { label: 'TOTAL DE REGISTROS',     val: totalKPI,                       cls: 'k-blue',   bg: '#eff6ff', icon: ICONS.total        },
     ];
     document.getElementById('kpi-grid').innerHTML = cards.map(c => `
       <div class="kpi-card ${c.cls}">

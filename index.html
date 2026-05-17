@@ -245,6 +245,9 @@
     .kpi-card.k-blue::before   { background: var(--blue); }
     .kpi-card.k-purple::before { background: var(--purple); }
     .kpi-card.k-orange::before { background: var(--orange); }
+    /* k-slate: color neutro para el total general de todos los registros */
+    .kpi-card.k-slate::before { background: linear-gradient(180deg, #475569, #64748b); }
+ 
     .kpi-card.k-intermitencia::before {
       background: linear-gradient(180deg,
         #dc2626 0%,   #dc2626 33%,
@@ -512,7 +515,9 @@
   </div>
 </div>
  
-<!-- ── Pestaña: Dashboard (KPIs + clasificación + tabla) ──── -->
+<!-- ── Pestaña: Dashboard (KPIs + clasificación + tabla)
+     kpi-grid se renderiza con 9 tarjetas: 7 categorías + total operativo + total general
+─────────────────────────────────────────────────────────────── -->
 <div class="tab-panel active" id="panel-dashboard">
   <main class="main">
     <div class="kpi-grid" id="kpi-grid"></div>
@@ -740,6 +745,24 @@
       <circle cx="24" cy="38" r="5.5" fill="#065f46"/>
       <circle cx="24" cy="38" r="4" fill="#10b981" opacity="0.6"/>
     </svg>`,
+ 
+    // Ícono de base de datos / lista: representa TODOS los registros
+    totalGeneral: `<svg viewBox="0 0 48 48" fill="none">
+      <!-- Carpeta o contenedor general -->
+      <rect x="6"  y="10" width="36" height="28" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1.2"/>
+      <rect x="6"  y="10" width="36" height="7"  rx="4" fill="#0f172a"/>
+      <rect x="6"  y="14" width="36" height="3"  fill="#0f172a"/>
+      <!-- Líneas de registro -->
+      <line x1="13" y1="24" x2="35" y2="24" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="13" y1="29" x2="30" y2="29" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="13" y1="34" x2="26" y2="34" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Punto de color en cada fila -->
+      <circle cx="10" cy="24" r="1.8" fill="#3b82f6"/>
+      <circle cx="10" cy="29" r="1.8" fill="#8b5cf6"/>
+      <circle cx="10" cy="34" r="1.8" fill="#10b981"/>
+      <!-- Pestaña superior de la carpeta -->
+      <rect x="6" y="7" width="14" height="5" rx="2" fill="#334155"/>
+    </svg>`,
   };
  
   // Paleta de Chart.js — 16 colores vivos, sin grises ni colores apagados.
@@ -901,27 +924,31 @@
  
   /* ─── Render ────────────────────────────────────────────────── */
  
-  // Construye y renderiza las 8 tarjetas KPI en #kpi-grid
+  // Construye y renderiza las 9 tarjetas KPI en #kpi-grid
   function renderKPIs(rows) {
-    // Total = suma de las 7 categorías operativas principales
-    const totalKPI =
-      countKw(rows, 'forzamiento') +
-      countKw(rows, 'apagado')     +
-      countKw(rows, 'mejora')      +
+    // Total operativo = suma de las 7 categorías principales del dashboard
+    const totalOperativo =
+      countKw(rows, 'forzamiento')  +
+      countKw(rows, 'apagado')      +
+      countKw(rows, 'mejora')       +
       countKw(rows, 'intermitencia') +
-      countKw(rows, 'error')       +
-      countKw(rows, 'accidente')   +
+      countKw(rows, 'error')        +
+      countKw(rows, 'accidente')    +
       countKw(rows, 'vdt');
  
+    // Total general = todos los registros del período (incluyendo categorías secundarias)
+    const totalGeneral = rows.length;
+ 
     const cards = [
-      { label: 'FORZAMIENTO DE TIEMPOS', val: countKw(rows, 'forzamiento'),  cls: 'k-yellow', bg: '#fffbeb', icon: ICONS.forzamiento  },
-      { label: 'SEMÁFORO APAGADO',       val: countKw(rows, 'apagado'),       cls: 'k-red',    bg: '#fef2f2', icon: ICONS.apagado      },
-      { label: 'MEJORA DE TIEMPOS',      val: countKw(rows, 'mejora'),        cls: 'k-green',  bg: '#ecfdf5', icon: ICONS.mejora       },
+      { label: 'FORZAMIENTO DE TIEMPOS', val: countKw(rows, 'forzamiento'),  cls: 'k-yellow',       bg: '#fffbeb', icon: ICONS.forzamiento   },
+      { label: 'SEMÁFORO APAGADO',       val: countKw(rows, 'apagado'),       cls: 'k-red',          bg: '#fef2f2', icon: ICONS.apagado       },
+      { label: 'MEJORA DE TIEMPOS',      val: countKw(rows, 'mejora'),        cls: 'k-green',        bg: '#ecfdf5', icon: ICONS.mejora        },
       { label: 'INTERMITENCIA',          val: countKw(rows, 'intermitencia'), cls: 'k-intermitencia', bg: '#fff7ed', icon: ICONS.intermitencia },
-      { label: 'ERROR DE COMUNICACIÓN',  val: countKw(rows, 'error'),         cls: 'k-purple', bg: '#f5f3ff', icon: ICONS.error        },
-      { label: 'APOYO EN ACCIDENTES',    val: countKw(rows, 'accidente'),     cls: 'k-red',    bg: '#fff1f2', icon: ICONS.accidente    },
-      { label: 'REVISIÓN VDT',           val: countKw(rows, 'vdt'),           cls: 'k-orange', bg: '#fff7ed', icon: ICONS.vdt          },
-      { label: 'TOTAL DE REGISTROS',     val: totalKPI,                       cls: 'k-blue',   bg: '#eff6ff', icon: ICONS.total        },
+      { label: 'ERROR DE COMUNICACIÓN',  val: countKw(rows, 'error'),         cls: 'k-purple',       bg: '#f5f3ff', icon: ICONS.error         },
+      { label: 'APOYO EN ACCIDENTES',    val: countKw(rows, 'accidente'),     cls: 'k-red',          bg: '#fff1f2', icon: ICONS.accidente     },
+      { label: 'REVISIÓN VDT',           val: countKw(rows, 'vdt'),           cls: 'k-orange',       bg: '#fff7ed', icon: ICONS.vdt           },
+      { label: 'TOTAL OPERATIVO',        val: totalOperativo,                 cls: 'k-blue',         bg: '#eff6ff', icon: ICONS.total         },
+      { label: 'TOTAL GENERAL',          val: totalGeneral,                   cls: 'k-slate',        bg: '#f1f5f9', icon: ICONS.totalGeneral  },
     ];
     document.getElementById('kpi-grid').innerHTML = cards.map(c => `
       <div class="kpi-card ${c.cls}">

@@ -361,9 +361,9 @@
     .dist-item:hover { background: var(--bg-page); margin: 0 -8px; padding: 9px 8px; border-radius: var(--r-sm); }
     .dist-item:last-child { border-bottom: none; }
     .dist-dot   { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-    .dist-label { flex: 1; font-size: 12px; font-weight: 500; color: var(--text-mid); }
+    .dist-label { flex: 1; font-size: 13px; font-weight: 500; color: var(--text-mid); }
     .dist-val   {
-      font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800;
+      font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800;
       color: var(--text-dark); background: var(--bg-page); padding: 2px 9px; border-radius: 20px;
     }
  
@@ -598,6 +598,15 @@
     'accidente':              { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#ef4444' },
     'vdt volumen':            { label: 'Revisión VDT',           badge: 'b-orange', color: '#f97316' },
     'vdt':                    { label: 'Revisión VDT',           badge: 'b-orange', color: '#f97316' },
+    'falla':                  { label: 'Falla',                   badge: 'b-red',    color: '#be123c' },
+    'tiempos':                { label: 'Ajuste de Tiempos',       badge: 'b-blue',   color: '#0284c7' },
+    'mantenimiento':          { label: 'Mantenimiento',           badge: 'b-gray',   color: '#64748b' },
+    'vandalismo':             { label: 'Vandalismo',              badge: 'b-red',    color: '#9f1239' },
+    'visita tecnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#0369a1' },
+    'visita técnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#0369a1' },
+    'chorros':                { label: 'Chorros',                 badge: 'b-purple', color: '#6d28d9' },
+    'ramas':                  { label: 'Ramas / Vegetación',      badge: 'b-green',  color: '#15803d' },
+    'comunicacion':           { label: 'Error de Comunicación',   badge: 'b-purple', color: '#8b5cf6' },
   };
  
   // Helpers — derivados del catálogo TIPOS
@@ -722,17 +731,25 @@
     </svg>`,
   };
  
-  // Paleta de colores para Chart.js — coincide con la de TIPOS
+  // Paleta diferenciada para Chart.js — un color único por categoría
+  // Diseñada para máxima distinción visual entre tipos de incidencia
   const CHART_COLORS = {
-    'Forzamiento de Tiempos': { bg: 'rgba(245,158,11,0.7)',  border: '#f59e0b' },
-    'Apagado':                { bg: 'rgba(220,38,38,0.7)',   border: '#dc2626' },
-    'Mejora de Tiempos':      { bg: 'rgba(16,185,129,0.7)',  border: '#10b981' },
-    'Intermitencia':          { bg: 'rgba(59,130,246,0.7)',  border: '#3b82f6' },
-    'Error de Comunicación':  { bg: 'rgba(139,92,246,0.7)',  border: '#8b5cf6' },
-    'Funcionamiento':         { bg: 'rgba(20,184,166,0.7)',  border: '#14b8a6' },
-    'Programa':               { bg: 'rgba(139,92,246,0.7)',  border: '#8b5cf6' },
-    'Apoyo en Accidentes':    { bg: 'rgba(239,68,68,0.7)',   border: '#ef4444' },
-    'Revisión VDT':           { bg: 'rgba(249,115,22,0.7)',  border: '#f97316' },
+    'Forzamiento de Tiempos': { bg: 'rgba(234,179,8,0.75)',   border: '#ca8a04' }, // amarillo dorado
+    'Apagado':                { bg: 'rgba(239,68,68,0.75)',    border: '#dc2626' }, // rojo vivo
+    'Mejora de Tiempos':      { bg: 'rgba(34,197,94,0.75)',    border: '#16a34a' }, // verde brillante
+    'Intermitencia':          { bg: 'rgba(59,130,246,0.75)',   border: '#2563eb' }, // azul intenso
+    'Error de Comunicación':  { bg: 'rgba(168,85,247,0.75)',   border: '#9333ea' }, // violeta
+    'Apoyo en Accidentes':    { bg: 'rgba(249,115,22,0.75)',   border: '#ea580c' }, // naranja
+    'Revisión VDT':           { bg: 'rgba(20,184,166,0.75)',   border: '#0d9488' }, // teal
+    'Funcionamiento':         { bg: 'rgba(99,102,241,0.75)',   border: '#4f46e5' }, // índigo
+    'Programa':               { bg: 'rgba(236,72,153,0.75)',   border: '#db2777' }, // rosa
+    'Falla':                  { bg: 'rgba(190,18,60,0.75)',    border: '#9f1239' }, // carmesí
+    'Ajuste de Tiempos':      { bg: 'rgba(2,132,199,0.75)',    border: '#0284c7' }, // azul cielo
+    'Mantenimiento':          { bg: 'rgba(100,116,139,0.75)',  border: '#475569' }, // gris pizarra
+    'Vandalismo':             { bg: 'rgba(153,27,27,0.75)',    border: '#7f1d1d' }, // rojo oscuro
+    'Visita Técnica':         { bg: 'rgba(3,105,161,0.75)',    border: '#0369a1' }, // azul marino
+    'Chorros':                { bg: 'rgba(109,40,217,0.75)',   border: '#6d28d9' }, // púrpura
+    'Ramas / Vegetación':     { bg: 'rgba(21,128,61,0.75)',    border: '#15803d' }, // verde bosque
   };
  
   /* ─── Estado global ─────────────────────────────────────────── */
@@ -965,7 +982,8 @@
     const counts = {};
     rows.forEach(r => { const t = getTipo(r.incidencia); counts[t.label] = (counts[t.label] || 0) + 1; });
  
-    const sorted  = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    // Mostrar hasta 12 tipos para mayor detalle sin saturar visualmente
+    const sorted  = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 12);
     const labels  = sorted.map(([l]) => l);
     const values  = sorted.map(([, v]) => v);
     const bgs     = labels.map(l => CHART_COLORS[l]?.bg     || 'rgba(107,114,128,0.7)');
@@ -991,8 +1009,8 @@
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.raw} registros` } } },
         scales: {
-          y: { beginAtZero: true, grid: { color: '#e5e7eb' }, title: { display: true, text: 'Cantidad', font: { size: 9, weight: '600' }, color: '#9ca3af' } },
-          x: { ticks: { font: { size: 9 }, color: '#4b5563', maxRotation: 30 }, grid: { display: false } },
+          y: { beginAtZero: true, grid: { color: '#e5e7eb' }, title: { display: true, text: 'Cantidad', font: { size: 11, weight: '600' }, color: '#6b7280' } },
+          x: { ticks: { font: { size: 11, weight: '500' }, color: '#374151', maxRotation: 35 }, grid: { display: false } },
         },
       },
     });
@@ -1005,7 +1023,7 @@
       options: {
         responsive: true, maintainAspectRatio: false, cutout: '62%',
         plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 }, color: '#4b5563', usePointStyle: true, pointStyle: 'circle' } },
+          legend: { position: 'bottom', labels: { boxWidth: 11, font: { size: 11 }, color: '#374151', usePointStyle: true, pointStyle: 'circle', padding: 14 } },
           tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.raw} (${((ctx.raw / rows.length) * 100).toFixed(1)}%)` } },
         },
       },

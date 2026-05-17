@@ -582,27 +582,27 @@
      Las claves van en minúsculas para que toLowerCase() funcione.
   ─────────────────────────────────────────────────────────────── */
   const TIPOS = {
-    'forzamiento de tiempos': { label: 'Forzamiento de Tiempos', badge: 'b-amber',  color: '#f59e0b' },
-    'forzamiento de tiempo':  { label: 'Forzamiento de Tiempos', badge: 'b-amber',  color: '#f59e0b' },
+    'forzamiento de tiempos': { label: 'Forzamiento de Tiempos', badge: 'b-amber', color: '#ca8a04' },
+    'forzamiento de tiempo': { label: 'Forzamiento de Tiempos', badge: 'b-amber', color: '#ca8a04' },
     'apagado':                { label: 'Apagado',                badge: 'b-red',    color: '#dc2626' },
-    'mejora de tiempo':       { label: 'Mejora de Tiempos',      badge: 'b-green',  color: '#10b981' },
-    'mejora de tiempos':      { label: 'Mejora de Tiempos',      badge: 'b-green',  color: '#10b981' },
-    'intermitencia':          { label: 'Intermitencia',          badge: 'b-blue',   color: '#3b82f6' },
-    'error de comunicación':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#8b5cf6' },
-    'error de comunicacion':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#8b5cf6' },
-    'funcionamiento':         { label: 'Funcionamiento',         badge: 'b-green',  color: '#14b8a6' },
-    'programa':               { label: 'Programa',               badge: 'b-purple', color: '#8b5cf6' },
-    'accidente':              { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#ef4444' },
-    'vdt volumen':            { label: 'Revisión VDT',           badge: 'b-orange', color: '#f97316' },
-    'vdt':                    { label: 'Revisión VDT',           badge: 'b-orange', color: '#f97316' },
-    'falla':                  { label: 'Falla',                   badge: 'b-red',    color: '#be123c' },
-    'tiempos':                { label: 'Ajuste de Tiempos',       badge: 'b-blue',   color: '#0284c7' },
+    'mejora de tiempo':       { label: 'Mejora de Tiempos',      badge: 'b-green',  color: '#65a30d' },
+    'mejora de tiempos':      { label: 'Mejora de Tiempos',      badge: 'b-green',  color: '#65a30d' },
+    'intermitencia':          { label: 'Intermitencia',          badge: 'b-blue',   color: '#2563eb' },
+    'error de comunicación':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#9333ea' },
+    'error de comunicacion':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#9333ea' },
+    'funcionamiento':         { label: 'Funcionamiento',         badge: 'b-green',  color: '#4f46e5' },
+    'programa':               { label: 'Programa',               badge: 'b-purple', color: '#db2777' },
+    'accidente':              { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#ea580c' },
+    'vdt volumen':            { label: 'Revisión VDT',           badge: 'b-orange', color: '#0d9488' },
+    'vdt':                    { label: 'Revisión VDT',           badge: 'b-orange', color: '#0d9488' },
+    'falla':                  { label: 'Falla',                   badge: 'b-red',    color: '#ec4899' },
+    'tiempos':                { label: 'Ajuste de Tiempos',       badge: 'b-blue',   color: '#06b6d4' },
     'mantenimiento':          { label: 'Mantenimiento',           badge: 'b-gray',   color: '#64748b' },
-    'vandalismo':             { label: 'Vandalismo',              badge: 'b-red',    color: '#9f1239' },
-    'visita tecnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#0369a1' },
-    'visita técnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#0369a1' },
-    'chorros':                { label: 'Chorros',                 badge: 'b-purple', color: '#6d28d9' },
-    'ramas':                  { label: 'Ramas / Vegetación',      badge: 'b-green',  color: '#15803d' },
+    'vandalismo':             { label: 'Vandalismo',              badge: 'b-red',    color: '#a16207' },
+    'visita tecnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
+    'visita técnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
+    'chorros':                { label: 'Chorros',                 badge: 'b-purple', color: '#c026d3' },
+    'ramas':                  { label: 'Ramas / Vegetación',      badge: 'b-green',  color: '#84cc16' },
   };
  
   // Helpers — derivados del catálogo TIPOS
@@ -727,25 +727,26 @@
     </svg>`,
   };
  
-  // Paleta diferenciada para Chart.js — un color único por categoría
-  // Diseñada para máxima distinción visual entre tipos de incidencia
+  // Paleta de Chart.js — 16 colores perceptualmente distintos,
+  // uno por categoría, sin repetir familia de tono entre entradas.
+  // Cada bg es el mismo hex del border con 75% de opacidad.
   const CHART_COLORS = {
-    'Forzamiento de Tiempos': { bg: 'rgba(234,179,8,0.75)',   border: '#ca8a04' }, // amarillo dorado
-    'Apagado':                { bg: 'rgba(239,68,68,0.75)',    border: '#dc2626' }, // rojo vivo
-    'Mejora de Tiempos':      { bg: 'rgba(34,197,94,0.75)',    border: '#16a34a' }, // verde brillante
-    'Intermitencia':          { bg: 'rgba(59,130,246,0.75)',   border: '#2563eb' }, // azul intenso
-    'Error de Comunicación':  { bg: 'rgba(168,85,247,0.75)',   border: '#9333ea' }, // violeta
-    'Apoyo en Accidentes':    { bg: 'rgba(249,115,22,0.75)',   border: '#ea580c' }, // naranja
-    'Revisión VDT':           { bg: 'rgba(20,184,166,0.75)',   border: '#0d9488' }, // teal
-    'Funcionamiento':         { bg: 'rgba(99,102,241,0.75)',   border: '#4f46e5' }, // índigo
-    'Programa':               { bg: 'rgba(236,72,153,0.75)',   border: '#db2777' }, // rosa
-    'Falla':                  { bg: 'rgba(190,18,60,0.75)',    border: '#9f1239' }, // carmesí
-    'Ajuste de Tiempos':      { bg: 'rgba(2,132,199,0.75)',    border: '#0284c7' }, // azul cielo
-    'Mantenimiento':          { bg: 'rgba(100,116,139,0.75)',  border: '#475569' }, // gris pizarra
-    'Vandalismo':             { bg: 'rgba(153,27,27,0.75)',    border: '#7f1d1d' }, // rojo oscuro
-    'Visita Técnica':         { bg: 'rgba(3,105,161,0.75)',    border: '#0369a1' }, // azul marino
-    'Chorros':                { bg: 'rgba(109,40,217,0.75)',   border: '#6d28d9' }, // púrpura
-    'Ramas / Vegetación':     { bg: 'rgba(21,128,61,0.75)',    border: '#15803d' }, // verde bosque
+    'Forzamiento de Tiempos': { bg: 'rgba(202,138,4,0.75)',    border: '#ca8a04' }, // amarillo ámbar
+    'Apagado':                { bg: 'rgba(220,38,38,0.75)',     border: '#dc2626' }, // rojo
+    'Mejora de Tiempos':      { bg: 'rgba(101,163,13,0.75)',    border: '#65a30d' }, // verde lima
+    'Intermitencia':          { bg: 'rgba(37,99,235,0.75)',     border: '#2563eb' }, // azul rey
+    'Error de Comunicación':  { bg: 'rgba(147,51,234,0.75)',    border: '#9333ea' }, // violeta
+    'Apoyo en Accidentes':    { bg: 'rgba(234,88,12,0.75)',     border: '#ea580c' }, // naranja
+    'Revisión VDT':           { bg: 'rgba(13,148,136,0.75)',    border: '#0d9488' }, // cian oscuro
+    'Funcionamiento':         { bg: 'rgba(79,70,229,0.75)',     border: '#4f46e5' }, // índigo
+    'Programa':               { bg: 'rgba(219,39,119,0.75)',    border: '#db2777' }, // rosa fucsia
+    'Falla':                  { bg: 'rgba(236,72,153,0.75)',    border: '#ec4899' }, // magenta claro
+    'Ajuste de Tiempos':      { bg: 'rgba(6,182,212,0.75)',     border: '#06b6d4' }, // celeste
+    'Mantenimiento':          { bg: 'rgba(100,116,139,0.75)',   border: '#64748b' }, // gris azulado
+    'Vandalismo':             { bg: 'rgba(161,98,7,0.75)',      border: '#a16207' }, // marrón dorado
+    'Visita Técnica':         { bg: 'rgba(5,150,105,0.75)',     border: '#059669' }, // verde esmeralda
+    'Chorros':                { bg: 'rgba(192,38,211,0.75)',    border: '#c026d3' }, // orquídea
+    'Ramas / Vegetación':     { bg: 'rgba(132,204,22,0.75)',    border: '#84cc16' }, // verde oliva claro
   };
  
   /* ─── Estado global ─────────────────────────────────────────── */

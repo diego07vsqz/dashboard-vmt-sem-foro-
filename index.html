@@ -275,6 +275,12 @@
       color: var(--text-mid); text-transform: uppercase;
       letter-spacing: .07em; margin-top: 3px;
     }
+    /* Subtítulo descriptivo — solo lo usan cards que necesitan aclaración */
+    .kpi-sub {
+      font-size: 8px; font-weight: 500;
+      color: var(--text-light); margin-top: 4px;
+      line-height: 1.4; letter-spacing: .03em;
+    }
  
     /* ── Grid del dashboard (Normal/Extra + tabla) ────────── */
     .dashboard-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; }
@@ -940,15 +946,16 @@
     const totalGeneral = rows.length;
  
     const cards = [
-      { label: 'FORZAMIENTO DE TIEMPOS', val: countKw(rows, 'forzamiento'),  cls: 'k-yellow',       bg: '#fffbeb', icon: ICONS.forzamiento   },
-      { label: 'SEMÁFORO APAGADO',       val: countKw(rows, 'apagado'),       cls: 'k-red',          bg: '#fef2f2', icon: ICONS.apagado       },
-      { label: 'MEJORA DE TIEMPOS',      val: countKw(rows, 'mejora'),        cls: 'k-green',        bg: '#ecfdf5', icon: ICONS.mejora        },
-      { label: 'INTERMITENCIA',          val: countKw(rows, 'intermitencia'), cls: 'k-intermitencia', bg: '#fff7ed', icon: ICONS.intermitencia },
-      { label: 'ERROR DE COMUNICACIÓN',  val: countKw(rows, 'error'),         cls: 'k-purple',       bg: '#f5f3ff', icon: ICONS.error         },
-      { label: 'APOYO EN ACCIDENTES',    val: countKw(rows, 'accidente'),     cls: 'k-red',          bg: '#fff1f2', icon: ICONS.accidente     },
-      { label: 'REVISIÓN VDT',           val: countKw(rows, 'vdt'),           cls: 'k-orange',       bg: '#fff7ed', icon: ICONS.vdt           },
-      { label: 'TOTAL OPERATIVO',        val: totalOperativo,                 cls: 'k-blue',         bg: '#eff6ff', icon: ICONS.total         },
-      { label: 'TOTAL GENERAL',          val: totalGeneral,                   cls: 'k-slate',        bg: '#f1f5f9', icon: ICONS.totalGeneral  },
+      { label: 'FORZAMIENTO DE TIEMPOS', val: countKw(rows, 'forzamiento'),  cls: 'k-yellow',        bg: '#fffbeb', icon: ICONS.forzamiento,  sub: '' },
+      { label: 'SEMÁFORO APAGADO',       val: countKw(rows, 'apagado'),       cls: 'k-red',           bg: '#fef2f2', icon: ICONS.apagado,      sub: '' },
+      { label: 'MEJORA DE TIEMPOS',      val: countKw(rows, 'mejora'),        cls: 'k-green',         bg: '#ecfdf5', icon: ICONS.mejora,       sub: '' },
+      { label: 'INTERMITENCIA',          val: countKw(rows, 'intermitencia'), cls: 'k-intermitencia', bg: '#fff7ed', icon: ICONS.intermitencia, sub: '' },
+      { label: 'ERROR DE COMUNICACIÓN',  val: countKw(rows, 'error'),         cls: 'k-purple',        bg: '#f5f3ff', icon: ICONS.error,        sub: '' },
+      { label: 'APOYO EN ACCIDENTES',    val: countKw(rows, 'accidente'),     cls: 'k-red',           bg: '#fff1f2', icon: ICONS.accidente,    sub: '' },
+      { label: 'REVISIÓN VDT',           val: countKw(rows, 'vdt'),           cls: 'k-orange',        bg: '#fff7ed', icon: ICONS.vdt,          sub: '' },
+      { label: 'TOTAL OPERATIVO',        val: totalOperativo,                 cls: 'k-blue',          bg: '#eff6ff', icon: ICONS.total,
+        sub: 'Forz. · Apagado · Mejora · Intermit. · Error · Accidente · VDT' },
+      { label: 'TOTAL GENERAL',          val: totalGeneral,                   cls: 'k-slate',         bg: '#f1f5f9', icon: ICONS.totalGeneral, sub: '' },
     ];
     document.getElementById('kpi-grid').innerHTML = cards.map(c => `
       <div class="kpi-card ${c.cls}">
@@ -956,6 +963,7 @@
         <div class="kpi-content">
           <div class="kpi-num">${c.val}</div>
           <div class="kpi-label">${c.label}</div>
+          ${c.sub ? `<div class="kpi-sub">${c.sub}</div>` : ''}
         </div>
       </div>
     `).join('');

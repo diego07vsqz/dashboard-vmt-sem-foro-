@@ -597,8 +597,8 @@
     'vdt':                    { label: 'Revisión VDT',           badge: 'b-orange', color: '#0d9488' },
     'falla':                  { label: 'Falla',                   badge: 'b-red',    color: '#ec4899' },
     'tiempos':                { label: 'Ajuste de Tiempos',       badge: 'b-blue',   color: '#06b6d4' },
-    'mantenimiento':          { label: 'Mantenimiento',           badge: 'b-gray',   color: '#64748b' },
-    'vandalismo':             { label: 'Vandalismo',              badge: 'b-red',    color: '#a16207' },
+    'mantenimiento':          { label: 'Mantenimiento',           badge: 'b-gray',   color: '#f43f5e' },
+    'vandalismo':             { label: 'Vandalismo',              badge: 'b-red',    color: '#f59e0b' },
     'visita tecnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
     'visita técnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
     'chorros':                { label: 'Chorros',                 badge: 'b-purple', color: '#c026d3' },
@@ -606,7 +606,7 @@
   };
  
   // Helpers — derivados del catálogo TIPOS
-  const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw || 'Otro', badge: 'b-gray', color: '#6b7280' };
+  const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw || 'Otro', badge: 'b-gray', color: '#94a3b8' };
   const isNormal = r     => (r.anomalia || '').toLowerCase().trim() === 'normal';
   const countKw  = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
  
@@ -727,26 +727,26 @@
     </svg>`,
   };
  
-  // Paleta de Chart.js — 16 colores perceptualmente distintos,
-  // uno por categoría, sin repetir familia de tono entre entradas.
-  // Cada bg es el mismo hex del border con 75% de opacidad.
+  // Paleta de Chart.js — 16 colores vivos, sin grises ni colores apagados.
+  // Cada categoría tiene un hue distinto para máxima diferenciación visual.
+  // El bg es el mismo color del border al 75% de opacidad.
   const CHART_COLORS = {
-    'Forzamiento de Tiempos': { bg: 'rgba(202,138,4,0.75)',    border: '#ca8a04' }, // amarillo ámbar
-    'Apagado':                { bg: 'rgba(220,38,38,0.75)',     border: '#dc2626' }, // rojo
-    'Mejora de Tiempos':      { bg: 'rgba(101,163,13,0.75)',    border: '#65a30d' }, // verde lima
-    'Intermitencia':          { bg: 'rgba(37,99,235,0.75)',     border: '#2563eb' }, // azul rey
-    'Error de Comunicación':  { bg: 'rgba(147,51,234,0.75)',    border: '#9333ea' }, // violeta
-    'Apoyo en Accidentes':    { bg: 'rgba(234,88,12,0.75)',     border: '#ea580c' }, // naranja
-    'Revisión VDT':           { bg: 'rgba(13,148,136,0.75)',    border: '#0d9488' }, // cian oscuro
-    'Funcionamiento':         { bg: 'rgba(79,70,229,0.75)',     border: '#4f46e5' }, // índigo
-    'Programa':               { bg: 'rgba(219,39,119,0.75)',    border: '#db2777' }, // rosa fucsia
-    'Falla':                  { bg: 'rgba(236,72,153,0.75)',    border: '#ec4899' }, // magenta claro
-    'Ajuste de Tiempos':      { bg: 'rgba(6,182,212,0.75)',     border: '#06b6d4' }, // celeste
-    'Mantenimiento':          { bg: 'rgba(100,116,139,0.75)',   border: '#64748b' }, // gris azulado
-    'Vandalismo':             { bg: 'rgba(161,98,7,0.75)',      border: '#a16207' }, // marrón dorado
-    'Visita Técnica':         { bg: 'rgba(5,150,105,0.75)',     border: '#059669' }, // verde esmeralda
-    'Chorros':                { bg: 'rgba(192,38,211,0.75)',    border: '#c026d3' }, // orquídea
-    'Ramas / Vegetación':     { bg: 'rgba(132,204,22,0.75)',    border: '#84cc16' }, // verde oliva claro
+    'Forzamiento de Tiempos': { bg: 'rgba(202,138,4,0.75)',    border: '#ca8a04' }, // 45°  amarillo ámbar
+    'Apagado':                { bg: 'rgba(220,38,38,0.75)',     border: '#dc2626' }, // 0°   rojo
+    'Mejora de Tiempos':      { bg: 'rgba(101,163,13,0.75)',    border: '#65a30d' }, // 80°  verde lima
+    'Intermitencia':          { bg: 'rgba(37,99,235,0.75)',     border: '#2563eb' }, // 220° azul rey
+    'Error de Comunicación':  { bg: 'rgba(147,51,234,0.75)',    border: '#9333ea' }, // 270° violeta
+    'Apoyo en Accidentes':    { bg: 'rgba(234,88,12,0.75)',     border: '#ea580c' }, // 25°  naranja
+    'Revisión VDT':           { bg: 'rgba(13,148,136,0.75)',    border: '#0d9488' }, // 175° cian
+    'Funcionamiento':         { bg: 'rgba(79,70,229,0.75)',     border: '#4f46e5' }, // 245° índigo
+    'Programa':               { bg: 'rgba(219,39,119,0.75)',    border: '#db2777' }, // 330° rosa fucsia
+    'Falla':                  { bg: 'rgba(236,72,153,0.75)',    border: '#ec4899' }, // 315° magenta
+    'Ajuste de Tiempos':      { bg: 'rgba(6,182,212,0.75)',     border: '#06b6d4' }, // 190° celeste
+    'Mantenimiento':          { bg: 'rgba(239,68,68,0.75)',     border: '#f43f5e' }, // 350° coral/rosa rojo
+    'Vandalismo':             { bg: 'rgba(245,158,11,0.75)',    border: '#f59e0b' }, // 38°  ámbar dorado
+    'Visita Técnica':         { bg: 'rgba(5,150,105,0.75)',     border: '#059669' }, // 155° verde esmeralda
+    'Chorros':                { bg: 'rgba(192,38,211,0.75)',    border: '#c026d3' }, // 295° orquídea
+    'Ramas / Vegetación':     { bg: 'rgba(132,204,22,0.75)',    border: '#84cc16' }, // 90°  verde oliva
   };
  
   /* ─── Estado global ─────────────────────────────────────────── */
@@ -990,8 +990,8 @@
     const sorted  = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     const labels  = sorted.map(([l]) => l);
     const values  = sorted.map(([, v]) => v);
-    const bgs     = labels.map(l => CHART_COLORS[l]?.bg     || 'rgba(107,114,128,0.7)');
-    const borders = labels.map(l => CHART_COLORS[l]?.border || '#6b7280');
+    const bgs     = labels.map(l => CHART_COLORS[l]?.bg     || 'rgba(148,163,184,0.75)');
+    const borders = labels.map(l => CHART_COLORS[l]?.border || '#94a3b8');
  
     // Parte etiquetas largas en dos líneas para el eje X de barras
     // Chart.js acepta arrays de strings como etiqueta multilínea
@@ -1005,7 +1005,7 @@
     document.getElementById('dist-numerica').innerHTML = sorted.length
       ? sorted.map(([label, val]) => `
           <div class="dist-item">
-            <div class="dist-dot" style="background:${CHART_COLORS[label]?.border || '#6b7280'}"></div>
+            <div class="dist-dot" style="background:${CHART_COLORS[label]?.border || '#94a3b8'}"></div>
             <div class="dist-label">${label}</div>
             <div class="dist-val">${val}</div>
           </div>`

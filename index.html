@@ -1,204 +1,783 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!--
+    ╔══════════════════════════════════════════════════════════╗
+    ║  DASHBOARD — Unidad de Planeamiento Semafórico           ║
+    ║  Centro de Control y Monitoreo (CCM) · MOPT              ║
+    ║                                                          ║
+    ║  Fuente de datos : Google Sheets (GViz API)              ║
+    ║  Gráficas        : Chart.js 4.4.1                        ║
+    ║  Tipografía      : Inter + JetBrains Mono (Google Fonts) ║
+    ║                                                          ║
+    ║  Columnas del Sheet (base 0):                            ║
+    ║    A=0 FECHA      B=1 HORA       C=2 CÓDIGO              ║
+    ║    D=3 REPORTE    E=4 INCIDENCIA F=5 OBSERVACIONES       ║
+    ║    G=6 DIRECCIÓN  H=7 CIUDAD     K=10 OPERADOR           ║
+    ║    L=11 ANOMALIA (Normal / Extraordinario)               ║
+    ╚══════════════════════════════════════════════════════════╝
+  -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Unidad de Planeamiento Semafórico — CCM</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <title>Unidad de Planeamiento Semafórico | CCM</title>
+ 
+  <!-- Tipografía: Inter para UI, JetBrains Mono para números y código -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+ 
+  <!-- Librería de gráficas — versión fija para evitar roturas por actualizaciones -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+ 
   <style>
-    /* ══════════════════════════════════════════
-       VARIABLES GLOBALES
-    ══════════════════════════════════════════ */
+    /* ════════════════════════════════════════════════════════
+       1. VARIABLES GLOBALES (Design Tokens)
+       Modifica aquí los colores y radios para cambiar el tema
+       sin tocar el resto del código.
+    ════════════════════════════════════════════════════════ */
     :root {
-      --bg-deep:    #0f2236;
-      --bg-main:    #f0f3f6;
-      --bg-card:    #ffffff;
-      --bg-card2:   #f7f9fb;
-      --border:     rgba(0,0,0,0.08);
-      --border2:    rgba(0,0,0,0.13);
-      --text:       #0f2236;
-      --text-mid:   #3a5570;
-      --text-soft:  #7a9ab0;
-      --yellow:     #FFD100;
-      --yellow-dim: rgba(255,209,0,0.15);
-      --amber:      #d4941a;  --amber-bg:  rgba(212,148,26,0.10);
-      --red:        #c94040;  --red-bg:    rgba(201,64,64,0.10);
-      --green:      #2a9d65;  --green-bg:  rgba(42,157,101,0.10);
-      --blue:       #3a8fd4;  --blue-bg:   rgba(58,143,212,0.10);
-      --purple:     #7c62c4;  --purple-bg: rgba(124,98,196,0.10);
-      --gray-bg:    rgba(100,130,150,0.09);
-      --radius:     8px;
-      --radius-sm:  5px;
-      --shadow-sm:  0 1px 5px rgba(0,0,0,0.08);
+      /* Fondos */
+      --bg-primary:      #f5f7fb;   /* Fondo general de la página     */
+      --bg-secondary:    #ffffff;   /* Fondo de barras y paneles       */
+      --bg-card:         #ffffff;   /* Fondo de tarjetas               */
+      --bg-header:       #0b1120;   /* Fondo del header y loading      */
+ 
+      /* Texto */
+      --text-primary:    #111827;
+      --text-secondary:  #4b5563;
+      --text-tertiary:   #9ca3af;   /* Etiquetas y subtítulos          */
+ 
+      /* Colores de acento (KPI + badges) */
+      --yellow:          #f59e0b;   --yellow-light:    #fffbeb;
+      --red:             #ef4444;   --red-light:       #fef2f2;
+      --green:           #10b981;   --green-light:     #ecfdf5;
+      --blue:            #3b82f6;   --blue-light:      #eff6ff;
+      --purple:          #8b5cf6;   --purple-light:    #f5f3ff;
+      --orange:          #f97316;   --orange-light:    #fff7ed;
+      --teal:            #14b8a6;   --teal-light:      #f0fdfa;
+ 
+      /* Azul bandera (acento principal de El Salvador) */
+      --flag-blue:       #0033a0;
+      --flag-blue-light: #e6ebf5;
+ 
+      /* Bordes */
+      --border-light:    #f1f5f9;
+      --border-medium:   #e2e8f0;
+ 
+      /* Sombras */
+      --shadow-sm:       0 1px 2px rgba(0,0,0,0.03);
+      --shadow-md:       0 4px 12px rgba(0,0,0,0.07);
+ 
+      /* Radios de borde */
+      --radius-sm:       8px;
+      --radius-md:       12px;
+      --radius-lg:       16px;
+      --radius-xl:       20px;
     }
  
-    /* ══════════════════════════════════════════
-       RESET Y BASE
-    ══════════════════════════════════════════ */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg-main); color: var(--text); min-height: 100vh; }
-    @keyframes spin  { to { transform: rotate(360deg); } }
-    @keyframes blink { 0%,100%{ opacity: 1 } 50%{ opacity: 0.2 } }
+    /* ════════════════════════════════════════════════════════
+       2. RESET Y BASE
+    ════════════════════════════════════════════════════════ */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
  
-    /* ══════════════════════════════════════════
-       LOADING OVERLAY
-    ══════════════════════════════════════════ */
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+ 
+    /* ════════════════════════════════════════════════════════
+       3. ANIMACIONES GLOBALES
+    ════════════════════════════════════════════════════════ */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50%       { opacity: 1;   }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+ 
+    /* ════════════════════════════════════════════════════════
+       4. LOADING OVERLAY
+       Se elimina del DOM una vez cargados los datos.
+    ════════════════════════════════════════════════════════ */
     #loading-overlay {
-      position: fixed; inset: 0; background: var(--bg-deep);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 18px; z-index: 9999; transition: opacity 0.35s;
+      position: fixed;
+      inset: 0;
+      background: var(--bg-header);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      z-index: 9999;
+      transition: opacity 0.4s ease;
     }
-    #loading-overlay.fade-out { opacity: 0; pointer-events: none; }
-    .spinner     { width: 38px; height: 38px; border: 3px solid rgba(255,209,0,0.18); border-top-color: var(--yellow); border-radius: 50%; animation: spin 0.75s linear infinite; }
-    .loading-msg { font-size: 12px; color: var(--text-soft); letter-spacing: 0.08em; text-transform: uppercase; }
+    #loading-overlay.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 2.5px solid rgba(245,158,11,0.2);
+      border-top-color: var(--yellow);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loading-brand {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .loading-sub {
+      font-size: 10px;
+      color: var(--yellow);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .loading-msg {
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
  
-    /* ══════════════════════════════════════════
-       HEADER
-    ══════════════════════════════════════════ */
-    .header       { background: var(--bg-deep); border-bottom: 2.5px solid var(--yellow); padding: 0 32px; }
-    .header-inner { max-width: 1340px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 68px; }
-    .header-brand { display: flex; align-items: center; gap: 14px; }
-    .divider-v    { width: 1px; height: 38px; background: rgba(255,209,0,0.25); flex-shrink: 0; }
-    .brand-title  { font-size: 15px; font-weight: 700; color: #ffffff; letter-spacing: 0.04em; line-height: 1; text-transform: uppercase; }
-    .brand-sub    { font-size: 10px; color: var(--yellow); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 5px; }
-    .header-right { display: flex; align-items: center; gap: 10px; }
-    .live-pill    { display: flex; align-items: center; gap: 7px; background: rgba(0,0,0,0.05); border: 1px solid var(--border); border-radius: 20px; padding: 5px 13px; font-size: 11px; color: var(--text-mid); font-weight: 500; }
-    .live-dot     { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: blink 2s ease-in-out infinite; }
-    .btn-refresh  { display: flex; align-items: center; gap: 7px; background: var(--yellow-dim); border: 1px solid rgba(255,209,0,0.28); border-radius: var(--radius-sm); color: var(--yellow); font-size: 12px; font-family: 'Inter', sans-serif; font-weight: 600; padding: 7px 15px; cursor: pointer; transition: background 0.15s; }
-    .btn-refresh:hover { background: rgba(255,209,0,0.18); }
-    .btn-refresh svg   { width: 12px; height: 12px; }
+    /* ════════════════════════════════════════════════════════
+       5. HEADER — barra superior fija
+    ════════════════════════════════════════════════════════ */
+    .header {
+      background: rgba(11,17,32,0.97);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid var(--yellow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+    }
  
-    /* ══════════════════════════════════════════
-       FILTROS
-    ══════════════════════════════════════════ */
-    .filter-bar       { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .filter-bar-inner { max-width: 1340px; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; gap: 7px; }
-    .filter-row       { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .filter-label     { font-size: 11px; color: var(--text-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; }
-    .update-note      { font-size: 11px; color: var(--text-soft); white-space: nowrap; }
-    .filter-select    { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; outline: none; transition: border-color 0.15s; }
-    .filter-select:focus  { border-color: var(--amber); }
-    .filter-select option { background: var(--bg-card); color: var(--text); }
-    .date-range-group { display: flex; align-items: center; gap: 6px; }
-    .date-range-sep   { font-size: 11px; color: var(--text-soft); }
-    .date-input       { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 8px; outline: none; cursor: pointer; transition: border-color 0.15s; color-scheme: light; }
-    .date-input:focus { border-color: var(--amber); }
-    .btn-clear-dates  { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-soft); background: transparent; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 5px 9px; cursor: pointer; white-space: nowrap; transition: color 0.15s, border-color 0.15s; }
-    .btn-clear-dates:hover { color: var(--text); border-color: var(--border2); }
-    .range-btns            { display: flex; gap: 5px; }
-    .range-btn             { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; color: var(--text-soft); background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
-    .range-btn:hover        { color: var(--text-mid); border-color: var(--text-soft); }
-    .range-btn.active-range { color: #ffffff; border-color: #0f2236; background: #0f2236; }
-    .range-warning          { font-size: 10px; color: #c96d1a; background: rgba(201,109,26,0.12); border: 1px solid rgba(201,109,26,0.25); border-radius: var(--radius-sm); padding: 3px 9px; display: none; white-space: nowrap; }
-    .range-warning.visible  { display: inline-block; }
+    /* Logo + título */
+    .header-brand  { display: flex; align-items: center; gap: 14px; }
+    .header-logo   {
+      /* Contiene el SVG del semáforo — inline, sin dependencias externas */
+      width: 44px;
+      height: 52px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .header-logo svg { display: block; }
+    
+    .divider-v  {
+      width: 1px;
+      height: 34px;
+      background: rgba(255,255,255,0.14);
+      flex-shrink: 0;
+    }
+    .brand-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+    .brand-sub {
+      font-size: 9px;
+      color: var(--yellow);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
  
-    /* ══════════════════════════════════════════
-       TABS
-    ══════════════════════════════════════════ */
-    .tab-bar        { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    .tab-bar-inner  { max-width: 1340px; margin: 0 auto; display: flex; }
-    .tab-btn        { display: flex; align-items: center; gap: 7px; padding: 13px 20px; font-size: 12px; font-weight: 600; color: var(--text-soft); background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: 'Inter', sans-serif; letter-spacing: 0.04em; transition: color 0.15s, border-color 0.15s; }
-    .tab-btn:hover  { color: var(--text-mid); }
-    .tab-btn.active { color: #ffffff; border-bottom-color: #0f2236; background: #0f2236; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
-    .tab-btn svg    { width: 14px; height: 14px; }
-    .tab-panel        { display: none; }
+    /* Controles del lado derecho */
+    .header-right { display: flex; align-items: center; gap: 14px; }
+    .live-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 40px;
+      padding: 5px 14px;
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+    }
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #34d399;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .btn-refresh {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: var(--radius-sm);
+      color: var(--yellow);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .btn-refresh:hover {
+      background: rgba(245,158,11,0.2);
+      transform: translateY(-1px);
+      border-color: var(--yellow);
+    }
+ 
+    /* ════════════════════════════════════════════════════════
+       6. BARRA DE FILTROS
+    ════════════════════════════════════════════════════════ */
+    .filter-bar {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .filter-bar-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 12px 32px;
+    }
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-row + .filter-row { margin-top: 10px; }
+ 
+    /* Etiqueta de sección (pill gris) */
+    .filter-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: var(--bg-primary);
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+ 
+    /* Inputs de fecha y selects */
+    .filter-select,
+    .date-input {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-sm);
+      padding: 7px 14px;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .filter-select:hover,
+    .date-input:hover  { border-color: var(--flag-blue); }
+    .filter-select:focus,
+    .date-input:focus  { border-color: var(--flag-blue); box-shadow: 0 0 0 3px rgba(0,51,160,0.1); }
+ 
+    .date-range-group { display: flex; align-items: center; gap: 8px; }
+    .date-range-sep   { font-size: 13px; color: var(--text-tertiary); }
+ 
+    /* Botón para limpiar fechas */
+    .btn-clear-dates {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-sm);
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .btn-clear-dates:hover { color: #ffffff; background: var(--flag-blue); border-color: var(--flag-blue); }
+ 
+    /* Botones de rango rápido */
+    .range-btns { display: flex; gap: 8px; }
+    .range-btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--bg-primary);
+      border: 1px solid var(--border-medium);
+      border-radius: 20px;
+      padding: 5px 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .range-btn:hover      { background: var(--flag-blue); border-color: var(--flag-blue); color: #ffffff; }
+    .range-btn.active-range { background: var(--flag-blue); border-color: var(--flag-blue); color: #ffffff; }
+ 
+    /* Advertencia cuando se carga TODO el dataset */
+    .range-warning {
+      font-size: 9px;
+      color: var(--orange);
+      background: var(--orange-light);
+      border: 1px solid rgba(249,115,22,0.2);
+      border-radius: 20px;
+      padding: 4px 12px;
+      display: none;
+      white-space: nowrap;
+    }
+    .range-warning.visible { display: inline-block; }
+ 
+    /* Nota de última actualización */
+    .update-note {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      background: var(--bg-primary);
+      padding: 4px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+ 
+    /* ════════════════════════════════════════════════════════
+       7. TABS (Dashboard / Gráficas)
+    ════════════════════════════════════════════════════════ */
+    .tab-bar {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .tab-bar-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: flex;
+      gap: 4px;
+    }
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 28px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .tab-btn svg   { width: 16px; height: 16px; stroke: currentColor; fill: none; }
+    .tab-btn:hover { color: var(--flag-blue); background: var(--flag-blue-light); }
+    .tab-btn.active {
+      color: var(--flag-blue);
+      border-bottom-color: var(--flag-blue);
+    }
+ 
+    /* Panel visible = 'active'; los demás están ocultos */
+    .tab-panel        { display: none; animation: slideUp 0.3s ease; }
     .tab-panel.active { display: block; }
  
-    /* ══════════════════════════════════════════
-       MAIN / LAYOUT
-    ══════════════════════════════════════════ */
-    .main       { max-width: 1340px; margin: 0 auto; padding: 22px 32px 48px; }
-    .footer     { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-soft); line-height: 1.9; }
-    .card       { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm); }
-    .card-title { font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-    .empty      { text-align: center; padding: 36px 20px; color: var(--text-soft); font-size: 13px; }
+    /* ════════════════════════════════════════════════════════
+       8. CONTENEDOR PRINCIPAL
+    ════════════════════════════════════════════════════════ */
+    .main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px 32px 52px;
+    }
  
-    /* ══════════════════════════════════════════
-       KPI CARDS
-    ══════════════════════════════════════════ */
-    .kpi-grid       { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
-    .kpi-card       { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 18px 17px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; transition: border-color 0.15s, background 0.15s; }
-    .kpi-card:hover { border-color: var(--border2); background: var(--bg-card2); }
-    .kpi-card::after            { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 2px 2px 0 0; }
-    .kpi-card.k-yellow::after   { background: var(--yellow); }
-    .kpi-card.k-red::after      { background: var(--red); }
-    .kpi-card.k-green::after    { background: var(--green); }
-    .kpi-card.k-blue::after     { background: var(--blue); }
-    .kpi-card.k-purple::after   { background: var(--purple); }
-    .kpi-card.k-teal::after     { background: #2a5466; }
-    .kpi-card.k-orange::after   { background: #c96d1a; }
-    .kpi-icon  { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
-    .kpi-icon svg { width: 24px; height: 24px; }
-    .kpi-num   { font-size: 33px; font-weight: 700; font-family: 'JetBrains Mono', monospace; line-height: 1; color: var(--text); margin-bottom: 7px; }
-    .kpi-label { font-size: 10.5px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.06em; }
+    /* ════════════════════════════════════════════════════════
+       9. CARD BASE
+       Todos los paneles y secciones usan esta clase.
+    ════════════════════════════════════════════════════════ */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
+      padding: 22px 26px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
  
-    /* ══════════════════════════════════════════
-       DASHBOARD — LAYOUT PRINCIPAL
-       Izquierda: Normal/Extraordinario (col L)
-       Derecha:   tabla de eventos reducida
-    ══════════════════════════════════════════ */
-    .dashboard-grid { display: grid; grid-template-columns: 280px 1fr; gap: 12px; }
-    @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
+    /* Título de cada card — barra azul decorativa a la izquierda */
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1.5px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: var(--flag-blue);
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
  
-    /* Tarjeta Normal / Extraordinario */
-    .norex-item            { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    /* ════════════════════════════════════════════════════════
+       10. KPI CARDS — fila de métricas principales
+    ════════════════════════════════════════════════════════ */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;  /* necesario para el ::before lateral */
+      cursor: default;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-medium);
+    }
+ 
+    /* Barra lateral de color según tipo de incidencia */
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 14px;
+      bottom: 14px;
+      width: 3px;
+      border-radius: 0 4px 4px 0;
+    }
+    .kpi-card.k-yellow::before { background: var(--yellow); }
+    .kpi-card.k-red::before    { background: var(--red);    }
+    .kpi-card.k-green::before  { background: var(--green);  }
+    .kpi-card.k-blue::before   { background: var(--blue);   }
+    .kpi-card.k-purple::before { background: var(--purple); }
+    .kpi-card.k-orange::before { background: var(--orange); }
+    .kpi-card.k-teal::before   { background: var(--teal);   }
+ 
+    /* Ícono cuadrado con fondo de color */
+    .kpi-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+      transition: transform 0.2s ease;
+    }
+    .kpi-card:hover .kpi-icon { transform: scale(1.06); }
+    .kpi-icon svg { width: 52px; height: 52px; }
+    .kpi-icon img { width: 50px; height: 50px; object-fit: contain; }
+ 
+    /* Número grande + etiqueta */
+    .kpi-content { flex: 1; min-width: 0; }
+    .kpi-num {
+      font-size: 30px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.1;
+      color: var(--text-primary);
+    }
+    .kpi-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 3px;
+    }
+ 
+    /* ════════════════════════════════════════════════════════
+       11. GRID DEL DASHBOARD (Normal/Extraordinario + Tabla)
+    ════════════════════════════════════════════════════════ */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 24px;
+    }
+    @media (max-width: 1000px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+ 
+    /* ════════════════════════════════════════════════════════
+       12. PANEL NORMAL / EXTRAORDINARIO
+    ════════════════════════════════════════════════════════ */
+    .norex-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border-light);
+      transition: background 0.2s ease, padding 0.2s ease, margin 0.2s ease;
+    }
+    .norex-item:hover {
+      background: var(--bg-primary);
+      margin: 0 -8px;
+      padding: 14px 8px;
+      border-radius: var(--radius-sm);
+    }
     .norex-item:last-child { border-bottom: none; }
-    .norex-label           { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-mid); font-weight: 500; }
-    .norex-icon            { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .norex-val             { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; }
-    .norex-sub             { font-size: 10px; color: var(--text-soft); margin-top: 2px; }
-    .norex-desglose-title  { font-size: 9.5px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 0 6px; border-top: 1px solid var(--border); margin-top: 4px; }
-    .norex-desglose-row    { display: flex; justify-content: space-between; padding: 4px 0 4px 36px; font-size: 11px; color: var(--text-soft); border-bottom: 1px solid var(--border); }
+ 
+    .norex-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .norex-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .norex-icon svg { width: 22px; height: 22px; }
+    .norex-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 28px;
+      font-weight: 800;
+    }
+    .norex-sub {
+      font-size: 9px;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 3px;
+    }
+ 
+    /* Desglose por operador dentro del panel */
+    .norex-desglose-title {
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 14px 0 10px;
+      border-top: 1px solid var(--border-light);
+      margin-top: 10px;
+    }
+    .norex-desglose-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0 8px 46px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .norex-desglose-row:hover {
+      background: var(--bg-primary);
+      border-radius: var(--radius-sm);
+    }
     .norex-desglose-row:last-child { border-bottom: none; }
-    .norex-desglose-val    { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-mid); }
+    .norex-desglose-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+    }
  
-    /* Tabla de eventos */
-    .table-scroll          { overflow-x: auto; }
-    table                  { width: 100%; border-collapse: collapse; font-size: 12px; }
-    thead th               { text-align: left; padding: 7px 9px; font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1.5px solid var(--border); white-space: nowrap; background: var(--bg-card2); }
-    tbody td               { padding: 7px 9px; color: var(--text-mid); border-bottom: 1px solid var(--border); vertical-align: middle; }
+    /* ════════════════════════════════════════════════════════
+       13. TABLA DE EVENTOS RECIENTES
+    ════════════════════════════════════════════════════════ */
+    .table-scroll { overflow-x: auto; }
+    table         { width: 100%; border-collapse: collapse; font-size: 12px; }
+ 
+    thead th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1.5px solid var(--border-light);
+      white-space: nowrap;
+    }
+    tbody td {
+      padding: 11px 12px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-light);
+      transition: background 0.15s ease;
+    }
     tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover td      { background: rgba(0,0,0,0.025); }
-    .code-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--blue); font-weight: 500; }
+    tbody tr:hover td      { background: var(--bg-primary); }
  
-    /* Badges de incidencias */
-    .badge    { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 600; white-space: nowrap; }
-    .b-amber  { background: var(--amber-bg);       color: var(--amber); }
-    .b-red    { background: var(--red-bg);         color: var(--red); }
-    .b-green  { background: var(--green-bg);       color: var(--green); }
-    .b-blue   { background: var(--blue-bg);        color: var(--blue); }
-    .b-purple { background: var(--purple-bg);      color: var(--purple); }
-    .b-gray   { background: var(--gray-bg);        color: var(--text-mid); }
-    .b-orange { background: rgba(201,109,26,0.18); color: #c96d1a; }
+    /* Código de intersección — monospace con fondo azul claro */
+    .code-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--blue);
+      background: var(--blue-light);
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-block;
+    }
  
-    /* ══════════════════════════════════════════
-       PESTAÑA GRÁFICAS
-    ══════════════════════════════════════════ */
-    .charts-grid-3col  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-    @media (max-width: 1100px) { .charts-grid-3col { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 700px)  { .charts-grid-3col { grid-template-columns: 1fr; } }
-    .chart-wrap { position: relative; height: 260px; }
-    .dist-item  { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+    /* ════════════════════════════════════════════════════════
+       14. BADGES DE INCIDENCIAS
+       Cada tipo tiene su color definido en TIPOS (JS)
+    ════════════════════════════════════════════════════════ */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 9px;
+      font-weight: 700;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .b-amber  { background: var(--yellow-light); color: #b45309; }
+    .b-red    { background: var(--red-light);    color: var(--red);    }
+    .b-green  { background: var(--green-light);  color: var(--green);  }
+    .b-blue   { background: var(--blue-light);   color: var(--blue);   }
+    .b-purple { background: var(--purple-light); color: var(--purple); }
+    .b-gray   { background: var(--bg-primary);   color: var(--text-secondary); }
+    .b-orange { background: var(--orange-light); color: var(--orange); }
+ 
+    /* ════════════════════════════════════════════════════════
+       15. PESTAÑA GRÁFICAS
+    ════════════════════════════════════════════════════════ */
+    /* Grid de 2 columnas; la última carta ocupa el ancho completo */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .full-width-chart { grid-column: span 2; }
+    @media (max-width: 900px) {
+      .charts-grid      { grid-template-columns: 1fr; }
+      .full-width-chart { grid-column: span 1; }
+    }
+ 
+    /* Contenedores de canvas — alto fijo para que Chart.js calcule bien */
+    .chart-container    { position: relative; height: 280px; }
+    .chart-container-sm { position: relative; height: 260px; }
+ 
+    /* Lista de distribución numérica */
+    .dist-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-light);
+      transition: background 0.2s ease;
+    }
+    .dist-item:hover {
+      background: var(--bg-primary);
+      margin: 0 -8px;
+      padding: 10px 8px;
+      border-radius: var(--radius-sm);
+    }
     .dist-item:last-child { border-bottom: none; }
     .dist-dot   { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .dist-label { flex: 1; font-size: 12px; color: var(--text-mid); }
-    .dist-val   { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text); }
+    .dist-label { flex: 1; font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+    .dist-val   {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+ 
+    /* ════════════════════════════════════════════════════════
+       16. UTILIDADES
+    ════════════════════════════════════════════════════════ */
+    .empty {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-tertiary);
+      font-size: 13px;
+    }
+    .footer {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-light);
+      text-align: center;
+      font-size: 9px;
+      color: var(--text-tertiary);
+      line-height: 1.7;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
   </style>
 </head>
+ 
 <body>
  
-  <!-- LOADING -->
+  <!-- ════════════════════════════════════════════════════════
+       LOADING OVERLAY
+       Se muestra mientras se cargan los datos del Sheet.
+       La función loadData() lo elimina al terminar.
+  ════════════════════════════════════════════════════════ -->
   <div id="loading-overlay">
-    <div class="spinner"></div>
-    <div class="loading-msg">Cargando información...</div>
-  </div>
- 
-  <!-- HEADER -->
-  <header class="header">
-    <div class="header-inner">
-      <div class="header-brand">
-        <svg width="44" height="52" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div style="filter:drop-shadow(0 0 10px rgba(255,209,0,0.4));margin-bottom:2px;">
+    <svg width="60" height="70" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="10" y="2" width="24" height="48" rx="5" fill="#0f2236" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
           <circle cx="22" cy="13" r="7" fill="#e03535"/><circle cx="22" cy="13" r="4.5" fill="#f05050"/>
           <circle cx="22" cy="26" r="7" fill="#c98a10"/><circle cx="22" cy="26" r="4.5" fill="#FFD100"/>
@@ -210,41 +789,88 @@
           <path d="M34,23 L42,23 M42,23 Q44,23 44,25 L44,29 Q44,31 42,31 L34,31" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
           <path d="M34,36 L42,36 M42,36 Q44,36 44,38 L44,42 Q44,44 42,44 L34,44" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
         </svg>
+  </div>
+    <div class="loading-brand">Unidad de Planeamiento Semafórico</div>
+    <div class="loading-sub">Centro de Control y Monitoreo · CCM</div>
+    <div class="spinner"></div>
+    <div class="loading-msg">Cargando datos...</div>
+  </div>
+ 
+  <!-- ════════════════════════════════════════════════════════
+       HEADER — barra superior fija
+       Contiene: logo (JPG embebido), título de la unidad,
+       indicador de estado y botón de actualización.
+  ════════════════════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-inner">
+ 
+      <!-- Logo + nombre de la unidad -->
+      <div class="header-brand">
+        <div class="header-logo">
+          <!-- Semáforo original — extraído del index de referencia -->
+          <svg width="44" height="52" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="2" width="24" height="48" rx="5" fill="#0f2236" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+          <circle cx="22" cy="13" r="7" fill="#e03535"/><circle cx="22" cy="13" r="4.5" fill="#f05050"/>
+          <circle cx="22" cy="26" r="7" fill="#c98a10"/><circle cx="22" cy="26" r="4.5" fill="#FFD100"/>
+          <circle cx="22" cy="39" r="7" fill="#1e8a4a"/><circle cx="22" cy="39" r="4.5" fill="#2ecc71"/>
+          <path d="M10,10 L2,10 M2,10 Q0,10 0,12 L0,16 Q0,18 2,18 L10,18"       stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M10,23 L2,23 M2,23 Q0,23 0,25 L0,29 Q0,31 2,31 L10,31"       stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M10,36 L2,36 M2,36 Q0,36 0,38 L0,42 Q0,44 2,44 L10,44"       stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M34,10 L42,10 M42,10 Q44,10 44,12 L44,16 Q44,18 42,18 L34,18" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M34,23 L42,23 M42,23 Q44,23 44,25 L44,29 Q44,31 42,31 L34,31" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M34,36 L42,36 M42,36 Q44,36 44,38 L44,42 Q44,44 42,44 L34,44" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        </svg>
+        </div>
+ 
         <div class="divider-v"></div>
+ 
         <div>
           <div class="brand-title">Unidad de Planeamiento Semafórico</div>
-          <div class="brand-sub">Centro de Control y Monitoreo &nbsp;·&nbsp; CCM</div>
+          <div class="brand-sub">Centro de Control y Monitoreo &nbsp;·&nbsp; CCM &nbsp;·&nbsp; MOPT</div>
         </div>
       </div>
+ 
+      <!-- Estado en línea + botón de actualizar -->
       <div class="header-right">
         <div class="live-pill">
           <div class="live-dot"></div>
-          <span id="live-label">En línea</span>
+          <span id="live-label">EN LÍNEA</span>
         </div>
         <button class="btn-refresh" onclick="loadData()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
             <polyline points="23 4 23 10 17 10"/>
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
           </svg>
-          Actualizar
+          ACTUALIZAR
         </button>
       </div>
+ 
     </div>
   </header>
  
-  <!-- FILTROS -->
+  <!-- ════════════════════════════════════════════════════════
+       BARRA DE FILTROS
+       Fila 1: rango de fechas + selects de incidencia/ciudad/reporte
+       Fila 2: botones de rango rápido
+  ════════════════════════════════════════════════════════ -->
   <div class="filter-bar">
     <div class="filter-bar-inner">
+ 
+      <!-- Fila 1: fechas y dropdowns -->
       <div class="filter-row">
-        <span class="filter-label">Filtros:</span>
+        <span class="filter-label">FILTROS</span>
+ 
+        <!-- Selector de rango de fechas manual -->
         <div class="date-range-group">
-          <input type="date" class="date-input" id="f-fecha-ini" onchange="onManualDate()" title="Fecha de inicio"/>
+          <input type="date" class="date-input" id="f-fecha-ini" onchange="onManualDate()" title="Fecha inicio" />
           <span class="date-range-sep">→</span>
-          <input type="date" class="date-input" id="f-fecha-fin" onchange="onManualDate()" title="Fecha de fin"/>
-          <button class="btn-clear-dates" onclick="clearDates()">✕ Limpiar</button>
+          <input type="date" class="date-input" id="f-fecha-fin" onchange="onManualDate()" title="Fecha fin" />
+          <button class="btn-clear-dates" onclick="clearDates()">LIMPIAR</button>
         </div>
+ 
+        <!-- Filtro por tipo de incidencia -->
         <select class="filter-select" id="f-incidencia" onchange="applyFilters()">
-          <option value="">Todas las incidencias</option>
+          <option value="">TODAS LAS INCIDENCIAS</option>
           <option>Forzamiento de Tiempos</option>
           <option>Apagado</option>
           <option>Mejora de Tiempo</option>
@@ -255,74 +881,101 @@
           <option>Accidente</option>
           <option>VDT Volumen</option>
         </select>
+ 
+        <!-- Filtro por ciudad — se puebla dinámicamente al cargar datos -->
         <select class="filter-select" id="f-ciudad" onchange="applyFilters()">
-          <option value="">Todas las ciudades</option>
+          <option value="">TODAS LAS CIUDADES</option>
         </select>
+ 
+        <!-- Filtro por tipo de reporte -->
         <select class="filter-select" id="f-reporte" onchange="applyFilters()">
-          <option value="">Todos los reportes</option>
+          <option value="">TODOS LOS REPORTES</option>
           <option>Planeamiento</option>
           <option>Monitoreo</option>
           <option>Spinnaker</option>
         </select>
-        <span class="update-note" id="update-note">Cargando datos...</span>
+ 
+        <!-- Última actualización y total de registros -->
+        <span class="update-note" id="update-note">CARGANDO...</span>
       </div>
+ 
+      <!-- Fila 2: botones de rango rápido -->
       <div class="filter-row">
-        <span class="filter-label">Rango:</span>
+        <span class="filter-label">RANGO RÁPIDO</span>
         <div class="range-btns">
-          <button class="range-btn"              id="rbtn-mes"  onclick="setRange('mes')">Este mes</button>
-          <button class="range-btn"              id="rbtn-ant"  onclick="setRange('ant')">Mes anterior</button>
-          <button class="range-btn active-range" id="rbtn-3m"   onclick="setRange('3m')">Últimos 3 meses</button>
-          <button class="range-btn"              id="rbtn-todo" onclick="setRange('todo')">Todo</button>
+          <button class="range-btn"              id="rbtn-mes"  onclick="setRange('mes')">ESTE MES</button>
+          <button class="range-btn"              id="rbtn-ant"  onclick="setRange('ant')">MES ANTERIOR</button>
+          <button class="range-btn active-range" id="rbtn-3m"   onclick="setRange('3m')">3 MESES</button>
+          <button class="range-btn"              id="rbtn-todo" onclick="setRange('todo')">TODO</button>
         </div>
-        <span class="range-warning" id="range-warning">⚠ Puede tardar con muchos datos</span>
+        <!-- Advertencia: cargar todo puede ser lento con datasets grandes -->
+        <span class="range-warning" id="range-warning">⚠️ PUEDE TARDAR UNOS SEGUNDOS</span>
       </div>
+ 
     </div>
   </div>
  
-  <!-- TABS -->
+  <!-- ════════════════════════════════════════════════════════
+       TABS — navegación entre vistas
+  ════════════════════════════════════════════════════════ -->
   <div class="tab-bar">
     <div class="tab-bar-inner">
+ 
       <button class="tab-btn active" id="tab-dashboard" onclick="switchTab('dashboard')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-          <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+        <svg viewBox="0 0 24 24" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
         </svg>
-        Dashboard
+        DASHBOARD
       </button>
+ 
       <button class="tab-btn" id="tab-graficas" onclick="switchTab('graficas')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <svg viewBox="0 0 24 24" stroke-width="2">
           <line x1="18" y1="20" x2="18" y2="10"/>
           <line x1="12" y1="20" x2="12" y2="4"/>
           <line x1="6"  y1="20" x2="6"  y2="14"/>
         </svg>
-        Gráficas
+        GRÁFICAS
       </button>
+ 
     </div>
   </div>
  
-  <!-- PANEL: DASHBOARD -->
+  <!-- ════════════════════════════════════════════════════════
+       PANEL: DASHBOARD
+       Incluye: KPI cards, clasificación Normal/Extraordinario
+       y tabla de los últimos 15 eventos.
+  ════════════════════════════════════════════════════════ -->
   <div class="tab-panel active" id="panel-dashboard">
     <main class="main">
  
+      <!-- KPIs — se renderizan dinámicamente por renderKPIs() -->
       <div class="kpi-grid" id="kpi-grid"></div>
  
+      <!-- Grid inferior: clasificación + tabla -->
       <div class="dashboard-grid">
  
-        <!-- Izquierda: Normal vs Extraordinario (fuente: col L = Anomalia) -->
+        <!-- Card izquierda: clasificación Normal vs Extraordinario (col L del Sheet) -->
         <div class="card">
-          <div class="card-title">Tipo de registro — período</div>
+          <div class="card-title">CLASIFICACIÓN DE REGISTROS</div>
           <div id="norex-panel"></div>
         </div>
  
-        <!-- Derecha: tabla de eventos recientes -->
+        <!-- Card derecha: últimos 15 eventos del período filtrado -->
         <div class="card">
-          <div class="card-title">Registro de eventos recientes</div>
+          <div class="card-title">ÚLTIMOS EVENTOS</div>
           <div class="table-scroll">
             <table>
               <thead>
                 <tr>
-                  <th>Fecha</th><th>Hora</th><th>Código</th>
-                  <th>Reporte</th><th>Incidencia</th><th>Dirección</th>
+                  <th>FECHA</th>
+                  <th>HORA</th>
+                  <th>CÓDIGO</th>
+                  <th>REPORTE</th>
+                  <th>INCIDENCIA</th>
+                  <th>DIRECCIÓN</th>
                 </tr>
               </thead>
               <tbody id="tabla-body"></tbody>
@@ -333,191 +986,330 @@
       </div>
  
       <div class="footer">
-        Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte<br>
-        Información obtenida en tiempo real desde la base de datos institucional
+        Unidad de Planeamiento Semafórico — CCM
+        &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte
       </div>
     </main>
   </div>
  
-  <!-- PANEL: GRÁFICAS -->
+  <!-- ════════════════════════════════════════════════════════
+       PANEL: GRÁFICAS
+       Incluye: barras, dona, distribución numérica y línea.
+       NOTA: los canvas de Chart.js están en este panel
+       separado del dashboard para evitar conflictos de render.
+  ════════════════════════════════════════════════════════ -->
   <div class="tab-panel" id="panel-graficas">
     <main class="main">
+      <div class="charts-grid">
  
-      <div class="charts-grid-3col">
+        <!-- Barras: cantidad por tipo de incidencia -->
         <div class="card">
-          <div class="card-title">Incidencias por tipo</div>
-          <div class="chart-wrap"><canvas id="chart-bar"></canvas></div>
+          <div class="card-title">INCIDENCIAS POR TIPO</div>
+          <div class="chart-container">
+            <canvas id="chart-bar"></canvas>
+          </div>
         </div>
-        <div class="card">
-          <div class="card-title">Distribución porcentual</div>
-          <div class="chart-wrap"><canvas id="chart-donut"></canvas></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Distribución de incidencias</div>
-          <div id="dist-numerica" style="overflow-y:auto; max-height:260px;"></div>
-        </div>
-      </div>
  
-      <div class="card">
-        <div class="card-title">Tendencia mensual — Forzamiento vs Apagado</div>
-        <div class="chart-wrap"><canvas id="chart-line"></canvas></div>
+        <!-- Dona: distribución porcentual -->
+        <div class="card">
+          <div class="card-title">DISTRIBUCIÓN PORCENTUAL</div>
+          <div class="chart-container-sm">
+            <canvas id="chart-donut"></canvas>
+          </div>
+        </div>
+ 
+        <!-- Lista numérica — complementa la dona -->
+        <div class="card">
+          <div class="card-title">DISTRIBUCIÓN NUMÉRICA</div>
+          <div id="dist-numerica" style="max-height:260px; overflow-y:auto;"></div>
+        </div>
+ 
+        <!-- Línea: tendencia mensual forzamiento vs apagado -->
+        <div class="card full-width-chart">
+          <div class="card-title">TENDENCIA MENSUAL — FORZAMIENTO VS APAGADO</div>
+          <div class="chart-container" style="height:300px;">
+            <canvas id="chart-line"></canvas>
+          </div>
+        </div>
+ 
       </div>
  
       <div class="footer">
-        Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte<br>
-        Información obtenida en tiempo real desde la base de datos institucional
+        Unidad de Planeamiento Semafórico — CCM
+        &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte
       </div>
     </main>
   </div>
  
+  <!-- ════════════════════════════════════════════════════════
+       JAVASCRIPT
+  ════════════════════════════════════════════════════════ -->
   <script>
-    /* ══════════════════════════════════════════
-       CONFIGURACIÓN
-       Índices de columna del Sheet (base 0):
-       A=0  FECHA       B=1  HORA        C=2  CÓDIGO
-       D=3  REPORTO     E=4  INCIDENCIA  F=5  OBSERVACIONES (no usada)
-       G=6  DIRECCIÓN   H=7  CIUDAD      I=8  LATITUD (no usada)
-       J=9  LONGITUD    K=10 OPERADOR    L=11 ANOMALIA (Normal/Extraordinario)
-    ══════════════════════════════════════════ */
-    const SHEET_ID   = "1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU";
-    const SHEET_NAME = "P. Semaforico";
+    'use strict';
+ 
+    /* ──────────────────────────────────────────────────────
+       CONFIGURACIÓN — editar aquí si cambia el Sheet
+    ────────────────────────────────────────────────────── */
+ 
+    /** ID del Google Sheet (se encuentra en la URL del documento) */
+    const SHEET_ID = '1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU';
+ 
+    /** Nombre exacto de la pestaña (sensible a tildes y mayúsculas) */
+    const SHEET_NAME = 'P. Semaforico';
+ 
+    /**
+     * Índices de columna (base 0) del Sheet.
+     * Si el Sheet cambia de estructura, solo hay que actualizar estos valores.
+     */
     const COL = {
-      FECHA:      0,
-      HORA:       1,
-      CODIGO:     2,
-      REPORTE:    3,
-      INCIDENCIA: 4,
-      DIR:        6,
-      CIUDAD:     7,   // col H
-      OPERADOR:   10,  // col K — nombre del operador en turno
-      ANOMALIA:   11,  // col L — valor: "Normal" o "Extraordinario"
+      FECHA:      0,   // A — Fecha del evento
+      HORA:       1,   // B — Hora del evento
+      CODIGO:     2,   // C — Código de intersección
+      REPORTE:    3,   // D — Tipo de reporte (Planeamiento/Monitoreo/Spinnaker)
+      INCIDENCIA: 4,   // E — Tipo de incidencia
+      DIR:        6,   // G — Dirección/ubicación
+      CIUDAD:     7,   // H — Ciudad
+      OPERADOR:   10,  // K — Nombre del operador en turno
+      ANOMALIA:   11,  // L — "Normal" o "Extraordinario"
     };
  
-    /* ══════════════════════════════════════════
+    /* ──────────────────────────────────────────────────────
        CATÁLOGO DE INCIDENCIAS
-       Fuente única de verdad: label, badge y color.
-    ══════════════════════════════════════════ */
+       Fuente única de verdad: badge CSS, color de gráfica y
+       normalización de texto proveniente del Sheet.
+       IMPORTANTE: las claves deben estar en minúsculas sin tildes
+       para que la comparación toLowerCase() funcione correctamente.
+    ────────────────────────────────────────────────────── */
     const TIPOS = {
-      'forzamiento de tiempos': { label:'Forzamiento de Tiempos', badge:'b-amber',  color:'#d4941a' },
-      'forzamiento de tiempo':  { label:'Forzamiento de Tiempos', badge:'b-amber',  color:'#d4941a' },
-      'apagado':                { label:'Apagado',                badge:'b-red',    color:'#c94040' },
-      'mejora de tiempo':       { label:'Mejora de Tiempo',       badge:'b-green',  color:'#16a34a' },
-      'mejora de tiempos':      { label:'Mejora de Tiempo',       badge:'b-green',  color:'#16a34a' },
-      'intermitencia':          { label:'Intermitencia',          badge:'b-blue',   color:'#3a8fd4' },
-      'error de comunicación':  { label:'Error de Comunicación',  badge:'b-purple', color:'#7c62c4' },
-      'error de comunicacion':  { label:'Error de Comunicación',  badge:'b-purple', color:'#7c62c4' },
-      'funcionamiento':         { label:'Funcionamiento',         badge:'b-green',  color:'#0d9488' },
-      'programa':               { label:'Programa',               badge:'b-purple', color:'#7c62c4' },
-      'accidente':              { label:'Apoyo en Accidentes',    badge:'b-red',    color:'#c94040' },
-      'vdt volumen':            { label:'VDT Volumen',            badge:'b-orange', color:'#c96d1a' },
-      'tiempos':                { label:'Tiempos',                badge:'b-gray',   color:'#5a8a9f' },
-      'falla':                  { label:'Falla',                  badge:'b-red',    color:'#e05c5c' },
-      'ramas':                  { label:'Ramas',                  badge:'b-green',  color:'#4caf7d' },
-      'comunicación':           { label:'Comunicación',           badge:'b-blue',   color:'#3ab5d4' },
-      'comunicacion':           { label:'Comunicación',           badge:'b-blue',   color:'#3ab5d4' },
-      'chorros':                { label:'Chorros',                badge:'b-purple', color:'#9c7ce0' },
+      'forzamiento de tiempos': { label: 'Forzamiento de Tiempos', badge: 'b-amber',  color: '#f59e0b' },
+      'forzamiento de tiempo':  { label: 'Forzamiento de Tiempos', badge: 'b-amber',  color: '#f59e0b' },
+      'apagado':                { label: 'Apagado',                badge: 'b-red',    color: '#dc2626' },
+      'mejora de tiempo':       { label: 'Mejora de Tiempos',      badge: 'b-green',  color: '#10b981' },
+      'mejora de tiempos':      { label: 'Mejora de Tiempos',      badge: 'b-green',  color: '#10b981' },
+      'intermitencia':          { label: 'Intermitencia',          badge: 'b-blue',   color: '#3b82f6' },
+      'error de comunicación':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#8b5cf6' },
+      'error de comunicacion':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#8b5cf6' },
+      'funcionamiento':         { label: 'Funcionamiento',         badge: 'b-green',  color: '#14b8a6' },
+      'programa':               { label: 'Programa',               badge: 'b-purple', color: '#8b5cf6' },
+      'accidente':              { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#ef4444' },
+      'vdt volumen':            { label: 'Revisión VDT',           badge: 'b-orange', color: '#f97316' },
+      'vdt':                    { label: 'Revisión VDT',           badge: 'b-orange', color: '#f97316' },
     };
  
-    /* Helpers — usan TIPOS como única fuente de verdad */
-    const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw, badge: 'b-gray', color: '#4e6e80' };
-    const getColor = label => Object.values(TIPOS).find(t => t.label === label)?.color ?? '#4e6e80';
-    const countKw  = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
+    /**
+     * Devuelve el objeto de tipo para una incidencia dada.
+     * Si no está en el catálogo, retorna un tipo genérico gris.
+     * @param {string} raw — valor crudo del Sheet
+     */
+    function getTipo(raw) {
+      return TIPOS[(raw || '').toLowerCase().trim()] || {
+        label: raw || 'Otro',
+        badge: 'b-gray',
+        color: '#6b7280',
+      };
+    }
  
-    /* Clasifica según col L (Anomalia): "normal" → true, cualquier otro → false */
-    const isNormal = r => (r.anomalia || '').toLowerCase().trim() === 'normal';
+    /**
+     * Devuelve el color hex de una incidencia dado su label normalizado.
+     * @param {string} label — label normalizado (e.g. "Apagado")
+     */
+    function getColor(label) {
+      return Object.values(TIPOS).find(t => t.label === label)?.color ?? '#6b7280';
+    }
  
-    /* ══════════════════════════════════════════
-       ÍCONOS SVG — definidos una sola vez
-    ══════════════════════════════════════════ */
+    /**
+     * Clasifica un registro como Normal (col L = "normal") o Extraordinario.
+     * @param {object} r — objeto de registro
+     */
+    function isNormal(r) {
+      return (r.anomalia || '').toLowerCase().trim() === 'normal';
+    }
+ 
+    /**
+     * Cuenta registros cuya incidencia contiene la keyword dada.
+     * @param {Array}  rows — lista de registros filtrados
+     * @param {string} kw   — palabra clave en minúsculas
+     */
+    function countKw(rows, kw) {
+      return rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
+    }
+ 
+    /* ──────────────────────────────────────────────────────
+       ÍCONOS SVG DE LAS KPI CARDS
+       Cada ícono está diseñado para 52×52 px dentro del
+       contenedor .kpi-icon (64×64 px con fondo de color).
+    ────────────────────────────────────────────────────── */
     const ICONS = {
-      forzamiento: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#d4941a" stroke-width="1.5"/>
-        <circle cx="12" cy="7"  r="2.8" fill="#c94040"/>
-        <circle cx="12" cy="12" r="2.8" fill="#d4941a"/>
-        <circle cx="12" cy="17" r="2.8" fill="#2a9d65"/>
-        <path d="M7,6 L4,6 M4,6 Q2.5,6 2.5,7.5 L2.5,9 Q2.5,10 4,10 L7,10"         stroke="#d4941a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
-        <path d="M17,6 L20,6 M20,6 Q21.5,6 21.5,7.5 L21.5,9 Q21.5,10 20,10 L17,10" stroke="#d4941a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+ 
+      /* FORZAMIENTO DE TIEMPOS: semáforo + reloj analógico */
+      forzamiento: `<svg viewBox="0 0 48 48" fill="none">
+        <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
+        <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
+        <circle cx="24" cy="14" r="5"   fill="#1e293b" stroke="#475569" stroke-width="1"/>
+        <circle cx="24" cy="26" r="6"   fill="#92400e"/>
+        <circle cx="24" cy="26" r="4.5" fill="#f59e0b"/>
+        <circle cx="21.5" cy="23.5" r="1.2" fill="rgba(255,255,255,0.4)"/>
+        <circle cx="24" cy="38" r="5"   fill="#1e293b" stroke="#475569" stroke-width="1"/>
+        <!-- Reloj analógico (acceso manual de tiempos) -->
+        <circle cx="37" cy="26" r="7.5" fill="none" stroke="#f59e0b" stroke-width="2"/>
+        <circle cx="37" cy="26" r="1.5" fill="#f59e0b"/>
+        <line x1="37" y1="26" x2="37" y2="21"   stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+        <line x1="37" y1="26" x2="40.5" y2="27.5" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
       </svg>`,
-      apagado: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="7" y="1" width="10" height="22" rx="3" fill="none" stroke="#c94040" stroke-width="1.5"/>
-        <circle cx="12" cy="7"  r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
-        <circle cx="12" cy="12" r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
-        <circle cx="12" cy="17" r="2.8" fill="rgba(201,64,64,0.25)" stroke="#c94040" stroke-width="0.8"/>
-        <line x1="6" y1="2" x2="18" y2="22" stroke="#c94040" stroke-width="1.5" stroke-linecap="round"/>
+ 
+      /* APAGADO: semáforo con las 3 luces apagadas + línea de tachado */
+      apagado: `<svg viewBox="0 0 48 48" fill="none">
+        <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
+        <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
+        <circle cx="24" cy="14" r="5" fill="#1e293b" stroke="#374151" stroke-width="1.2"/>
+        <circle cx="24" cy="26" r="5" fill="#1e293b" stroke="#374151" stroke-width="1.2"/>
+        <circle cx="24" cy="38" r="5" fill="#1e293b" stroke="#374151" stroke-width="1.2"/>
+        <!-- Diagonal roja: sin servicio -->
+        <line x1="9" y1="5" x2="39" y2="43" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
       </svg>`,
-      mejora: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polyline points="2 17 8.5 10.5 13.5 15.5 22 7" stroke="#2a9d65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <polyline points="16 7 22 7 22 13"               stroke="#2a9d65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+ 
+      /* MEJORA DE TIEMPOS: semáforo en verde + flecha ascendente */
+      mejora: `<svg viewBox="0 0 48 48" fill="none">
+        <rect x="10" y="4" width="22" height="40" rx="5" fill="#1e293b"/>
+        <rect x="12" y="6" width="18" height="36" rx="4" fill="#0f172a"/>
+        <circle cx="21" cy="14" r="4.5" fill="#1e293b" stroke="#374151" stroke-width="1"/>
+        <circle cx="21" cy="26" r="4.5" fill="#1e293b" stroke="#374151" stroke-width="1"/>
+        <circle cx="21" cy="38" r="5.5" fill="#065f46"/>
+        <circle cx="21" cy="38" r="4"   fill="#10b981"/>
+        <circle cx="19" cy="36" r="1.2" fill="rgba(255,255,255,0.4)"/>
+        <!-- Flecha de tendencia positiva -->
+        <polyline points="32,42 35,35 38,38 42,28" stroke="#10b981" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="39,26 43,28 41,32"        stroke="#10b981" stroke-width="2"   fill="none" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>`,
-      intermitencia: `<svg viewBox="0 0 28 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M8,12 L3,12 M3,12 Q1,12 1,10 L1,8 Q1,6 3,6 L8,6"       stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-        <path d="M20,12 L25,12 M25,12 Q27,12 27,10 L27,8 Q27,6 25,6 L20,6" stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-        <line x1="14" y1="1"    x2="14" y2="3.5"   stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
-        <line x1="14" y1="20.5" x2="14" y2="23"    stroke="#3a8fd4" stroke-width="1.4" stroke-linecap="round"/>
-        <line x1="20.2" y1="3.8"  x2="18.5" y2="5.5"  stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
-        <line x1="7.8"  y1="3.8"  x2="9.5"  y2="5.5"  stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
-        <line x1="20.2" y1="20.2" x2="18.5" y2="18.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
-        <line x1="7.8"  y1="20.2" x2="9.5"  y2="18.5" stroke="#3a8fd4" stroke-width="1.3" stroke-linecap="round"/>
-        <circle cx="14" cy="12" r="5.5" fill="rgba(58,143,212,0.18)" stroke="#3a8fd4" stroke-width="1.4"/>
-        <circle cx="14" cy="12" r="3"   fill="#3a8fd4"/>
+ 
+      /* INTERMITENCIA: semáforo con luz ámbar y ondas de pulso */
+      intermitencia: `<svg viewBox="0 0 48 48" fill="none">
+        <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
+        <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
+        <circle cx="24" cy="14" r="5"   fill="#1e293b" stroke="#374151" stroke-width="1"/>
+        <circle cx="24" cy="26" r="7"   fill="#92400e"/>
+        <circle cx="24" cy="26" r="5.5" fill="#f59e0b"/>
+        <circle cx="24" cy="26" r="2"   fill="#fff" opacity="0.6"/>
+        <!-- Ondas de pulso concéntricas -->
+        <circle cx="24" cy="26" r="9.5" fill="none" stroke="#f59e0b" stroke-width="1.5" opacity="0.4"/>
+        <circle cx="24" cy="26" r="12"  fill="none" stroke="#f59e0b" stroke-width="1"   opacity="0.2"/>
+        <circle cx="24" cy="38" r="5"   fill="#1e293b" stroke="#374151" stroke-width="1"/>
+        <!-- Ondas de señal lateral -->
+        <path d="M34 18 Q37 22 34 26" stroke="#f59e0b" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.6"/>
+        <path d="M37 15 Q41 22 37 29" stroke="#f59e0b" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.35"/>
       </svg>`,
-      error: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="#7c62c4" stroke-width="1.6" stroke-linejoin="round" fill="rgba(124,98,196,0.15)"/>
-        <line x1="12" y1="9"  x2="12" y2="13" stroke="#7c62c4" stroke-width="1.8" stroke-linecap="round"/>
-        <circle cx="12" cy="17" r="0.8" fill="#7c62c4"/>
+ 
+      /* ERROR DE COMUNICACIÓN:
+         PNG del usuario (semáforos con señal) + X roja superpuesta.
+         La X se dibuja con SVG posicionado sobre la imagen.
+         NOTA: el filtro CSS colorea la imagen negra del PNG a tonos púrpura. */
+      error: `<div style="position:relative;width:54px;height:54px;display:flex;align-items:center;justify-content:center;">
+        <img
+          src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAIAAgADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAj/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AIyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//9k="
+          alt="Sin comunicación"
+          style="width:54px;height:54px;object-fit:contain;filter:invert(1) sepia(1) saturate(3) hue-rotate(240deg) brightness(1.2);"
+        />
+        <!-- X roja: sin señal / sin comunicación -->
+        <svg viewBox="0 0 54 54" fill="none" style="position:absolute;inset:0;width:54px;height:54px;">
+          <line x1="30" y1="6"  x2="48" y2="24" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+          <line x1="48" y1="6"  x2="30" y2="24" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </div>`,
+ 
+      /* APOYO EN ACCIDENTES:
+         PNG del usuario con filtro CSS para tonos rojos.
+         NOTA: el PNG original es negro sobre blanco; el filtro lo convierte a rojo. */
+      accidente: `<img
+        src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAIAAgADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAj/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AIyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//9k="
+        alt="Apoyo en accidente"
+        style="width:52px;height:52px;object-fit:contain;
+               filter:invert(1) sepia(1) saturate(5) hue-rotate(315deg) brightness(1.1);"
+      />`,
+ 
+      /* REVISIÓN VDT: cámara tipo CCTV de detección de volumen */
+      vdt: `<svg viewBox="0 0 48 48" fill="none">
+        <rect x="6" y="14" width="26" height="20" rx="4" fill="#1e293b" stroke="#374151" stroke-width="1"/>
+        <circle cx="19" cy="24" r="7"   fill="#0f172a" stroke="#f97316" stroke-width="1.5"/>
+        <circle cx="19" cy="24" r="4.5" fill="#1e293b"/>
+        <circle cx="19" cy="24" r="2.2" fill="#374151"/>
+        <circle cx="17.5" cy="22.5" r="1" fill="#fff" opacity="0.5"/>
+        <!-- Lente de la cámara -->
+        <polygon points="32,16 42,20 42,28 32,32" fill="none" stroke="#f97316" stroke-width="1.5" stroke-linejoin="round"/>
+        <!-- Luz de grabación activa -->
+        <circle cx="10" cy="18" r="2"   fill="#ef4444" opacity="0.9"/>
+        <circle cx="10" cy="18" r="3.5" fill="none" stroke="#ef4444" stroke-width="0.8" opacity="0.4"/>
       </svg>`,
-      accidente: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:28px;height:28px;">
-        <circle cx="15" cy="4" r="2.2" fill="#c94040"/>
-        <path d="M15 6.8 L13 11.5 L10 14.5"  stroke="#c94040" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M13 11.5 L16.5 14 L15 18"   stroke="#c94040" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M10 14.5 L8.5 18"            stroke="#c94040" stroke-width="1.8" stroke-linecap="round"/>
-        <rect x="1.5" y="7" width="5.5" height="12" rx="1.5" fill="none" stroke="#c94040" stroke-width="1.4"/>
-        <circle cx="4.25" cy="10.5" r="1.4" fill="#c94040"/>
-        <circle cx="4.25" cy="13.5" r="1.4" fill="rgba(201,64,64,0.3)"/>
-        <circle cx="4.25" cy="16.5" r="1.4" fill="rgba(201,64,64,0.3)"/>
-        <path d="M18.5 10 L21.5 15 L15.5 15 Z" stroke="#c94040" stroke-width="1.3" stroke-linejoin="round" fill="rgba(201,64,64,0.22)"/>
-        <line x1="18.5" y1="11.8" x2="18.5" y2="13.2" stroke="#c94040" stroke-width="1.2" stroke-linecap="round"/>
-        <circle cx="18.5" cy="14.2" r="0.5" fill="#c94040"/>
-      </svg>`,
-      total: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3"  y="3"  width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
-        <rect x="14" y="3"  width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
-        <rect x="14" y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
-        <rect x="3"  y="14" width="7" height="7" rx="1" stroke="#8aa4b4" stroke-width="1.6" fill="rgba(138,164,180,0.12)"/>
-      </svg>`,
-      vdt: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M23 7 L16 12 L23 17 Z" fill="rgba(201,109,26,0.25)" stroke="#c96d1a" stroke-width="1.5" stroke-linejoin="round"/>
-        <rect x="1" y="5" width="15" height="14" rx="2.5" fill="none" stroke="#c96d1a" stroke-width="1.6"/>
-        <circle cx="8.5" cy="12" r="3.5" fill="rgba(201,109,26,0.18)" stroke="#c96d1a" stroke-width="1.4"/>
-        <circle cx="8.5" cy="12" r="1.5" fill="#c96d1a"/>
+ 
+      /* TOTAL DE REGISTROS: semáforo con las 3 luces semi-encendidas */
+      total: `<svg viewBox="0 0 48 48" fill="none">
+        <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
+        <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
+        <circle cx="24" cy="14" r="5.5" fill="#991b1b"/>
+        <circle cx="24" cy="14" r="4"   fill="#ef4444" opacity="0.6"/>
+        <circle cx="24" cy="26" r="5.5" fill="#92400e"/>
+        <circle cx="24" cy="26" r="4"   fill="#f59e0b" opacity="0.6"/>
+        <circle cx="24" cy="38" r="5.5" fill="#065f46"/>
+        <circle cx="24" cy="38" r="4"   fill="#10b981" opacity="0.6"/>
       </svg>`,
     };
  
-    /* ══════════════════════════════════════════
+    /* ──────────────────────────────────────────────────────
+       COLORES DE GRÁFICAS
+       Mapeados por label normalizado para coherencia visual.
+    ────────────────────────────────────────────────────── */
+    const CHART_COLORS = {
+      'Forzamiento de Tiempos': { bg: 'rgba(245,158,11,0.7)',  border: '#f59e0b' },
+      'Apagado':                { bg: 'rgba(220,38,38,0.7)',   border: '#dc2626' },
+      'Mejora de Tiempos':      { bg: 'rgba(16,185,129,0.7)',  border: '#10b981' },
+      'Intermitencia':          { bg: 'rgba(59,130,246,0.7)',  border: '#3b82f6' },
+      'Error de Comunicación':  { bg: 'rgba(139,92,246,0.7)',  border: '#8b5cf6' },
+      'Funcionamiento':         { bg: 'rgba(20,184,166,0.7)',  border: '#14b8a6' },
+      'Programa':               { bg: 'rgba(139,92,246,0.7)',  border: '#8b5cf6' },
+      'Apoyo en Accidentes':    { bg: 'rgba(239,68,68,0.7)',   border: '#ef4444' },
+      'Revisión VDT':           { bg: 'rgba(249,115,22,0.7)',  border: '#f97316' },
+    };
+ 
+    /* ──────────────────────────────────────────────────────
        ESTADO GLOBAL
-    ══════════════════════════════════════════ */
-    let dataset          = [];
-    let lastFilteredRows = [];
-    let chartBar         = null;
-    let chartDonut       = null;
-    let chartLine        = null;
+       Todas las variables de estado en un lugar visible.
+    ────────────────────────────────────────────────────── */
+    let dataset          = [];   // Dataset completo cargado del Sheet
+    let lastFilteredRows = [];   // Último resultado de applyFilters()
+    let chartBar         = null; // Instancia Chart.js — barras
+    let chartDonut       = null; // Instancia Chart.js — dona
+    let chartLine        = null; // Instancia Chart.js — línea
  
-    /* ══════════════════════════════════════════
-       CARGA DE DATOS
-    ══════════════════════════════════════════ */
+    /* ──────────────────────────────────────────────────────
+       CARGA DE DATOS — Google Sheets GViz API
+       NOTA DE SEGURIDAD: el Sheet debe ser "Público en la web"
+       o compartido con permisos de lectura para que funcione.
+    ────────────────────────────────────────────────────── */
+ 
+    /**
+     * Descarga y parsea los datos del Google Sheet.
+     * Usa la API GViz (no requiere clave de API).
+     * IMPORTANTE: el regex extrae el JSON del wrapper de GViz;
+     * NO usar substring(47) porque el offset puede variar.
+     */
     async function loadData() {
-      document.getElementById('update-note').textContent = 'Actualizando...';
-      try {
-        const url   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
-        const res   = await fetch(url);
-        const text  = await res.text();
-        const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
-        if (!match) throw new Error('Respuesta inesperada de Google Sheets');
-        const json  = JSON.parse(match[1]);
+      document.getElementById('update-note').textContent = 'ACTUALIZANDO...';
  
+      try {
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+        const res  = await fetch(url);
+        const text = await res.text();
+ 
+        // Extrae el JSON del wrapper: google.visualization.Query.setResponse({...})
+        const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+        if (!match) throw new Error('La respuesta de GViz no tiene el formato esperado.');
+ 
+        const json = JSON.parse(match[1]);
+ 
+        // Mapear cada fila a un objeto plano con nombres descriptivos
         dataset = (json.table.rows || [])
           .map(row => {
             const c   = row.c;
+            // Helper: retorna el valor formateado o crudo, o '' si la celda está vacía
             const get = i => (c[i]?.v != null) ? String(c[i].f || c[i].v).trim() : '';
             return {
               fecha:      get(COL.FECHA),
@@ -526,38 +1318,61 @@
               reporte:    get(COL.REPORTE),
               incidencia: get(COL.INCIDENCIA),
               dir:        get(COL.DIR),
-              ciudad:     get(COL.CIUDAD),   // col H
-              operador:   get(COL.OPERADOR), // col K
-              anomalia:   get(COL.ANOMALIA), // col L
+              ciudad:     get(COL.CIUDAD),
+              operador:   get(COL.OPERADOR),
+              anomalia:   get(COL.ANOMALIA),
             };
           })
+          // Descartar filas completamente vacías (encabezados repetidos, etc.)
           .filter(r => r.fecha || r.codigo);
  
+        // Aplicar el rango por defecto (últimos 3 meses)
         setRange('3m');
-        populateCiudades();
  
+        // Poblar el dropdown de ciudades con valores únicos
+        const ciudades = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
+        document.getElementById('f-ciudad').innerHTML =
+          '<option value="">TODAS LAS CIUDADES</option>' +
+          ciudades.map(c => `<option value="${c}">${c}</option>`).join('');
+ 
+        // Actualizar los indicadores de estado
         const hora = new Date().toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit' });
-        document.getElementById('update-note').textContent = `Última actualización: ${hora} · ${dataset.length} registros totales`;
-        document.getElementById('live-label').textContent  = `Actualizado ${hora}`;
+        document.getElementById('update-note').textContent = `${hora} · ${dataset.length} REGISTROS`;
+        document.getElementById('live-label').textContent  = `ACTUALIZADO ${hora}`;
  
       } catch (err) {
-        document.getElementById('update-note').textContent = 'Error al obtener datos — intenta actualizar de nuevo.';
-        document.getElementById('live-label').textContent  = 'Sin conexión';
-        console.error('Error cargando Sheet:', err);
+        document.getElementById('update-note').textContent = 'ERROR AL CARGAR — REINTENTA';
+        document.getElementById('live-label').textContent  = 'SIN CONEXIÓN';
+        console.error('[CCM Dashboard] Error cargando el Sheet:', err);
       }
     }
  
-    /* Puebla el dropdown de ciudades con valores únicos del dataset completo */
-    function populateCiudades() {
-      const ciudades = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
-      const sel = document.getElementById('f-ciudad');
-      sel.innerHTML = '<option value="">Todas las ciudades</option>' +
-        ciudades.map(c => `<option value="${c}">${c}</option>`).join('');
+    /* ──────────────────────────────────────────────────────
+       GESTIÓN DE FILTROS Y FECHAS
+    ────────────────────────────────────────────────────── */
+ 
+    /**
+     * Convierte una fecha "d/m/yyyy" del Sheet a objeto Date.
+     * Retorna null si el string no es parseable.
+     * @param {string} str
+     */
+    function parseSheetDate(str) {
+      const [d, m, y] = str.split('/');
+      return y ? new Date(parseInt(y), parseInt(m) - 1, parseInt(d)) : null;
     }
  
-    /* ══════════════════════════════════════════
-       FILTROS Y RANGO DE FECHAS
-    ══════════════════════════════════════════ */
+    /**
+     * Marca visualmente el botón de rango activo.
+     * Pasa null para desactivar todos.
+     * @param {string|null} id — 'mes' | 'ant' | '3m' | 'todo' | null
+     */
+    function setActiveRangeBtn(id) {
+      ['mes', 'ant', '3m', 'todo'].forEach(k => {
+        document.getElementById('rbtn-' + k)?.classList.toggle('active-range', k === id);
+      });
+    }
+ 
+    /** Limpia ambos inputs de fecha y vuelve a filtrar. */
     function clearDates() {
       document.getElementById('f-fecha-ini').value = '';
       document.getElementById('f-fecha-fin').value = '';
@@ -565,66 +1380,73 @@
       applyFilters();
     }
  
+    /** Se llama cuando el usuario edita una fecha manualmente. */
     function onManualDate() {
       setActiveRangeBtn(null);
       document.getElementById('range-warning').classList.remove('visible');
       applyFilters();
     }
  
-    function setActiveRangeBtn(id) {
-      ['mes', 'ant', '3m', 'todo'].forEach(k =>
-        document.getElementById('rbtn-' + k)?.classList.toggle('active-range', k === id)
-      );
-    }
- 
+    /**
+     * Aplica un rango de fechas predefinido y vuelve a filtrar.
+     * @param {string} rango — 'mes' | 'ant' | '3m' | 'todo'
+     */
     function setRange(rango) {
-      const hoy  = new Date();
-      const y    = hoy.getFullYear();
-      const m    = hoy.getMonth();
-      const fmt  = d => d.toISOString().slice(0, 10);
-      const warn = document.getElementById('range-warning');
+      const hoy = new Date();
+      const y   = hoy.getFullYear();
+      const m   = hoy.getMonth();
+ 
+      /** Formatea un Date a "yyyy-mm-dd" para los inputs type=date */
+      const fmt = d => d.toISOString().slice(0, 10);
  
       const rangos = {
-        mes:  { ini: new Date(y, m,     1), fin: new Date(y, m + 1, 0) },
-        ant:  { ini: new Date(y, m - 1, 1), fin: new Date(y, m,     0) },
-        '3m': { ini: new Date(y, m - 2, 1), fin: new Date(y, m + 1, 0) },
-        todo: { ini: null, fin: null },
+        mes:  { ini: new Date(y, m,     1), fin: new Date(y, m + 1, 0) }, // mes actual
+        ant:  { ini: new Date(y, m - 1, 1), fin: new Date(y, m,     0) }, // mes anterior
+        '3m': { ini: new Date(y, m - 2, 1), fin: new Date(y, m + 1, 0) }, // últimos 3 meses
+        todo: { ini: null,                  fin: null                   }, // sin límite
       };
  
-      const { ini, fin } = rangos[rango] || rangos['3m'];
+      const { ini, fin } = rangos[rango] ?? rangos['3m'];
+ 
       document.getElementById('f-fecha-ini').value = ini ? fmt(ini) : '';
       document.getElementById('f-fecha-fin').value = fin ? fmt(fin) : '';
-      warn.classList.toggle('visible', rango === 'todo');
+ 
+      // Mostrar advertencia solo cuando se carga TODO (puede ser lento)
+      document.getElementById('range-warning').classList.toggle('visible', rango === 'todo');
+ 
       setActiveRangeBtn(rango);
       applyFilters();
     }
  
-    /* Convierte "d/m/yyyy" del Sheet a Date */
-    function parseSheetDate(str) {
-      const [d, m, y] = str.split('/');
-      if (!y) return null;
-      return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
-    }
- 
+    /**
+     * Aplica todos los filtros activos sobre el dataset completo
+     * y actualiza KPIs, panel NorEx, tabla y gráficas.
+     */
     function applyFilters() {
       const fechaIni = document.getElementById('f-fecha-ini').value;
       const fechaFin = document.getElementById('f-fecha-fin').value;
-      const inc      = document.getElementById('f-incidencia').value.toLowerCase();
-      const ciudad   = document.getElementById('f-ciudad').value.toLowerCase();
-      const rep      = document.getElementById('f-reporte').value.toLowerCase();
-      const dateIni  = fechaIni ? new Date(fechaIni + 'T00:00:00') : null;
-      const dateFin  = fechaFin ? new Date(fechaFin + 'T23:59:59') : null;
+      const inc      = document.getElementById('f-incidencia').value.toLowerCase().trim();
+      const ciudad   = document.getElementById('f-ciudad').value.toLowerCase().trim();
+      const rep      = document.getElementById('f-reporte').value.toLowerCase().trim();
+ 
+      // Convertir los strings de fecha a objetos Date una sola vez (más eficiente)
+      const dateIni = fechaIni ? new Date(fechaIni + 'T00:00:00') : null;
+      const dateFin = fechaFin ? new Date(fechaFin + 'T23:59:59') : null;
  
       const filtered = dataset.filter(r => {
+        // Filtro de fechas
         if (dateIni || dateFin) {
           const d = parseSheetDate(r.fecha);
-          if (!d) return false;
+          if (!d)               return false;
           if (dateIni && d < dateIni) return false;
           if (dateFin && d > dateFin) return false;
         }
-        if (inc    && r.incidencia.toLowerCase() !== inc)    return false;
-        if (ciudad && r.ciudad.toLowerCase()     !== ciudad) return false;
-        if (rep    && r.reporte.toLowerCase()    !== rep)    return false;
+        // Filtro de incidencia (contains, no exact match)
+        if (inc    && !r.incidencia.toLowerCase().includes(inc)) return false;
+        // Filtro de ciudad (exact match)
+        if (ciudad && r.ciudad.toLowerCase() !== ciudad)         return false;
+        // Filtro de reporte (contains)
+        if (rep    && !r.reporte.toLowerCase().includes(rep))    return false;
         return true;
       });
  
@@ -632,225 +1454,366 @@
       renderKPIs(filtered);
       renderNorEx(filtered);
       renderTable(filtered);
+ 
+      // Solo re-renderizar gráficas si la pestaña está visible
       if (document.getElementById('panel-graficas').classList.contains('active')) {
         renderCharts(filtered);
       }
     }
  
-    /* ══════════════════════════════════════════
+    /* ──────────────────────────────────────────────────────
        RENDER: KPI CARDS
-    ══════════════════════════════════════════ */
+    ────────────────────────────────────────────────────── */
+ 
+    /**
+     * Construye y renderiza las 8 tarjetas KPI en #kpi-grid.
+     * @param {Array} rows — registros filtrados
+     */
     function renderKPIs(rows) {
       const cards = [
-        { label:'Forzamiento de Tiempos', val: countKw(rows, 'forzamiento'),  cls:'k-yellow', bg:'rgba(212,148,26,0.14)', icon: ICONS.forzamiento  },
-        { label:'Semáforo Apagado',       val: countKw(rows, 'apagado'),       cls:'k-red',    bg:'rgba(201,64,64,0.14)',  icon: ICONS.apagado      },
-        { label:'Mejora de Tiempos',      val: countKw(rows, 'mejora'),        cls:'k-green',  bg:'rgba(42,157,101,0.14)', icon: ICONS.mejora       },
-        { label:'Intermitencia',          val: countKw(rows, 'intermitencia'), cls:'k-blue',   bg:'rgba(58,143,212,0.14)', icon: ICONS.intermitencia },
-        { label:'Error de Comunicación',  val: countKw(rows, 'error'),         cls:'k-purple', bg:'rgba(124,98,196,0.14)', icon: ICONS.error        },
-        { label:'Apoyo en Accidentes',    val: countKw(rows, 'accidente'),     cls:'k-red',    bg:'rgba(201,64,64,0.14)',  icon: ICONS.accidente    },
-        { label:'Total de Registros',     val: rows.length,                    cls:'k-teal',   bg:'rgba(42,84,102,0.32)',  icon: ICONS.total        },
-        { label:'Revisión VDT',           val: countKw(rows, 'vdt volumen'),   cls:'k-orange', bg:'rgba(201,109,26,0.16)', icon: ICONS.vdt          },
+        { label: 'FORZAMIENTO DE TIEMPOS', val: countKw(rows, 'forzamiento'),  cls: 'k-yellow', bg: '#fffbeb', icon: ICONS.forzamiento  },
+        { label: 'SEMÁFORO APAGADO',       val: countKw(rows, 'apagado'),       cls: 'k-red',    bg: '#fef2f2', icon: ICONS.apagado      },
+        { label: 'MEJORA DE TIEMPOS',      val: countKw(rows, 'mejora'),        cls: 'k-green',  bg: '#ecfdf5', icon: ICONS.mejora       },
+        { label: 'INTERMITENCIA',          val: countKw(rows, 'intermitencia'), cls: 'k-blue',   bg: '#eff6ff', icon: ICONS.intermitencia },
+        { label: 'ERROR DE COMUNICACIÓN',  val: countKw(rows, 'error'),         cls: 'k-purple', bg: '#f5f3ff', icon: ICONS.error        },
+        { label: 'APOYO EN ACCIDENTES',    val: countKw(rows, 'accidente'),     cls: 'k-red',    bg: '#fff1f2', icon: ICONS.accidente    },
+        { label: 'REVISIÓN VDT',           val: countKw(rows, 'vdt'),           cls: 'k-orange', bg: '#fff7ed', icon: ICONS.vdt          },
+        { label: 'TOTAL DE REGISTROS',     val: rows.length,                    cls: 'k-teal',   bg: '#f0fdfa', icon: ICONS.total        },
       ];
  
-      document.getElementById('kpi-grid').innerHTML = cards.map(c =>
-        `<div class="kpi-card ${c.cls}">
-           <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
-           <div class="kpi-num">${c.val}</div>
-           <div class="kpi-label">${c.label}</div>
-         </div>`
-      ).join('');
+      document.getElementById('kpi-grid').innerHTML = cards.map(c => `
+        <div class="kpi-card ${c.cls}">
+          <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
+          <div class="kpi-content">
+            <div class="kpi-num">${c.val}</div>
+            <div class="kpi-label">${c.label}</div>
+          </div>
+        </div>
+      `).join('');
     }
  
-    /* ══════════════════════════════════════════
-       RENDER: NORMAL vs EXTRAORDINARIO
-       Clasificación: col L (anomalia) = "Normal" o "Extraordinario"
-       Desglose:      col K (operador) — nombre del operador en turno
-    ══════════════════════════════════════════ */
+    /* ──────────────────────────────────────────────────────
+       RENDER: PANEL NORMAL / EXTRAORDINARIO
+       Fuente: col L (anomalia) del Sheet.
+       "normal" → operación estándar; cualquier otro valor → extraordinario.
+    ────────────────────────────────────────────────────── */
+ 
+    /**
+     * Renderiza el panel de clasificación Normal vs Extraordinario.
+     * Incluye desglose por operador para los registros extraordinarios.
+     * @param {Array} rows — registros filtrados
+     */
     function renderNorEx(rows) {
       const normal = rows.filter(isNormal);
       const extra  = rows.filter(r => !isNormal(r));
  
-      /* Conteo agrupado por operador (col K) */
+      // Contar extraordinarios agrupados por operador (col K)
       const desgloseMap = {};
       extra.forEach(r => {
-        const k = r.operador || 'Sin operador';
+        const k = r.operador || 'SIN OPERADOR';
         desgloseMap[k] = (desgloseMap[k] || 0) + 1;
       });
  
       const desgloseItems = Object.entries(desgloseMap)
         .sort((a, b) => b[1] - a[1])
-        .map(([nombre, val]) =>
-          `<div class="norex-desglose-row">
-             <span>${nombre}</span>
-             <span class="norex-desglose-val">${val}</span>
-           </div>`
-        ).join('');
+        .map(([nombre, val]) => `
+          <div class="norex-desglose-row">
+            <span>${nombre}</span>
+            <span class="norex-desglose-val">${val}</span>
+          </div>
+        `).join('');
  
-      const desgloseHtml = Object.keys(desgloseMap).length > 0
-        ? `<div class="norex-desglose-title">Desglose extraordinarios</div>${desgloseItems}`
+      const desgloseSection = Object.keys(desgloseMap).length > 0
+        ? `<div class="norex-desglose-title">OPERADORES EXTRAORDINARIOS</div>${desgloseItems}`
         : '';
  
       document.getElementById('norex-panel').innerHTML = `
         <div class="norex-item">
           <div class="norex-label">
-            <div class="norex-icon" style="background:rgba(58,143,212,0.12);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#3a8fd4" stroke-width="2" stroke-linecap="round" width="16" height="16">
-                <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            <div class="norex-icon" style="background:#eff6ff;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+                <path d="M9 11l3 3L22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
               </svg>
             </div>
             <div>
-              <div>Normal</div>
-              <div class="norex-sub">Planeamiento · Monitoreo · Spinnaker</div>
+              <div>NORMAL</div>
+              <div class="norex-sub">OPERACIÓN ESTÁNDAR</div>
             </div>
           </div>
-          <div class="norex-val" style="color:#3a8fd4;">${normal.length}</div>
+          <div class="norex-val" style="color:#3b82f6;">${normal.length}</div>
         </div>
-        <div class="norex-item" style="border-bottom:none;">
+        <div class="norex-item">
           <div class="norex-label">
-            <div class="norex-icon" style="background:rgba(201,109,26,0.12);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#c96d1a" stroke-width="2" stroke-linecap="round" width="16" height="16">
+            <div class="norex-icon" style="background:#fff7ed;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
               </svg>
             </div>
             <div>
-              <div>Extraordinario</div>
-              <div class="norex-sub">Otros operadores</div>
+              <div>EXTRAORDINARIO</div>
+              <div class="norex-sub">FUERA DE HORARIO</div>
             </div>
           </div>
-          <div class="norex-val" style="color:#c96d1a;">${extra.length}</div>
+          <div class="norex-val" style="color:#f97316;">${extra.length}</div>
         </div>
-        ${desgloseHtml}
+        ${desgloseSection}
       `;
     }
  
-    /* ══════════════════════════════════════════
-       RENDER: TABLA DE EVENTOS (últimos 15)
-    ══════════════════════════════════════════ */
+    /* ──────────────────────────────────────────────────────
+       RENDER: TABLA DE ÚLTIMOS EVENTOS
+       Muestra los 15 registros más recientes del período.
+    ────────────────────────────────────────────────────── */
+ 
+    /**
+     * Renderiza los últimos 15 registros del período en #tabla-body.
+     * Toma los últimos 30 del array (por si vienen en orden ascendente),
+     * los invierte y muestra los primeros 15.
+     * @param {Array} rows — registros filtrados
+     */
     function renderTable(rows) {
       const items = [...rows].slice(-30).reverse().slice(0, 15);
+ 
       document.getElementById('tabla-body').innerHTML = items.length
         ? items.map(r => {
             const t = getTipo(r.incidencia);
-            return `<tr>
-              <td>${r.fecha}</td>
-              <td style="white-space:nowrap">${r.hora}</td>
-              <td><span class="code-tag">${r.codigo}</span></td>
-              <td>${r.reporte}</td>
-              <td><span class="badge ${t.badge}">${t.label}</span></td>
-              <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap" title="${r.dir}">${r.dir}</td>
-            </tr>`;
+            return `
+              <tr>
+                <td style="white-space:nowrap">${r.fecha}</td>
+                <td style="white-space:nowrap">${r.hora}</td>
+                <td><span class="code-tag">${r.codigo}</span></td>
+                <td>${r.reporte}</td>
+                <td><span class="badge ${t.badge}">${t.label}</span></td>
+                <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+                    title="${r.dir}">${r.dir}</td>
+              </tr>
+            `;
           }).join('')
-        : '<tr><td colspan="6" class="empty">Sin registros para mostrar</td></tr>';
+        : '<tr><td colspan="6" class="empty">SIN REGISTROS PARA EL PERÍODO SELECCIONADO</td></tr>';
     }
  
-    /* ══════════════════════════════════════════
-       TABS
-    ══════════════════════════════════════════ */
+    /* ──────────────────────────────────────────────────────
+       NAVEGACIÓN POR TABS
+    ────────────────────────────────────────────────────── */
+ 
+    /**
+     * Cambia la pestaña activa.
+     * Al abrir "graficas" por primera vez, renderiza los charts.
+     * @param {string} name — 'dashboard' | 'graficas'
+     */
     function switchTab(name) {
       document.querySelectorAll('.tab-btn').forEach(b   => b.classList.remove('active'));
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      document.getElementById('tab-'   + name).classList.add('active');
-      document.getElementById('panel-' + name).classList.add('active');
-      if (name === 'graficas' && lastFilteredRows.length > 0) renderCharts(lastFilteredRows);
+      document.getElementById('tab-'   + name)?.classList.add('active');
+      document.getElementById('panel-' + name)?.classList.add('active');
+ 
+      // Renderizar gráficas solo al mostrar esa pestaña
+      if (name === 'graficas' && lastFilteredRows.length > 0) {
+        renderCharts(lastFilteredRows);
+      }
     }
  
-    /* ══════════════════════════════════════════
-       RENDER: GRÁFICAS (Chart.js)
-    ══════════════════════════════════════════ */
-    Chart.defaults.color       = '#3a5570';
-    Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.font.size   = 11;
+    /* ──────────────────────────────────────────────────────
+       RENDER: GRÁFICAS — Chart.js 4.4.1
+       NOTA: cada instancia de Chart.js debe ser destruida antes
+       de crear una nueva para el mismo canvas. De lo contrario
+       se produce un bug de canvas reutilizado.
+    ────────────────────────────────────────────────────── */
  
-    const GRID_COLOR   = 'rgba(0,0,0,0.07)';
-    const destroyChart = c => { if (c) try { c.destroy(); } catch (e) {} return null; };
-    const scaleOpts    = (sz = 10) => ({
-      x: { grid: { color: GRID_COLOR }, ticks: { font: { size: sz } } },
-      y: { grid: { color: GRID_COLOR }, ticks: { font: { size: sz } } },
-    });
+    /**
+     * Renderiza las 3 gráficas del panel Gráficas.
+     * @param {Array} rows — registros filtrados
+     */
+    function renderCharts(rows) {
+      // Contar registros por tipo de incidencia
+      const counts = {};
+      rows.forEach(r => {
+        const t = getTipo(r.incidencia);
+        counts[t.label] = (counts[t.label] || 0) + 1;
+      });
  
-    /* Agrupa por mes y cuenta forzamiento y apagado */
-    function buildMonthKeys(rows) {
-      const MESES   = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      // Ordenar de mayor a menor y tomar los 8 primeros
+      const sorted       = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+      const labels       = sorted.map(([l]) => l);
+      const values       = sorted.map(([, v]) => v);
+      const bgColors     = labels.map(l => CHART_COLORS[l]?.bg     || 'rgba(107,114,128,0.7)');
+      const borderColors = labels.map(l => CHART_COLORS[l]?.border || '#6b7280');
+ 
+      /* -- Distribución numérica (lista lateral) -- */
+      document.getElementById('dist-numerica').innerHTML = sorted.length
+        ? sorted.map(([label, val]) => {
+            const color = CHART_COLORS[label]?.border || '#6b7280';
+            return `
+              <div class="dist-item">
+                <div class="dist-dot" style="background:${color}"></div>
+                <div class="dist-label">${label}</div>
+                <div class="dist-val">${val}</div>
+              </div>
+            `;
+          }).join('')
+        : '<div class="empty">SIN DATOS</div>';
+ 
+      /* -- Gráfica de BARRAS -- */
+      if (chartBar) chartBar.destroy(); // IMPORTANTE: destruir antes de crear
+      chartBar = new Chart(document.getElementById('chart-bar'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            data:              values,
+            backgroundColor:   bgColors,
+            borderColor:       borderColors,
+            borderWidth:       1.5,
+            borderRadius:      6,
+            barPercentage:     0.7,
+            categoryPercentage: 0.8,
+          }],
+        },
+        options: {
+          responsive:           true,
+          maintainAspectRatio:  false,
+          plugins: {
+            legend:  { display: false },
+            tooltip: { callbacks: { label: ctx => `${ctx.raw} registros` } },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: '#e5e7eb' },
+              title: { display: true, text: 'CANTIDAD', font: { size: 9, weight: 'bold' }, color: '#6b7280' },
+            },
+            x: {
+              ticks: { font: { size: 9, weight: '500' }, color: '#4b5563', maxRotation: 35 },
+              grid:  { display: false },
+            },
+          },
+        },
+      });
+ 
+      /* -- Gráfica de DONA -- */
+      if (chartDonut) chartDonut.destroy();
+      chartDonut = new Chart(document.getElementById('chart-donut'), {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data:            values,
+            backgroundColor: borderColors.map(c => c + 'dd'),
+            borderColor:     '#ffffff',
+            borderWidth:     2.5,
+            hoverOffset:     8,
+          }],
+        },
+        options: {
+          responsive:          true,
+          maintainAspectRatio: false,
+          cutout:              '62%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { boxWidth: 12, font: { size: 9, weight: '500' }, color: '#4b5563', usePointStyle: true, pointStyle: 'circle' },
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.label}: ${ctx.raw} (${((ctx.raw / rows.length) * 100).toFixed(1)}%)`,
+              },
+            },
+          },
+        },
+      });
+ 
+      /* -- Gráfica de LÍNEA: forzamiento vs apagado por mes -- */
+ 
+      // Agrupar por mes (formato "yyyy-mm") y contar forzamientos y apagados
       const byMonth = {};
       rows.forEach(r => {
         const p = r.fecha.split('/');
-        if (p.length < 3) return;
+        if (p.length < 3) return; // fila sin fecha válida
         const key = `${p[2]}-${String(p[1]).padStart(2, '0')}`;
         if (!byMonth[key]) byMonth[key] = { forz: 0, apagado: 0 };
         if (r.incidencia.toLowerCase().includes('forzamiento')) byMonth[key].forz++;
         if (r.incidencia.toLowerCase().includes('apagado'))     byMonth[key].apagado++;
       });
-      const keys   = Object.keys(byMonth).sort().slice(-12);
-      const labels = keys.map(k => { const [y, m] = k.split('-'); return `${MESES[+m]} ${y.slice(2)}`; });
-      return { labels, keys, byMonth };
-    }
  
-    /* Distribución numérica sin porcentaje */
-    function renderDistNumerica(rows) {
-      const counts = {};
-      rows.forEach(r => { const t = getTipo(r.incidencia); counts[t.label] = (counts[t.label] || 0) + 1; });
-      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
- 
-      document.getElementById('dist-numerica').innerHTML = sorted.length
-        ? sorted.map(([label, val]) =>
-            `<div class="dist-item">
-              <div class="dist-dot" style="background:${getColor(label)}"></div>
-              <div class="dist-label">${label}</div>
-              <div class="dist-val">${val}</div>
-            </div>`
-          ).join('')
-        : '<div class="empty">Sin datos</div>';
-    }
- 
-    function renderCharts(rows) {
-      /* Datos compartidos: barra y doughnut */
-      const counts = {};
-      rows.forEach(r => { const t = getTipo(r.incidencia); counts[t.label] = (counts[t.label] || 0) + 1; });
-      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
-      const labels = sorted.map(([l]) => l);
-      const values = sorted.map(([, v]) => v);
-      const colors = labels.map(getColor);
- 
-      renderDistNumerica(rows);
- 
-      chartBar = destroyChart(chartBar);
-      chartBar = new Chart(document.getElementById('chart-bar'), {
-        type: 'bar',
-        data: { labels, datasets: [{ data: values, backgroundColor: colors.map(c => c + '33'), borderColor: colors, borderWidth: 1.5, borderRadius: 4 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: scaleOpts(10) },
+      const MESES     = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+      const keys      = Object.keys(byMonth).sort().slice(-12); // últimos 12 meses
+      const lineLabels = keys.map(k => {
+        const [y, m] = k.split('-');
+        return `${MESES[+m - 1]} ${y.slice(2)}`;
       });
  
-      chartDonut = destroyChart(chartDonut);
-      chartDonut = new Chart(document.getElementById('chart-donut'), {
-        type: 'doughnut',
-        data: { labels, datasets: [{ data: values, backgroundColor: colors.map(c => c + 'cc'), borderColor: '#ffffff', borderWidth: 2, hoverOffset: 6 }] },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '56%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 9, padding: 8, font: { size: 9 } } } } },
-      });
- 
-      const { labels: mLabels, keys, byMonth } = buildMonthKeys(rows);
-      chartLine = destroyChart(chartLine);
+      if (chartLine) chartLine.destroy();
       chartLine = new Chart(document.getElementById('chart-line'), {
         type: 'line',
         data: {
-          labels: mLabels,
+          labels: lineLabels,
           datasets: [
-            { label: 'Forzamiento', data: keys.map(k => byMonth[k].forz),    borderColor: '#d4941a', backgroundColor: 'rgba(212,148,26,0.08)', tension: 0.4, fill: true,  borderWidth: 2,   pointRadius: 3 },
-            { label: 'Apagado',     data: keys.map(k => byMonth[k].apagado), borderColor: '#c94040', backgroundColor: 'transparent',           tension: 0.4, fill: false, borderWidth: 1.5, pointRadius: 2 },
+            {
+              label:              'FORZAMIENTO',
+              data:               keys.map(k => byMonth[k].forz),
+              borderColor:        '#f59e0b',
+              backgroundColor:    'rgba(245,158,11,0.06)',
+              tension:            0.3,
+              fill:               true,
+              borderWidth:        2.5,
+              pointRadius:        4,
+              pointHoverRadius:   6,
+              pointBackgroundColor: '#f59e0b',
+              pointBorderColor:   '#ffffff',
+              pointBorderWidth:   1.5,
+            },
+            {
+              label:              'APAGADO',
+              data:               keys.map(k => byMonth[k].apagado),
+              borderColor:        '#dc2626',
+              backgroundColor:    'transparent',
+              tension:            0.3,
+              fill:               false,
+              borderWidth:        2.5,
+              pointRadius:        4,
+              pointHoverRadius:   6,
+              pointBackgroundColor: '#dc2626',
+              pointBorderColor:   '#ffffff',
+              pointBorderWidth:   1.5,
+            },
           ],
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { boxWidth: 9, padding: 8, font: { size: 9 } } } }, scales: scaleOpts(9) },
+        options: {
+          responsive:          true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw} incidentes` } },
+            legend:  { position: 'top', labels: { font: { size: 10, weight: '600' }, color: '#4b5563', usePointStyle: true, boxWidth: 10 } },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid:  { color: '#e5e7eb' },
+              title: { display: true, text: 'CANTIDAD', font: { size: 9, weight: 'bold' }, color: '#6b7280' },
+            },
+            x: {
+              ticks: { font: { size: 9, weight: '500' }, color: '#4b5563' },
+              grid:  { display: false },
+            },
+          },
+        },
       });
     }
  
-    /* ══════════════════════════════════════════
-       INICIO
-    ══════════════════════════════════════════ */
+    /* ──────────────────────────────────────────────────────
+       PUNTO DE ENTRADA
+       Se ejecuta una vez que el DOM está completamente cargado.
+    ────────────────────────────────────────────────────── */
     window.addEventListener('DOMContentLoaded', async () => {
       await loadData();
+ 
+      // Ocultar y eliminar el loading overlay con transición
       const overlay = document.getElementById('loading-overlay');
       overlay.classList.add('fade-out');
-      setTimeout(() => overlay.remove(), 400);
+      setTimeout(() => overlay.remove(), 420);
     });
+ 
   </script>
 </body>
 </html>

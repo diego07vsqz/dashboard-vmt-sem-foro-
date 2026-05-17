@@ -906,7 +906,7 @@
       { label: 'ERROR DE COMUNICACIÓN',  val: countKw(rows, 'error'),         cls: 'k-purple', bg: '#f5f3ff', icon: ICONS.error        },
       { label: 'APOYO EN ACCIDENTES',    val: countKw(rows, 'accidente'),     cls: 'k-red',    bg: '#fff1f2', icon: ICONS.accidente    },
       { label: 'REVISIÓN VDT',           val: countKw(rows, 'vdt'),           cls: 'k-orange', bg: '#fff7ed', icon: ICONS.vdt          },
-      { label: 'TOTAL DE REGISTROS',     val: rows.length,                    cls: 'k-teal',   bg: '#f0fdfa', icon: ICONS.total        },
+      { label: 'TOTAL DE REGISTROS',     val: rows.length,                    cls: 'k-blue',   bg: '#eff6ff', icon: ICONS.total        },
     ];
     document.getElementById('kpi-grid').innerHTML = cards.map(c => `
       <div class="kpi-card ${c.cls}">

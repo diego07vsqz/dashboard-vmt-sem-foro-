@@ -78,8 +78,6 @@
       border-radius: 50%;
       animation: spin .8s linear infinite;
     }
-    .loading-title { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: .06em; text-transform: uppercase; }
-    .loading-sub   { font-size: 10px; color: var(--yellow); letter-spacing: .12em; text-transform: uppercase; }
     .loading-msg   { font-size: 11px; color: rgba(255,255,255,.4); letter-spacing: .1em; text-transform: uppercase; }
  
     /* ── Header principal (posición sticky) ─────────────── */
@@ -182,7 +180,7 @@
       border-radius: 20px; white-space: nowrap;
     }
  
-    /* Tabs */
+    /* ── Navegación por pestañas ────────────────────────── */
     .tab-bar       { background: var(--bg-white); border-bottom: 1px solid var(--border); }
     .tab-bar-inner { max-width: 1400px; margin: 0 auto; padding: 0 32px; display: flex; gap: 4px; }
     .tab-btn {
@@ -203,15 +201,16 @@
     /* ── Contenedor principal ───────────────────────────── */
     .main { max-width: 1400px; margin: 0 auto; padding: 26px 32px 52px; }
  
-    /* ── Card base — todos los paneles comparten esta clase */
+    /* ── Card base — todos los paneles comparten esta clase
+       El hover está desactivado intencionalmente para evitar
+       distracciones visuales durante la operación del dashboard.
+    */
     .card {
       background: var(--bg-white);
       border: 1px solid var(--border);
       border-radius: var(--r-xl);
       padding: 20px 24px;
-      transition: transform .2s ease, box-shadow .2s ease;
     }
-    .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
  
     .card-title {
       font-size: 10.5px; font-weight: 700;
@@ -237,9 +236,7 @@
       border-radius: var(--r-lg);
       padding: 17px; display: flex; align-items: center; gap: 15px;
       position: relative; cursor: default;
-      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     }
-    .kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--border-mid); }
     .kpi-card::before {
       content: ''; position: absolute;
       left: 0; top: 13px; bottom: 13px;
@@ -257,9 +254,7 @@
       width: 60px; height: 60px; border-radius: var(--r-md);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; overflow: hidden;
-      transition: transform .2s ease;
     }
-    .kpi-card:hover .kpi-icon { transform: scale(1.05); }
     .kpi-icon svg { width: 50px; height: 50px; }
     .kpi-icon img { width: 46px; height: 46px; object-fit: contain; }
  
@@ -354,8 +349,7 @@
     @media (max-width: 1100px) { .charts-grid { grid-template-columns: repeat(2, 1fr); } .full-width { grid-column: span 2; } }
     @media (max-width: 700px)  { .charts-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
  
-    .chart-box    { position: relative; height: 275px; }
-    .chart-box-sm { position: relative; height: 255px; }
+    .chart-box { position: relative; height: 275px; }
  
     .dist-item {
       display: flex; align-items: center; gap: 12px;
@@ -383,7 +377,6 @@
  
 <body>
  
- 
 <!-- ── Loading overlay ─────────────────────────────────────── -->
 <div id="loading-overlay">
   <div style="filter:drop-shadow(0 0 10px rgba(255,209,0,.4))">
@@ -400,12 +393,9 @@
       <path d="M34,36 L42,36 M42,36 Q44,36 44,38 L44,42 Q44,44 42,44 L34,44"  stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
     </svg>
   </div>
-  <div class="loading-title">Unidad de Planeamiento Semafórico</div>
-  <div class="loading-sub">Centro de Control y Monitoreo · CCM</div>
   <div class="spinner"></div>
-  <div class="loading-msg">Cargando datos...</div>
+  <div class="loading-msg">CARGANDO DATOS</div>
 </div>
- 
  
 <!-- ── Header ──────────────────────────────────────────────── -->
 <header class="header">
@@ -446,7 +436,6 @@
     </div>
   </div>
 </header>
- 
  
 <!-- ── Barra de filtros (fechas, incidencia, ciudad, reporte) ── -->
 <div class="filter-bar">
@@ -495,7 +484,6 @@
   </div>
 </div>
  
- 
 <!-- ── Navegación de pestañas ───────────────────────────────── -->
 <div class="tab-bar">
   <div class="tab-bar-inner">
@@ -518,7 +506,6 @@
     </button>
   </div>
 </div>
- 
  
 <!-- ── Pestaña: Dashboard (KPIs + clasificación + tabla) ──── -->
 <div class="tab-panel active" id="panel-dashboard">
@@ -550,12 +537,11 @@
   </main>
 </div>
  
- 
-<!-- ── Pestaña: Gráficas (barras, dona, distribución, tendencia) -->
+<!-- ── Pestaña: Gráficas (barras, dona, distribución numérica) -->
 <div class="tab-panel" id="panel-graficas">
   <main class="main">
     <div class="charts-grid">
-      <!-- Fila 1: las tres tarjetas de distribución en columnas iguales -->
+      <!-- Fila 1: barras y dona en 2 de las 3 columnas -->
       <div class="card">
         <div class="card-title">INCIDENCIAS POR TIPO</div>
         <div class="chart-box"><canvas id="chart-bar"></canvas></div>
@@ -564,14 +550,12 @@
         <div class="card-title">DISTRIBUCIÓN PORCENTUAL</div>
         <div class="chart-box"><canvas id="chart-donut"></canvas></div>
       </div>
-      <div class="card">
-        <div class="card-title">DISTRIBUCIÓN NUMÉRICA</div>
-        <div id="dist-numerica" style="max-height:275px;overflow-y:auto"></div>
-      </div>
-      <!-- Fila 2: tendencia mensual ocupa el ancho completo -->
+      <!-- Celda vacía para mantener el grid de 3 columnas -->
+      <div></div>
+      <!-- Fila 2: distribución numérica ocupa el ancho completo -->
       <div class="card full-width">
-        <div class="card-title">TENDENCIA MENSUAL — FORZAMIENTO VS APAGADO</div>
-        <div class="chart-box" style="height:290px"><canvas id="chart-line"></canvas></div>
+        <div class="card-title">DISTRIBUCIÓN NUMÉRICA</div>
+        <div id="dist-numerica" style="max-height:320px;overflow-y:auto"></div>
       </div>
     </div>
     <div class="footer">
@@ -588,11 +572,9 @@
      Los índices de COL corresponden a columnas del Sheet (base 0).
   ─────────────────────────────────────────────────────────────── */
  
-  // Configuración del Sheet
   const SHEET_ID   = '1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU';
   const SHEET_NAME = 'P. Semaforico';
  
-  // Índices de columna (base 0)
   const COL = {
     FECHA: 0, HORA: 1, CODIGO: 2, REPORTE: 3, INCIDENCIA: 4,
     DIR: 6, CIUDAD: 7, OPERADOR: 10, ANOMALIA: 11,
@@ -620,7 +602,6 @@
  
   // Helpers — derivados del catálogo TIPOS
   const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw || 'Otro', badge: 'b-gray', color: '#6b7280' };
-  const getColor = label => Object.values(TIPOS).find(t => t.label === label)?.color ?? '#6b7280';
   const isNormal = r     => (r.anomalia || '').toLowerCase().trim() === 'normal';
   const countKw  = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
  
@@ -759,7 +740,6 @@
   let lastFilteredRows = []; // Último resultado de applyFilters()
   let chartBar   = null; // Instancia Chart.js — barras
   let chartDonut = null; // Instancia Chart.js — dona
-  let chartLine  = null; // Instancia Chart.js — línea
  
   /* ─── Carga de datos ────────────────────────────────────────────
      Usa la API GViz de Google Sheets (no requiere clave de API).
@@ -991,6 +971,7 @@
     const bgs     = labels.map(l => CHART_COLORS[l]?.bg     || 'rgba(107,114,128,0.7)');
     const borders = labels.map(l => CHART_COLORS[l]?.border || '#6b7280');
  
+    // Lista numérica: dot + label + valor por cada tipo de incidencia
     document.getElementById('dist-numerica').innerHTML = sorted.length
       ? sorted.map(([label, val]) => `
           <div class="dist-item">
@@ -1026,44 +1007,6 @@
         plugins: {
           legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 }, color: '#4b5563', usePointStyle: true, pointStyle: 'circle' } },
           tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.raw} (${((ctx.raw / rows.length) * 100).toFixed(1)}%)` } },
-        },
-      },
-    });
- 
-    // Gráfica de línea: agrupa por mes y cuenta forzamiento vs apagado
-    const byMonth = {};
-    rows.forEach(r => {
-      const p = r.fecha.split('/');
-      if (p.length < 3) return;
-      const key = `${p[2]}-${String(p[1]).padStart(2, '0')}`;
-      if (!byMonth[key]) byMonth[key] = { forz: 0, apagado: 0 };
-      if (r.incidencia.toLowerCase().includes('forzamiento')) byMonth[key].forz++;
-      if (r.incidencia.toLowerCase().includes('apagado'))     byMonth[key].apagado++;
-    });
- 
-    const MESES = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
-    const keys  = Object.keys(byMonth).sort().slice(-12);
-    const mLabels = keys.map(k => { const [y, m] = k.split('-'); return `${MESES[+m - 1]} ${y.slice(2)}`; });
- 
-    if (chartLine) chartLine.destroy();
-    chartLine = new Chart(document.getElementById('chart-line'), {
-      type: 'line',
-      data: {
-        labels: mLabels,
-        datasets: [
-          { label: 'Forzamiento', data: keys.map(k => byMonth[k].forz),    borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.06)', tension: 0.3, fill: true,  borderWidth: 2.5, pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: '#f59e0b', pointBorderColor: '#fff', pointBorderWidth: 1.5 },
-          { label: 'Apagado',     data: keys.map(k => byMonth[k].apagado), borderColor: '#dc2626', backgroundColor: 'transparent',           tension: 0.3, fill: false, borderWidth: 2.5, pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: '#dc2626', pointBorderColor: '#fff', pointBorderWidth: 1.5 },
-        ],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw} incidentes` } },
-          legend:  { position: 'top', labels: { font: { size: 10, weight: '600' }, color: '#4b5563', usePointStyle: true, boxWidth: 10 } },
-        },
-        scales: {
-          y: { beginAtZero: true, grid: { color: '#e5e7eb' }, title: { display: true, text: 'Cantidad', font: { size: 9, weight: '600' }, color: '#9ca3af' } },
-          x: { ticks: { font: { size: 9 }, color: '#4b5563' }, grid: { display: false } },
         },
       },
     });

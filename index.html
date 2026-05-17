@@ -297,80 +297,63 @@
     .kpi-footnote strong { color: var(--text-mid); font-weight: 600; }
     .kpi-footnote.hidden { display: none; }
  
-    /* Placeholder — se elimina el bloque duplicado de .kpi-sub a continuación */
- 
- 
- 
-    /* ── Card explicativa del Total Operativo ───────────────
-       Se muestra debajo del grid de KPIs con una flecha que
-       apunta visualmente al Total Operativo.
-    ────────────────────────────────────────────────────────── */
-    .operativo-wrap {
-      display: flex;
-      align-items: flex-start;
-      gap: 0;
-      margin-bottom: 26px;
-    }
- 
-    /* Flecha curva que conecta la card con el Total Operativo */
-    .operativo-arrow {
-      display: flex;
-      align-items: center;
-      padding-top: 14px;
-      flex-shrink: 0;
-    }
-    .operativo-arrow svg {
-      width: 48px;
-      height: 48px;
-      color: var(--blue);
-      opacity: 0.55;
-    }
- 
-    /* Card de desglose */
-    .operativo-card {
-      flex: 1;
-      background: var(--bg-white);
-      border: 1.5px solid #bfdbfe;       /* azul claro — mismo tono que k-blue */
-      border-radius: var(--r-lg);
-      padding: 16px 20px;
-      position: relative;
-    }
-    .operativo-card::before {
+    /* Barra lateral azul — igual que la card k-blue */
+    .operativo-details::before {
       content: '';
       position: absolute;
-      left: 0; top: 14px; bottom: 14px;
+      left: 0; top: 0; bottom: 0;
       width: 3px;
       background: var(--blue);
-      border-radius: 0 3px 3px 0;
     }
  
-    /* Encabezado de la card */
-    .operativo-header {
+    /* Cabecera del desplegable */
+    .operativo-summary {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-    }
-    .operativo-title {
+      gap: 10px;
+      padding: 13px 20px 13px 22px;
+      cursor: pointer;
+      list-style: none;       /* quita el triángulo nativo */
+      user-select: none;
       font-size: 10px; font-weight: 800;
-      color: var(--flag-blue); text-transform: uppercase;
-      letter-spacing: .1em; display: flex; align-items: center; gap: 7px;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--text-mid);
+    }
+    /* Quitar el marcador en webkit */
+    .operativo-summary::-webkit-details-marker { display: none; }
+ 
+    /* Parte "Composición del" en gris y "Total Operativo" en azul */
+    .operativo-summary .highlight { color: var(--blue); }
+ 
+    /* Chevron rotable: ▸ cerrado / ▾ abierto */
+    .operativo-chevron {
+      margin-left: auto;
+      width: 14px; height: 14px;
+      color: var(--text-light);
+      transition: transform .2s ease;
+      flex-shrink: 0;
+    }
+    .operativo-details[open] .operativo-chevron {
+      transform: rotate(90deg);
     }
  
+    /* Contenido desplegado */
+    .operativo-body {
+      padding: 4px 20px 14px 22px;
+      border-top: 1px solid var(--border);
+    }
  
-    /* Filas de desglose */
+    /* Filas de categorías */
     .operativo-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 6px 20px;
+      gap: 0 24px;
     }
     .operativo-row {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 5px 0;
+      padding: 6px 0;
       border-bottom: 1px solid var(--border);
     }
     .operativo-row:last-child { border-bottom: none; }
@@ -384,7 +367,6 @@
       font-size: 11px; font-weight: 500;
       color: var(--text-mid);
     }
- 
  
     /* ── Grid del dashboard (Normal/Extra + tabla) ────────── */
     .dashboard-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; }
@@ -632,20 +614,29 @@
   <main class="main">
     <div class="kpi-grid" id="kpi-grid"></div>
  
-    <!-- Card explicativa: desglose del Total Operativo con flecha -->
-    <div class="operativo-wrap">
-      <!-- Flecha curva SVG apuntando hacia la card -->
-      <div class="operativo-arrow">
-        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
-          <!-- Línea curva de izquierda a derecha con punta de flecha -->
-          <path d="M8 8 Q8 36 40 36" stroke-linecap="round" fill="none"/>
-          <polyline points="34,30 40,36 34,42" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- Desplegable: composición del Total Operativo
+         Cerrado por defecto para capturas. Clic en el summary para expandir. -->
+    <details class="operativo-details" id="operativo-details">
+      <summary class="operativo-summary">
+        <!-- Ícono info -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             width="13" height="13" style="flex-shrink:0;color:var(--blue)">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8"  x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
+        Composición del&nbsp;<span class="highlight">Total Operativo</span>
+        <!-- Chevron rotable -->
+        <svg class="operativo-chevron" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </summary>
+      <!-- Contenido renderizado dinámicamente por renderOperativo() -->
+      <div class="operativo-body">
+        <div class="operativo-grid" id="operativo-panel"></div>
       </div>
-      <div class="card operativo-card" id="operativo-panel">
-        <!-- Contenido renderizado dinámicamente por renderOperativo() -->
-      </div>
-    </div>
+    </details>
  
     <!-- Opción 3 (reserva): nota al pie explicando el Total Operativo.
          Para activar como principal: quitar la clase "hidden".
@@ -1052,7 +1043,6 @@
  
     lastFilteredRows = filtered;
     renderKPIs(filtered);
-    renderOperativo(filtered);
     renderNorEx(filtered);
     renderTable(filtered);
     if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(filtered);
@@ -1098,38 +1088,26 @@
     `).join('');
   }
  
-  // Renderiza la card explicativa con el desglose del Total Operativo
-  function renderOperativo(rows) {
+  // Renderiza el contenido del desplegable de composición del Total Operativo.
+  // Los colores de los dots coinciden con los de las barras laterales de cada KPI card.
+  function renderOperativo() {
     const categorias = [
-      { nombre: 'Forzamiento de Tiempos', kw: 'forzamiento', color: '#ca8a04' },
-      { nombre: 'Semáforo Apagado',       kw: 'apagado',     color: '#dc2626' },
-      { nombre: 'Mejora de Tiempos',      kw: 'mejora',      color: '#65a30d' },
-      { nombre: 'Intermitencia',          kw: 'intermitencia', color: '#2563eb' },
-      { nombre: 'Error de Comunicación',  kw: 'error',       color: '#9333ea' },
-      { nombre: 'Apoyo en Accidentes',    kw: 'accidente',   color: '#ea580c' },
-      { nombre: 'Revisión VDT',           kw: 'vdt',         color: '#0d9488' },
+      { nombre: 'Forzamiento de Tiempos', color: '#f59e0b' }, // k-yellow — var(--yellow)
+      { nombre: 'Semáforo Apagado',       color: '#ef4444' }, // k-red    — var(--red)
+      { nombre: 'Mejora de Tiempos',      color: '#10b981' }, // k-green  — var(--green)
+      { nombre: 'Intermitencia',          color: '#dc2626' }, // k-intermitencia (franja roja superior)
+      { nombre: 'Error de Comunicación',  color: '#8b5cf6' }, // k-purple — var(--purple)
+      { nombre: 'Apoyo en Accidentes',    color: '#ef4444' }, // k-red    — var(--red)
+      { nombre: 'Revisión VDT',           color: '#f97316' }, // k-orange — var(--orange)
     ];
  
-    const filas = categorias
+    document.getElementById('operativo-panel').innerHTML = categorias
       .map(cat => `
         <div class="operativo-row">
           <div class="operativo-dot" style="background:${cat.color}"></div>
           <div class="operativo-name">${cat.nombre}</div>
         </div>`)
       .join('');
- 
-    document.getElementById('operativo-panel').innerHTML = `
-      <div class="operativo-header">
-        <div class="operativo-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          Composición del Total Operativo
-        </div>
-      </div>
-      <div class="operativo-grid">${filas}</div>`;
   }
  
   // Renderiza la clasificación Normal vs Extraordinario con desglose por operador
@@ -1330,6 +1308,7 @@
  
   // Punto de entrada: espera el DOM, carga datos y quita el loading
   window.addEventListener('DOMContentLoaded', async () => {
+    renderOperativo(); // lista estática — solo necesita ejecutarse una vez
     await loadData();
     const overlay = document.getElementById('loading-overlay');
     overlay.classList.add('fade-out');

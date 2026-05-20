@@ -1495,17 +1495,33 @@
       vdt:           'vdt',
     };
  
-    // Partir de los datos ya filtrados por el dashboard (fecha, incidencia, reporte)
-    let rows = [...lastFilteredRows];
+    // El mapa aplica el rango de fechas del dashboard pero filtra ciudad de forma
+    // independiente. Si usara lastFilteredRows, el filtro de ciudad del dashboard
+    // impediría ver otras ciudades en el mapa.
+    const fechaIni = document.getElementById('f-fecha-ini').value;
+    const fechaFin = document.getElementById('f-fecha-fin').value;
+    const dateIni  = fechaIni ? new Date(fechaIni + 'T00:00:00') : null;
+    const dateFin  = fechaFin ? new Date(fechaFin + 'T23:59:59') : null;
  
-    // Filtro adicional por tipo
+    let rows = dataset.filter(r => {
+      if (dateIni || dateFin) {
+        const d = parseSheetDate(r.fecha);
+        if (!d) return false;
+        if (dateIni && d < dateIni) return false;
+        if (dateFin && d > dateFin) return false;
+      }
+      return true;
+    });
+ 
+    // Filtro por tipo de incidencia
     if (tipo !== 'todos' && MAP_KW[tipo]) {
       rows = rows.filter(r => r.incidencia.toLowerCase().includes(MAP_KW[tipo]));
     }
  
-    // Filtro por ciudad — San Salvador por defecto, "todas" = nacional
+    // Filtro por ciudad — independiente del filtro de ciudad del dashboard
+    // Usa toLowerCase para evitar problemas de mayúsculas/minúsculas
     if (ciudad !== 'todas') {
-      rows = rows.filter(r => r.ciudad === ciudad);
+      rows = rows.filter(r => (r.ciudad || '').toLowerCase() === ciudad.toLowerCase());
     }
  
     // Solo registros con coordenadas válidas y no nulas

@@ -1480,9 +1480,19 @@
     // Partir de los datos ya filtrados por el dashboard (fecha, incidencia, ciudad, reporte)
     let rows = [...lastFilteredRows];
  
-    // Filtro adicional por tipo (categoria del mapa)
-    if (tipo !== 'todos') {
-      rows = rows.filter(r => getTipo(r.incidencia).category === tipo);
+    // Filtro adicional por tipo — usa substring sobre la incidencia en minúsculas
+    // No depende del campo 'category' (que no existe en TIPOS de este proyecto)
+    const MAP_KW = {
+      forzamiento:   'forzamiento',
+      apagado:       'apagado',
+      accidente:     'accidente',
+      mejora:        'mejora',
+      intermitencia: 'intermitencia',
+      error:         'error',
+      vdt:           'vdt',
+    };
+    if (tipo !== 'todos' && MAP_KW[tipo]) {
+      rows = rows.filter(r => r.incidencia.toLowerCase().includes(MAP_KW[tipo]));
     }
  
     // Filtro adicional por ciudad

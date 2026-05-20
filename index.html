@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unidad de Planeamiento Semafórico | CCM</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <!-- Leaflet — mapas interactivos (solo se usa en la pestaña Mapa) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     /* ── Variables globales (design tokens) ─────────────────
@@ -44,10 +41,10 @@
       --r-lg: 16px;
       --r-xl: 20px;
     }
- 
+
     /* ── Reset y tipografía base ─────────────────────────── */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
- 
+
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg-page);
@@ -55,12 +52,12 @@
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
     }
- 
+
     /* ── Animaciones ─────────────────────────────────────── */
     @keyframes spin    { to { transform: rotate(360deg); } }
     @keyframes pulse   { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
     @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
- 
+
     /* ── Loading overlay (se elimina del DOM al cargar datos) */
     #loading-overlay {
       position: fixed; inset: 0;
@@ -79,7 +76,7 @@
       animation: spin .8s linear infinite;
     }
     .loading-msg   { font-size: 11px; color: rgba(255,255,255,.4); letter-spacing: .1em; text-transform: uppercase; }
- 
+
     /* ── Header principal (posición sticky) ─────────────── */
     .header {
       background: rgba(11,17,32,.97);
@@ -120,13 +117,13 @@
       font-family: inherit; text-transform: uppercase; letter-spacing: .05em;
     }
     .btn-refresh:hover { background: rgba(245,158,11,.18); transform: translateY(-1px); }
- 
+
     /* ── Barra de filtros ───────────────────────────────── */
     .filter-bar { background: var(--bg-white); border-bottom: 1px solid var(--border); }
     .filter-bar-inner { max-width: 1400px; margin: 0 auto; padding: 11px 32px; }
     .filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .filter-row + .filter-row { margin-top: 9px; }
- 
+
     .filter-label {
       font-size: 10px; font-weight: 700; color: var(--text-light);
       text-transform: uppercase; letter-spacing: .1em;
@@ -143,10 +140,10 @@
     }
     .filter-select:focus,
     .date-input:focus { border-color: var(--flag-blue); box-shadow: 0 0 0 3px rgba(0,51,160,.08); }
- 
+
     .date-range-group { display: flex; align-items: center; gap: 7px; }
     .date-sep         { font-size: 13px; color: var(--text-light); }
- 
+
     .btn-clear {
       font-family: 'Inter', sans-serif; font-size: 10px;
       color: var(--text-mid); background: transparent;
@@ -155,7 +152,7 @@
       transition: all .15s; text-transform: uppercase; letter-spacing: .04em;
     }
     .btn-clear:hover { color: #fff; background: var(--flag-blue); border-color: var(--flag-blue); }
- 
+
     .range-btns { display: flex; gap: 6px; }
     .range-btn {
       font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600;
@@ -166,20 +163,20 @@
     }
     .range-btn:hover        { background: var(--flag-blue); border-color: var(--flag-blue); color: #fff; }
     .range-btn.active-range { background: var(--flag-blue); border-color: var(--flag-blue); color: #fff; }
- 
+
     .range-warning {
       font-size: 9px; color: var(--orange);
       background: var(--orange-soft); border: 1px solid rgba(249,115,22,.2);
       border-radius: 20px; padding: 4px 11px; display: none; white-space: nowrap;
     }
     .range-warning.visible { display: inline-block; }
- 
+
     .update-note {
       font-size: 10px; color: var(--text-light);
       background: var(--bg-page); padding: 4px 11px;
       border-radius: 20px; white-space: nowrap;
     }
- 
+
     /* ── Navegación por pestañas ────────────────────────── */
     .tab-bar       { background: var(--bg-white); border-bottom: 1px solid var(--border); }
     .tab-bar-inner { max-width: 1400px; margin: 0 auto; padding: 0 32px; display: flex; gap: 4px; }
@@ -194,13 +191,13 @@
     .tab-btn svg   { width: 15px; height: 15px; stroke: currentColor; fill: none; }
     .tab-btn:hover { color: var(--flag-blue); background: var(--flag-blue-soft); }
     .tab-btn.active { color: var(--flag-blue); border-bottom-color: var(--flag-blue); }
- 
+
     .tab-panel        { display: none; animation: slideUp .25s ease; }
     .tab-panel.active { display: block; }
- 
+
     /* ── Contenedor principal ───────────────────────────── */
     .main { max-width: 1400px; margin: 0 auto; padding: 26px 32px 52px; }
- 
+
     /* ── Card base — todos los paneles comparten esta clase
        El hover está desactivado para evitar distracciones durante
        la operación del dashboard. ─────────────────────────────── */
@@ -210,7 +207,7 @@
       border-radius: var(--r-xl);
       padding: 20px 24px;
     }
- 
+
     .card-title {
       font-size: 10.5px; font-weight: 700;
       color: var(--text-light); text-transform: uppercase;
@@ -222,7 +219,7 @@
       content: ''; width: 4px; height: 15px;
       background: var(--flag-blue); border-radius: 3px; flex-shrink: 0;
     }
- 
+
     /* ── KPI cards ──────────────────────────────────────── */
     .kpi-grid {
       display: grid;
@@ -249,7 +246,7 @@
     .kpi-card.k-orange::before { background: var(--orange); }
     /* k-slate: color neutro para el total general de todos los registros */
     .kpi-card.k-slate::before { background: linear-gradient(180deg, #475569, #64748b); }
- 
+
     .kpi-card.k-intermitencia::before {
       background: linear-gradient(180deg,
         #dc2626 0%,   #dc2626 33%,
@@ -257,7 +254,7 @@
         #16a34a 66%,  #16a34a 100%
       );
     }
- 
+
     .kpi-icon {
       width: 60px; height: 60px; border-radius: var(--r-md);
       display: flex; align-items: center; justify-content: center;
@@ -265,7 +262,7 @@
     }
     .kpi-icon svg { width: 50px; height: 50px; }
     .kpi-icon img { width: 46px; height: 46px; object-fit: contain; }
- 
+
     .kpi-content { flex: 1; min-width: 0; }
     .kpi-num {
       font-size: 29px; font-weight: 800;
@@ -277,7 +274,7 @@
       color: var(--text-mid); text-transform: uppercase;
       letter-spacing: .07em; margin-top: 3px;
     }
- 
+
     /* Nota al pie del KPI grid (opción 3 — reserva)
        Para activar: quitar la clase "hidden" del elemento en el HTML.
        Para desactivar: añadir la clase "hidden". */
@@ -292,13 +289,13 @@
     }
     .kpi-footnote strong { color: var(--text-mid); font-weight: 600; }
     .kpi-footnote.hidden { display: none; }
- 
+
     /* ── Desplegable: composición del Total Operativo ───────
        Cerrado por defecto. Fondo azul sutil + badge "Clic
        para ver" indican claramente que es interactivo.
        Al abrirse el fondo pasa a blanco y el badge desaparece.
     ────────────────────────────────────────────────────────── */
- 
+
     /* Contenedor — fondo azul sutil cuando está cerrado */
     .operativo-details {
       margin-bottom: 26px;
@@ -318,7 +315,7 @@
       background: var(--bg-white);
       border-color: #93c5fd;
     }
- 
+
     /* Barra lateral azul — igual que la card k-blue */
     .operativo-details::before {
       content: '';
@@ -327,7 +324,7 @@
       width: 3px;
       background: var(--blue);
     }
- 
+
     /* Summary — la cabecera clickeable */
     .operativo-summary {
       display: flex;
@@ -344,10 +341,10 @@
     }
     .operativo-summary::-webkit-details-marker { display: none; }
     .operativo-summary:hover { background: rgba(37,99,235,.05); }
- 
+
     /* "Composición del" en gris, "Total Operativo" en azul */
     .operativo-summary .highlight { color: var(--blue); }
- 
+
     /* Grupo derecho: badge + chevron */
     .operativo-right {
       margin-left: auto;
@@ -355,7 +352,7 @@
       align-items: center;
       gap: 9px;
     }
- 
+
     /* Badge "CLIC PARA VER" — visible solo cuando está cerrado */
     .operativo-badge {
       font-size: 8.5px; font-weight: 700;
@@ -374,7 +371,7 @@
       transform: scale(.9);
       pointer-events: none;
     }
- 
+
     /* Chevron — rota 90° al abrir */
     .operativo-chevron {
       width: 14px; height: 14px;
@@ -383,13 +380,13 @@
       flex-shrink: 0;
     }
     .operativo-details[open] .operativo-chevron { transform: rotate(90deg); }
- 
+
     /* Cuerpo desplegado */
     .operativo-body {
       padding: 6px 20px 16px 22px;
       border-top: 1px solid var(--border);
     }
- 
+
     /* Grid 2 columnas para las 7 categorías */
     .operativo-grid {
       display: grid;
@@ -404,7 +401,7 @@
       border-bottom: 1px solid var(--border);
     }
     .operativo-row:last-child { border-bottom: none; }
- 
+
     .operativo-dot {
       width: 8px; height: 8px;
       border-radius: 50%; flex-shrink: 0;
@@ -414,11 +411,11 @@
       font-size: 11px; font-weight: 500;
       color: var(--text-mid);
     }
- 
+
     /* ── Grid del dashboard (Normal/Extra + tabla) ────────── */
     .dashboard-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; }
     @media (max-width: 1000px) { .dashboard-grid { grid-template-columns: 1fr; } }
- 
+
     /* ── Panel Normal / Extraordinario ─────────────────── */
     .norex-item {
       display: flex; align-items: center; justify-content: space-between;
@@ -431,7 +428,7 @@
     .norex-icon  { width: 36px; height: 36px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .norex-icon svg { width: 20px; height: 20px; }
     .norex-val   { font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 800; }
- 
+
     .norex-desglose-title {
       font-size: 9px; font-weight: 800; color: var(--text-light);
       text-transform: uppercase; letter-spacing: .1em;
@@ -449,7 +446,7 @@
       color: var(--text-dark); background: var(--bg-page);
       padding: 2px 9px; border-radius: 20px; font-size: 11px;
     }
- 
+
     /* ── Tabla de últimos eventos ───────────────────────── */
     .table-scroll { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -466,13 +463,13 @@
     }
     tbody tr:last-child td { border-bottom: none; }
     tbody tr:hover td      { background: var(--bg-page); }
- 
+
     .code-tag {
       font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
       color: var(--blue); background: var(--blue-soft);
       padding: 2px 7px; border-radius: 5px; display: inline-block;
     }
- 
+
     /* ── Badges de tipo de incidencia ───────────────────── */
     .badge {
       display: inline-block; padding: 2px 9px; border-radius: 20px;
@@ -487,7 +484,7 @@
     .b-gray   { background: var(--bg-page);     color: var(--text-mid); }
     .b-orange { background: var(--orange-soft); color: var(--orange); }
     .b-teal   { background: var(--teal-soft);   color: var(--teal);   }
- 
+
     /* ── Gráficas ─────────────────────────────────────────
        Fila 1: dona + numérica (2 columnas iguales)
        Fila 2: barras a ancho completo (.full-width)
@@ -495,9 +492,9 @@
     .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px; }
     .full-width   { grid-column: span 2; }
     @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
- 
+
     .chart-box { position: relative; height: 275px; }
- 
+
     .dist-item {
       display: flex; align-items: center; gap: 12px;
       padding: 9px 0; border-bottom: 1px solid var(--border);
@@ -511,7 +508,7 @@
       font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800;
       color: var(--text-dark); background: var(--bg-page); padding: 2px 9px; border-radius: 20px;
     }
- 
+
     .empty  { text-align: center; padding: 44px 20px; color: var(--text-light); font-size: 13px; }
     .footer {
       margin-top: 36px; padding-top: 20px;
@@ -519,72 +516,11 @@
       text-align: center; font-size: 9px; color: var(--text-light);
       line-height: 1.7; text-transform: uppercase; letter-spacing: .07em;
     }
- 
-    /* ── Pestaña Mapa de Incidencias ────────────────────────── */
- 
-    /* Barra de filtros propia del mapa */
-    .map-filters {
-      display: flex; align-items: center; gap: 10px;
-      flex-wrap: wrap; margin-bottom: 14px;
-    }
-    .map-filters .filter-select {
-      font-family: 'Inter', sans-serif; font-size: 11px;
-      color: var(--text-dark); background: var(--bg-white);
-      border: 1px solid var(--border-mid); border-radius: var(--r-sm);
-      padding: 6px 12px; cursor: pointer; outline: none;
-      transition: border-color .15s;
-    }
-    .map-filters .filter-select:focus { border-color: var(--flag-blue); }
- 
-    .btn-map {
-      display: flex; align-items: center; gap: 6px;
-      font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700;
-      padding: 6px 14px; border-radius: var(--r-sm); cursor: pointer;
-      transition: all .15s; text-transform: uppercase; letter-spacing: .04em; border: none;
-    }
-    .btn-map-apply  { background: var(--flag-blue); color: #fff; }
-    .btn-map-apply:hover  { background: #002280; }
-    .btn-map-clear  { background: var(--bg-page); color: var(--text-mid); border: 1px solid var(--border-mid); }
-    .btn-map-clear:hover  { background: var(--border-mid); }
- 
-    /* Contenedor del mapa — altura fija para que Leaflet lo renderice bien */
-    .map-container {
-      width: 100%; height: 520px;
-      border-radius: var(--r-lg);
-      overflow: hidden;
-      border: 1px solid var(--border-mid);
-      z-index: 0;   /* evita que el mapa tape el header sticky */
-    }
- 
-    /* Nota de estado debajo del mapa */
-    .map-status {
-      margin-top: 10px; font-size: 11px; color: var(--text-light);
-      display: flex; align-items: center; gap: 6px;
-    }
- 
-    /* Leyenda de colores */
-    .map-legend {
-      display: flex; flex-wrap: wrap; gap: 10px 20px;
-      margin-top: 14px;
-    }
-    .map-legend-item {
-      display: flex; align-items: center; gap: 7px;
-      font-size: 11px; color: var(--text-mid); font-weight: 500;
-    }
-    .map-legend-dot {
-      width: 11px; height: 11px; border-radius: 50%;
-      border: 2px solid rgba(255,255,255,.8);
-      box-shadow: 0 1px 3px rgba(0,0,0,.25);
-      flex-shrink: 0;
-    }
- 
-    /* Marcador custom de Leaflet */
-    .custom-marker { background: transparent !important; border: none !important; }
   </style>
 </head>
- 
+
 <body>
- 
+
 <!-- ── Loading overlay ─────────────────────────────────────── -->
 <div id="loading-overlay">
   <div style="filter:drop-shadow(0 0 10px rgba(255,209,0,.4))">
@@ -604,7 +540,7 @@
   <div class="spinner"></div>
   <div class="loading-msg">CARGANDO DATOS</div>
 </div>
- 
+
 <!-- ── Header ──────────────────────────────────────────────── -->
 <header class="header">
   <div class="header-inner">
@@ -644,7 +580,7 @@
     </div>
   </div>
 </header>
- 
+
 <!-- ── Barra de filtros (fechas, incidencia, ciudad, reporte) ── -->
 <div class="filter-bar">
   <div class="filter-bar-inner">
@@ -691,7 +627,7 @@
     </div>
   </div>
 </div>
- 
+
 <!-- ── Navegación de pestañas ───────────────────────────────── -->
 <div class="tab-bar">
   <div class="tab-bar-inner">
@@ -712,23 +648,16 @@
       </svg>
       GRÁFICAS
     </button>
-    <button class="tab-btn" id="tab-mapa" onclick="switchTab('mapa')">
-      <svg viewBox="0 0 24 24" stroke-width="2">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-        <circle cx="12" cy="10" r="3"/>
-      </svg>
-      MAPA DE INCIDENCIAS
-    </button>
   </div>
 </div>
- 
+
 <!-- ── Pestaña: Dashboard (KPIs + clasificación + tabla)
      kpi-grid se renderiza con 9 tarjetas: 7 categorías + total operativo + total general
 ─────────────────────────────────────────────────────────────── -->
 <div class="tab-panel active" id="panel-dashboard">
   <main class="main">
     <div class="kpi-grid" id="kpi-grid"></div>
- 
+
     <!-- Desplegable: composición del Total Operativo
          Cerrado por defecto para capturas. Clic en el summary para expandir. -->
     <details class="operativo-details" id="operativo-details">
@@ -755,7 +684,7 @@
         <div class="operativo-grid" id="operativo-panel"></div>
       </div>
     </details>
- 
+
     <!-- Opción 3 (reserva): nota al pie explicando el Total Operativo.
          Para activar como principal: quitar la clase "hidden".
          Para usar la opción 2 (subtítulo en card): mantener "hidden". -->
@@ -764,7 +693,7 @@
       Forzamiento de Tiempos, Semáforo Apagado, Mejora de Tiempos,
       Intermitencia, Error de Comunicación, Apoyo en Accidentes y Revisión VDT.
     </p>
- 
+
     <div class="dashboard-grid">
       <div class="card">
         <div class="card-title">CLASIFICACIÓN DE REGISTROS</div>
@@ -790,7 +719,7 @@
     </div>
   </main>
 </div>
- 
+
 <!-- ── Pestaña: Gráficas (dona + numérica arriba, barras abajo) -->
 <div class="tab-panel" id="panel-graficas">
   <main class="main">
@@ -815,23 +744,23 @@
     </div>
   </main>
 </div>
- 
+
 <script>
   'use strict';
- 
+
   /* ─── Configuración ───────────────────────────────────────────
      Actualizar SHEET_ID / SHEET_NAME si cambia la fuente de datos.
      Los índices de COL corresponden a columnas del Sheet (base 0).
   ─────────────────────────────────────────────────────────────── */
- 
+
   const SHEET_ID   = '1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU';
   const SHEET_NAME = 'P. Semaforico';
- 
+
   const COL = {
     FECHA: 0, HORA: 1, CODIGO: 2, REPORTE: 3, INCIDENCIA: 4,
     DIR: 6, CIUDAD: 7, OPERADOR: 10, ANOMALIA: 11,
   };
- 
+
   /* ─── Catálogo de incidencias ─────────────────────────────────
      Fuente única de verdad para etiquetas, badges y colores.
      Las claves van en minúsculas para que toLowerCase() funcione.
@@ -868,12 +797,12 @@
     'otro':                   { label: 'Otro',                   badge: 'b-gray',   color: '#92400e' },
     'error spinnaker':        { label: 'Error Spinnaker',        badge: 'b-red',    color: '#be123c' },
   };
- 
+
   // Helpers — derivados del catálogo TIPOS
   const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw || 'Otro', badge: 'b-gray', color: '#94a3b8' };
   const isNormal = r     => (r.anomalia || '').toLowerCase().trim() === 'normal';
   const countKw  = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
- 
+
   /* ─── Íconos SVG de las KPI cards ─────────────────────────────
      Cada ícono es SVG inline (48×48 px) con paleta oscura (#1e293b)
      y el color de acento de su categoría.
@@ -892,7 +821,7 @@
       <line x1="37" y1="26" x2="37" y2="21" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
       <line x1="37" y1="26" x2="40.5" y2="27.5" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
     </svg>`,
- 
+
     apagado: `<svg viewBox="0 0 48 48" fill="none">
       <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
       <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
@@ -901,7 +830,7 @@
       <circle cx="24" cy="38" r="5" fill="#1e293b" stroke="#374151" stroke-width="1.2"/>
       <line x1="9" y1="5" x2="39" y2="43" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
     </svg>`,
- 
+
     mejora: `<svg viewBox="0 0 48 48" fill="none">
       <rect x="10" y="4" width="22" height="40" rx="5" fill="#1e293b"/>
       <rect x="12" y="6" width="18" height="36" rx="4" fill="#0f172a"/>
@@ -913,7 +842,7 @@
       <polyline points="32,42 35,35 38,38 42,28" stroke="#10b981" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
       <polyline points="39,26 43,28 41,32" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`,
- 
+
     intermitencia: `<svg viewBox="0 0 48 48" fill="none">
       <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
       <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
@@ -927,7 +856,7 @@
       <path d="M34 18 Q37 22 34 26" stroke="#f59e0b" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.6"/>
       <path d="M37 15 Q41 22 37 29" stroke="#f59e0b" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.35"/>
     </svg>`,
- 
+
     error: `<svg viewBox="0 0 48 48" fill="none">
   <!-- Base de la antena -->
   <rect x="22" y="34" width="4" height="10" rx="1.5" fill="#374151"/>
@@ -947,7 +876,7 @@
   <line x1="34" y1="10" x2="43" y2="19" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
   <line x1="43" y1="10" x2="34" y2="19" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
 </svg>`,
- 
+
     accidente: `<svg viewBox="0 0 48 48" fill="none">
   <!-- Vehículo izquierdo (va hacia la derecha) -->
   <rect x="2" y="22" width="17" height="9" rx="2" fill="#1e293b" stroke="#ef4444" stroke-width="1.3"/>
@@ -967,7 +896,7 @@
   <circle cx="24" cy="26" r="2.5" fill="#ef4444" opacity="0.9"/>
   <circle cx="24" cy="26" r="4"   fill="none" stroke="#ef4444" stroke-width="1" opacity="0.4"/>
 </svg>`,
- 
+
     vdt: `<svg viewBox="0 0 48 48" fill="none">
       <rect x="6" y="14" width="26" height="20" rx="4" fill="#1e293b" stroke="#374151" stroke-width="1"/>
       <circle cx="19" cy="24" r="7" fill="#0f172a" stroke="#f97316" stroke-width="1.5"/>
@@ -978,7 +907,7 @@
       <circle cx="10" cy="18" r="2" fill="#ef4444" opacity="0.9"/>
       <circle cx="10" cy="18" r="3.5" fill="none" stroke="#ef4444" stroke-width="0.8" opacity="0.4"/>
     </svg>`,
- 
+
     total: `<svg viewBox="0 0 48 48" fill="none">
       <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
       <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
@@ -989,7 +918,7 @@
       <circle cx="24" cy="38" r="5.5" fill="#065f46"/>
       <circle cx="24" cy="38" r="4" fill="#10b981" opacity="0.6"/>
     </svg>`,
- 
+
     // Ícono de base de datos / lista: representa TODOS los registros
     totalGeneral: `<svg viewBox="0 0 48 48" fill="none">
       <!-- Carpeta o contenedor general -->
@@ -1008,7 +937,7 @@
       <rect x="6" y="7" width="14" height="5" rx="2" fill="#334155"/>
     </svg>`,
   };
- 
+
   // Paleta de Chart.js — 16 colores vivos, sin grises ni colores apagados.
   // Cada categoría tiene un hue distinto para máxima diferenciación visual.
   // El bg es el mismo color del border al 75% de opacidad.
@@ -1037,13 +966,13 @@
     'Otro':                   { bg: 'rgba(146,64,14,0.75)',      border: '#92400e' }, // 28°  siena cálido (alias singular)
     'Error Spinnaker':        { bg: 'rgba(190,18,60,0.75)',      border: '#be123c' }, // 345° carmesí
   };
- 
+
   /* ─── Estado global ─────────────────────────────────────────── */
   let dataset = [];          // Filas cargadas desde el Sheet
   let lastFilteredRows = []; // Último resultado de applyFilters()
   let chartBar   = null; // Instancia Chart.js — barras
   let chartDonut = null; // Instancia Chart.js — dona
- 
+
   /* ─── Carga de datos ────────────────────────────────────────────
      Usa la API GViz de Google Sheets (no requiere clave de API).
      El regex extrae el JSON del wrapper setResponse({...}).
@@ -1058,7 +987,7 @@
       const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
       if (!match) throw new Error('Formato de respuesta inesperado.');
       const json  = JSON.parse(match[1]);
- 
+
       dataset = (json.table.rows || [])
         .map(row => {
           const c   = row.c;
@@ -1067,51 +996,44 @@
             fecha: get(COL.FECHA), hora: get(COL.HORA), codigo: get(COL.CODIGO),
             reporte: get(COL.REPORTE), incidencia: get(COL.INCIDENCIA),
             dir: get(COL.DIR), ciudad: get(COL.CIUDAD),
-            latitud: get(8), longitud: get(9), // cols I y J del Sheet
             operador: get(COL.OPERADOR), anomalia: get(COL.ANOMALIA),
           };
         })
         .filter(r => r.fecha || r.codigo);
- 
+
       setRange('3m');
- 
+
       const ciudades = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
-      const ciudadOpts = '<option value="">TODAS LAS CIUDADES</option>' +
+      document.getElementById('f-ciudad').innerHTML =
+        '<option value="">TODAS LAS CIUDADES</option>' +
         ciudades.map(ciudad => `<option value="${ciudad}">${ciudad}</option>`).join('');
-      document.getElementById('f-ciudad').innerHTML = ciudadOpts;
-      // Poblar el selector de ciudades del mapa con San Salvador preseleccionada
-      document.getElementById('map-ciudad').innerHTML =
-        '<option value="todas">TODAS LAS CIUDADES (nacional)</option>' +
-        ciudades.map(ciudad =>
-          `<option value="${ciudad}" ${ciudad === 'San Salvador' ? 'selected' : ''}>${ciudad}</option>`
-        ).join('');
- 
+
       const hora = new Date().toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit' });
       document.getElementById('update-note').textContent  = `${hora} · ${dataset.length} registros`;
       document.getElementById('live-label').textContent   = `Actualizado ${hora}`;
- 
+
     } catch (err) {
       document.getElementById('update-note').textContent = 'Error al cargar — intente de nuevo';
       document.getElementById('live-label').textContent  = 'Sin conexión';
       console.error(err);
     }
   }
- 
+
   /* ─── Filtros y rango de fechas ─────────────────────────────── */
- 
+
   // Convierte "d/m/yyyy" del Sheet a objeto Date; retorna null si inválido
   function parseSheetDate(str) {
     const [d, m, y] = str.split('/');
     return y ? new Date(+y, +m - 1, +d) : null;
   }
- 
+
   // Marca visualmente el botón de rango activo (pasa null para desmarcar todos)
   function setActiveRangeBtn(id) {
     ['mes', 'ant', '3m', 'todo'].forEach(k =>
       document.getElementById('rbtn-' + k)?.classList.toggle('active-range', k === id)
     );
   }
- 
+
   // Limpia los inputs de fecha y vuelve a filtrar
   function clearDates() {
     document.getElementById('f-fecha-ini').value = '';
@@ -1119,14 +1041,14 @@
     setActiveRangeBtn(null);
     applyFilters();
   }
- 
+
   // Se llama cuando el usuario edita una fecha manualmente
   function onManualDate() {
     setActiveRangeBtn(null);
     document.getElementById('range-warning').classList.remove('visible');
     applyFilters();
   }
- 
+
   // Aplica un rango de fechas predefinido: mes, ant, 3m o todo
   function setRange(rango) {
     const hoy = new Date(), y = hoy.getFullYear(), m = hoy.getMonth();
@@ -1144,7 +1066,7 @@
     setActiveRangeBtn(rango);
     applyFilters();
   }
- 
+
   /* Aplica todos los filtros activos y actualiza KPIs, tabla y gráficas */
   function applyFilters() {
     const fechaIni = document.getElementById('f-fecha-ini').value;
@@ -1154,7 +1076,7 @@
     const rep      = document.getElementById('f-reporte').value.toLowerCase().trim();
     const dateIni  = fechaIni ? new Date(fechaIni + 'T00:00:00') : null;
     const dateFin  = fechaFin ? new Date(fechaFin + 'T23:59:59') : null;
- 
+
     const filtered = dataset.filter(r => {
       if (dateIni || dateFin) {
         const d = parseSheetDate(r.fecha);
@@ -1165,18 +1087,16 @@
       if (rep    && !r.reporte.toLowerCase().includes(rep))    return false;
       return true;
     });
- 
+
     lastFilteredRows = filtered;
     renderKPIs(filtered);
     renderNorEx(filtered);
     renderTable(filtered);
     if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(filtered);
-    // Refrescar mapa si está visible (para que refleje el nuevo rango de fechas)
-    if (document.getElementById('panel-mapa').classList.contains('active')) aplicarFiltroMapa();
   }
- 
+
   /* ─── Render ────────────────────────────────────────────────── */
- 
+
   // Construye y renderiza las 9 tarjetas KPI en #kpi-grid
   function renderKPIs(rows) {
     // Total operativo = suma de las 7 categorías principales del dashboard
@@ -1188,10 +1108,10 @@
       countKw(rows, 'error')        +
       countKw(rows, 'accidente')    +
       countKw(rows, 'vdt');
- 
+
     // Total general = todos los registros del período (incluyendo categorías secundarias)
     const totalGeneral = rows.length;
- 
+
     const cards = [
       { label: 'FORZAMIENTO DE TIEMPOS', val: countKw(rows, 'forzamiento'),  cls: 'k-yellow',        bg: '#fffbeb', icon: ICONS.forzamiento  },
       { label: 'SEMÁFORO APAGADO',       val: countKw(rows, 'apagado'),       cls: 'k-red',           bg: '#fef2f2', icon: ICONS.apagado      },
@@ -1213,7 +1133,7 @@
       </div>
     `).join('');
   }
- 
+
   // Renderiza el contenido del desplegable de composición del Total Operativo.
   // Los colores de los dots coinciden con los de las barras laterales de cada KPI card.
   function renderOperativo() {
@@ -1226,7 +1146,7 @@
       { nombre: 'Apoyo en Accidentes',    color: '#ef4444' }, // k-red    — var(--red)
       { nombre: 'Revisión VDT',           color: '#f97316' }, // k-orange — var(--orange)
     ];
- 
+
     document.getElementById('operativo-panel').innerHTML = categorias
       .map(cat => `
         <div class="operativo-row">
@@ -1235,21 +1155,21 @@
         </div>`)
       .join('');
   }
- 
+
   // Renderiza la clasificación Normal vs Extraordinario con desglose por operador
   function renderNorEx(rows) {
     const normal = rows.filter(isNormal);
     const extra  = rows.filter(r => !isNormal(r));
     const map = {};
     extra.forEach(r => { const k = r.operador || 'SIN OPERADOR'; map[k] = (map[k] || 0) + 1; });
- 
+
     const desglose = Object.keys(map).length
       ? '<div class="norex-desglose-title">OPERADORES EXTRAORDINARIOS</div>' +
         Object.entries(map).sort((a, b) => b[1] - a[1]).map(([n, v]) =>
           `<div class="norex-desglose-row"><span>${n}</span><span class="norex-desglose-val">${v}</span></div>`
         ).join('')
       : '';
- 
+
     document.getElementById('norex-panel').innerHTML = `
       <div class="norex-item">
         <div class="norex-label">
@@ -1277,7 +1197,7 @@
       ${desglose}
     `;
   }
- 
+
   // Muestra los últimos 15 registros del período en #tabla-body
   function renderTable(rows) {
     const items = [...rows].slice(-30).reverse().slice(0, 15);
@@ -1295,7 +1215,7 @@
         }).join('')
       : '<tr><td colspan="6" class="empty">Sin registros para el período seleccionado</td></tr>';
   }
- 
+
   // Activa la pestaña seleccionada; renderiza gráficas si es necesario
   function switchTab(name) {
     document.querySelectorAll('.tab-btn').forEach(b   => b.classList.remove('active'));
@@ -1303,16 +1223,8 @@
     document.getElementById('tab-'   + name)?.classList.add('active');
     document.getElementById('panel-' + name)?.classList.add('active');
     if (name === 'graficas' && lastFilteredRows.length) renderCharts(lastFilteredRows);
-    if (name === 'mapa') {
-      // Leaflet necesita que el contenedor sea visible antes de inicializar
-      // Se llama aplicarFiltroMapa para reflejar siempre el rango activo del dashboard
-      setTimeout(() => {
-        initMap();
-        aplicarFiltroMapa();
-      }, 80);
-    }
   }
- 
+
   /* ─── Gráficas ──────────────────────────────────────────────────
      Cada instancia Chart.js debe destruirse antes de recrearse
      para evitar el bug de canvas reutilizado.
@@ -1327,14 +1239,14 @@
       const t = getTipo(r.incidencia);
       counts[t.label] = (counts[t.label] || 0) + 1;
     });
- 
+
     // Todos los tipos presentes, ordenados de mayor a menor
     const sorted  = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     const labels  = sorted.map(([l]) => l);
     const values  = sorted.map(([, v]) => v);
     const bgs     = labels.map(l => CHART_COLORS[l]?.bg     || 'rgba(148,163,184,0.75)');
     const borders = labels.map(l => CHART_COLORS[l]?.border || '#94a3b8');
- 
+
     // Parte etiquetas largas en dos líneas para el eje X de barras
     // Chart.js acepta arrays de strings como etiqueta multilínea
     const labelsMultiline = labels.map(l => {
@@ -1342,7 +1254,7 @@
       const mid = l.lastIndexOf(' ', Math.floor(l.length / 2) + 4);
       return mid > 0 ? [l.slice(0, mid), l.slice(mid + 1)] : l;
     });
- 
+
     // Lista numérica: dot + label + valor — muestra todos
     document.getElementById('dist-numerica').innerHTML = sorted.length
       ? sorted.map(([label, val]) => `
@@ -1353,7 +1265,7 @@
           </div>`
         ).join('')
       : '<div class="empty">Sin datos</div>';
- 
+
     // Gráfica de barras: todos los tipos con etiquetas en 2 líneas
     if (chartBar) chartBar.destroy();
     chartBar = new Chart(document.getElementById('chart-bar'), {
@@ -1398,7 +1310,7 @@
         },
       },
     });
- 
+
     // Gráfica de dona: distribución porcentual con leyenda en la parte inferior
     if (chartDonut) chartDonut.destroy();
     chartDonut = new Chart(document.getElementById('chart-donut'), {
@@ -1444,227 +1356,7 @@
       },
     });
   }
- 
- 
-  /* ─── Mapa de Incidencias (Leaflet) ─────────────────────────────
-     mapInstance y markersLayer se crean una sola vez (initMap).
-     aplicarFiltroMapa() limpia y redibuja los marcadores cada vez.
-     Los marcadores críticos (apagado/accidente) tienen glow rojo.
-  ─────────────────────────────────────────────────────────────── */
- 
-  let mapInstance    = null; // instancia de Leaflet — solo una
-  let markersLayer   = null; // capa de marcadores — se borra y recrea al filtrar
- 
-  // Inicializa el mapa una sola vez; centrado en El Salvador
-  function initMap() {
-    if (mapInstance) {
-      mapInstance.invalidateSize(); // recalcula dimensiones si el panel era invisible
-      return;
-    }
-    mapInstance = L.map('map-container').setView([13.6894, -89.1872], 8);
- 
-    // Tiles de CartoDB (sin API key, sin cuota, apariencia limpia)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org">OSM</a> &amp; CARTO',
-      subdomains: 'abcd',
-      maxZoom: 19,
-      minZoom: 5,
-    }).addTo(mapInstance);
- 
-    markersLayer = L.layerGroup().addTo(mapInstance);
-  }
- 
-  // Dibuja los marcadores según los filtros del mapa.
-  // Toma como base lastFilteredRows (ya filtrado por fecha/rango del dashboard).
-  // Agrupa registros del mismo semáforo (mismo código) en un solo marcador
-  // para evitar superposición cuando hay varias incidencias en el mismo punto.
-  function aplicarFiltroMapa() {
-    if (!mapInstance) return;
- 
-    const tipo   = document.getElementById('map-tipo').value;
-    const ciudad = document.getElementById('map-ciudad').value;
- 
-    // Keywords para filtrar por tipo de incidencia
-    const MAP_KW = {
-      forzamiento:   'forzamiento',
-      apagado:       'apagado',
-      accidente:     'accidente',
-      mejora:        'mejora',
-      intermitencia: 'intermitencia',
-      error:         'error',
-      vdt:           'vdt',
-    };
- 
-    // El mapa aplica el rango de fechas del dashboard pero filtra ciudad de forma
-    // independiente. Si usara lastFilteredRows, el filtro de ciudad del dashboard
-    // impediría ver otras ciudades en el mapa.
-    const fechaIni = document.getElementById('f-fecha-ini').value;
-    const fechaFin = document.getElementById('f-fecha-fin').value;
-    const dateIni  = fechaIni ? new Date(fechaIni + 'T00:00:00') : null;
-    const dateFin  = fechaFin ? new Date(fechaFin + 'T23:59:59') : null;
- 
-    let rows = dataset.filter(r => {
-      if (dateIni || dateFin) {
-        const d = parseSheetDate(r.fecha);
-        if (!d) return false;
-        if (dateIni && d < dateIni) return false;
-        if (dateFin && d > dateFin) return false;
-      }
-      return true;
-    });
- 
-    // Filtro por tipo de incidencia
-    if (tipo !== 'todos' && MAP_KW[tipo]) {
-      rows = rows.filter(r => r.incidencia.toLowerCase().includes(MAP_KW[tipo]));
-    }
- 
-    // Filtro por ciudad — independiente del filtro de ciudad del dashboard
-    // Usa toLowerCase para evitar problemas de mayúsculas/minúsculas
-    if (ciudad !== 'todas') {
-      rows = rows.filter(r => (r.ciudad || '').toLowerCase() === ciudad.toLowerCase());
-    }
- 
-    // Solo registros con coordenadas válidas y no nulas
-    rows = rows.filter(r => {
-      const lat = parseFloat(r.latitud);
-      const lng = parseFloat(r.longitud);
-      return !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;
-    });
- 
-    const totalConCoords = rows.length;
- 
-    // Aplicar límite de rendimiento solo cuando es vista nacional (todas las ciudades)
-    // San Salvador u otra ciudad específica no necesita límite porque ya es un subconjunto
-    const LIMITE_NACIONAL = 300;
-    if (ciudad === 'todas' && rows.length > LIMITE_NACIONAL) {
-      rows = rows.slice(-LIMITE_NACIONAL);
-    }
- 
-    // Actualizar nota de estado
-    const statusEl = document.getElementById('map-status-text');
-    if (totalConCoords === 0) {
-      statusEl.textContent = 'No hay registros con coordenadas válidas para los filtros seleccionados.';
-    } else {
-      const limMsg = ciudad === 'todas' && totalConCoords > LIMITE_NACIONAL
-        ? ` (limitado a ${LIMITE_NACIONAL} para rendimiento)`
-        : '';
-      statusEl.textContent =
-        `Mostrando ${rows.length} de ${totalConCoords} registros con coordenadas válidas${limMsg}.`;
-    }
- 
-    // Limpiar marcadores anteriores
-    if (markersLayer) markersLayer.clearLayers();
- 
-    // Agrupar por código de semáforo para evitar marcadores apilados
-    // Un semáforo puede tener varias incidencias en el mismo período
-    const grupos = {};
-    rows.forEach(r => {
-      const key = r.codigo || `${r.latitud},${r.longitud}`;
-      if (!grupos[key]) {
-        grupos[key] = { registros: [], lat: parseFloat(r.latitud), lng: parseFloat(r.longitud) };
-      }
-      grupos[key].registros.push(r);
-    });
- 
-    const bounds = [];
- 
-    Object.values(grupos).forEach(grupo => {
-      const { lat, lng, registros } = grupo;
-      const total   = registros.length;
-      // El tipo predominante es el más frecuente en ese semáforo
-      const conteo  = {};
-      registros.forEach(r => {
-        const lbl = getTipo(r.incidencia).label;
-        conteo[lbl] = (conteo[lbl] || 0) + 1;
-      });
-      const tipoPrincipal = Object.entries(conteo).sort((a,b) => b[1]-a[1])[0][0];
-      const color  = Object.values(TIPOS).find(t => t.label === tipoPrincipal)?.color || '#94a3b8';
- 
-      const isCritical = registros.some(r =>
-        r.incidencia.toLowerCase().includes('apagado') ||
-        r.incidencia.toLowerCase().includes('accidente')
-      );
- 
-      // Si hay múltiples incidencias en el mismo semáforo, mostrar el conteo
-      const badgeHtml = total > 1
-        ? `<div style="position:absolute;top:-6px;right:-6px;background:#0033a0;color:#fff;border-radius:20px;font-size:8px;font-weight:800;padding:1px 4px;min-width:14px;text-align:center;border:1.5px solid #fff">${total}</div>`
-        : '';
- 
-      const iconHtml = `
-        <div style="position:relative;width:24px;height:24px">
-          <div style="
-            width:24px;height:24px;background:${color};border-radius:50%;
-            border:2.5px solid #fff;
-            box-shadow:${isCritical ? '0 0 8px #ef4444,0 2px 4px rgba(0,0,0,.3)' : '0 2px 5px rgba(0,0,0,.25)'};
-            display:flex;align-items:center;justify-content:center;
-            font-size:9px;color:#fff;font-weight:800;
-          ">${isCritical ? '!' : ''}</div>
-          ${badgeHtml}
-        </div>`;
- 
-      const icon = L.divIcon({
-        html:      iconHtml,
-        iconSize:  [24, 24],
-        iconAnchor:[12, 12],
-        className: 'custom-marker',
-      });
- 
-      // Popup: si hay múltiples incidencias muestra el resumen, si es una muestra el detalle
-      let popupHtml;
-      if (total === 1) {
-        const r = registros[0];
-        const t = getTipo(r.incidencia);
-        popupHtml = `
-          <div style="font-family:'Inter',sans-serif;font-size:12px;min-width:210px;line-height:1.7">
-            <div style="font-weight:700;color:#111;margin-bottom:4px">${t.label}</div>
-            <div style="color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">${r.codigo}</div>
-            <div>📍 ${r.dir || 'Sin dirección'}</div>
-            <div>🏙️ ${r.ciudad || 'Sin ciudad'}</div>
-            <div>📅 ${r.fecha} &nbsp; ${r.hora}</div>
-            <div>👤 ${r.operador || 'Sin operador'}</div>
-            <div>📋 ${r.reporte}</div>
-          </div>`;
-      } else {
-        // Múltiples incidencias en el mismo semáforo
-        const resumen = Object.entries(conteo)
-          .sort((a,b) => b[1]-a[1])
-          .map(([lbl, cnt]) => `<div style="display:flex;justify-content:space-between;gap:16px"><span>${lbl}</span><strong>${cnt}</strong></div>`)
-          .join('');
-        const r0 = registros[0];
-        popupHtml = `
-          <div style="font-family:'Inter',sans-serif;font-size:12px;min-width:210px;line-height:1.7">
-            <div style="font-weight:700;color:#111;margin-bottom:2px">${r0.codigo}</div>
-            <div style="color:#6b7280;font-size:10px;margin-bottom:8px">📍 ${r0.dir || 'Sin dirección'} &nbsp;·&nbsp; ${r0.ciudad}</div>
-            <div style="font-size:10px;font-weight:700;color:#0033a0;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">${total} incidencias en el período</div>
-            <div style="border-top:1px solid #f1f5f9;padding-top:6px;font-size:11px;color:#4b5563">${resumen}</div>
-          </div>`;
-      }
- 
-      L.marker([lat, lng], { icon })
-        .bindPopup(popupHtml, { maxWidth: 280 })
-        .addTo(markersLayer);
- 
-      bounds.push([lat, lng]);
-    });
- 
-    // Ajustar vista a los marcadores o centrar en El Salvador
-    if (bounds.length > 0) {
-      mapInstance.fitBounds(bounds, { padding: [30, 30], maxZoom: 15 });
-    } else {
-      mapInstance.setView([13.6894, -89.1872], 8);
-    }
-  }
- 
-  // Resetea los filtros del mapa a valores por defecto y redibuja
-  function limpiarFiltrosMapa() {
-    document.getElementById('map-tipo').value   = 'todos';
-    // Restaurar San Salvador como ciudad por defecto
-    const sel = document.getElementById('map-ciudad');
-    const opt = [...sel.options].find(o => o.value === 'San Salvador');
-    sel.value = opt ? 'San Salvador' : 'todas';
-    aplicarFiltroMapa();
-  }
- 
+
   // Punto de entrada: espera el DOM, carga datos y quita el loading
   window.addEventListener('DOMContentLoaded', async () => {
     renderOperativo(); // lista estática — solo necesita ejecutarse una vez
@@ -1674,71 +1366,5 @@
     setTimeout(() => overlay.remove(), 400);
   });
 </script>
- 
-<!-- ── Pestaña: Mapa de Incidencias ────────────────────────── -->
-<div class="tab-panel" id="panel-mapa">
-  <main class="main">
-    <div class="card">
-      <div class="card-title">MAPA DE INCIDENCIAS — EL SALVADOR</div>
- 
-      <!-- Filtros propios del mapa
-           Por defecto: San Salvador (rendimiento). "Todas" = nacional completo.
-           El rango de fechas se toma del filtro global del dashboard. -->
-      <div class="map-filters">
-        <select class="filter-select" id="map-tipo">
-          <option value="todos">TODOS LOS TIPOS</option>
-          <option value="forzamiento">Forzamiento de Tiempos</option>
-          <option value="apagado">Apagado</option>
-          <option value="accidente">Apoyo en Accidentes</option>
-          <option value="mejora">Mejora de Tiempos</option>
-          <option value="intermitencia">Intermitencia</option>
-          <option value="error">Error de Comunicación</option>
-          <option value="vdt">Revisión VDT</option>
-        </select>
- 
-        <!-- Ciudades: se puebla dinámicamente; San Salvador seleccionada por defecto -->
-        <select class="filter-select" id="map-ciudad">
-          <option value="todas">TODAS LAS CIUDADES (nacional)</option>
-        </select>
- 
-        <button class="btn-map btn-map-apply" onclick="aplicarFiltroMapa()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          APLICAR
-        </button>
-        <button class="btn-map btn-map-clear" onclick="limpiarFiltrosMapa()">
-          ✕ LIMPIAR
-        </button>
-      </div>
- 
-      <!-- Mapa Leaflet -->
-      <div class="map-container" id="map-container"></div>
- 
-      <!-- Nota de estado -->
-      <div class="map-status" id="map-status">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <span id="map-status-text">Activa los filtros del dashboard y luego abre esta pestaña para ver las ubicaciones.</span>
-      </div>
- 
-      <!-- Leyenda -->
-      <div class="map-legend">
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#ca8a04"></div>Forzamiento</div>
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#dc2626"></div>Apagado</div>
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#65a30d"></div>Mejora</div>
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#2563eb"></div>Intermitencia</div>
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#9333ea"></div>Error Comun.</div>
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#ea580c"></div>Accidentes</div>
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#0d9488"></div>VDT</div>
-        <div class="map-legend-item"><div class="map-legend-dot" style="background:#94a3b8"></div>Otro</div>
-      </div>
-    </div>
-    <div class="footer">
-      Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte
-    </div>
-  </main>
-</div>
 </body>
 </html>

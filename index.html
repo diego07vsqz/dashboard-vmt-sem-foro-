@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unidad de Planeamiento Semafórico | CCM</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Leaflet — mapas interactivos (solo se usa en la pestaña Mapa) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     /* ── Variables globales (design tokens) ─────────────────
@@ -516,6 +519,67 @@
       text-align: center; font-size: 9px; color: var(--text-light);
       line-height: 1.7; text-transform: uppercase; letter-spacing: .07em;
     }
+ 
+    /* ── Pestaña Mapa de Incidencias ────────────────────────── */
+ 
+    /* Barra de filtros propia del mapa */
+    .map-filters {
+      display: flex; align-items: center; gap: 10px;
+      flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .map-filters .filter-select {
+      font-family: 'Inter', sans-serif; font-size: 11px;
+      color: var(--text-dark); background: var(--bg-white);
+      border: 1px solid var(--border-mid); border-radius: var(--r-sm);
+      padding: 6px 12px; cursor: pointer; outline: none;
+      transition: border-color .15s;
+    }
+    .map-filters .filter-select:focus { border-color: var(--flag-blue); }
+ 
+    .btn-map {
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700;
+      padding: 6px 14px; border-radius: var(--r-sm); cursor: pointer;
+      transition: all .15s; text-transform: uppercase; letter-spacing: .04em; border: none;
+    }
+    .btn-map-apply  { background: var(--flag-blue); color: #fff; }
+    .btn-map-apply:hover  { background: #002280; }
+    .btn-map-clear  { background: var(--bg-page); color: var(--text-mid); border: 1px solid var(--border-mid); }
+    .btn-map-clear:hover  { background: var(--border-mid); }
+ 
+    /* Contenedor del mapa — altura fija para que Leaflet lo renderice bien */
+    .map-container {
+      width: 100%; height: 520px;
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      border: 1px solid var(--border-mid);
+      z-index: 0;   /* evita que el mapa tape el header sticky */
+    }
+ 
+    /* Nota de estado debajo del mapa */
+    .map-status {
+      margin-top: 10px; font-size: 11px; color: var(--text-light);
+      display: flex; align-items: center; gap: 6px;
+    }
+ 
+    /* Leyenda de colores */
+    .map-legend {
+      display: flex; flex-wrap: wrap; gap: 10px 20px;
+      margin-top: 14px;
+    }
+    .map-legend-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; color: var(--text-mid); font-weight: 500;
+    }
+    .map-legend-dot {
+      width: 11px; height: 11px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.8);
+      box-shadow: 0 1px 3px rgba(0,0,0,.25);
+      flex-shrink: 0;
+    }
+ 
+    /* Marcador custom de Leaflet */
+    .custom-marker { background: transparent !important; border: none !important; }
   </style>
 </head>
  
@@ -647,6 +711,13 @@
         <line x1="6"  y1="20" x2="6"  y2="14"/>
       </svg>
       GRÁFICAS
+    </button>
+    <button class="tab-btn" id="tab-mapa" onclick="switchTab('mapa')">
+      <svg viewBox="0 0 24 24" stroke-width="2">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+      MAPA DE INCIDENCIAS
     </button>
   </div>
 </div>
@@ -996,6 +1067,7 @@
             fecha: get(COL.FECHA), hora: get(COL.HORA), codigo: get(COL.CODIGO),
             reporte: get(COL.REPORTE), incidencia: get(COL.INCIDENCIA),
             dir: get(COL.DIR), ciudad: get(COL.CIUDAD),
+            latitud: get(8), longitud: get(9), // cols I y J del Sheet
             operador: get(COL.OPERADOR), anomalia: get(COL.ANOMALIA),
           };
         })
@@ -1004,8 +1076,12 @@
       setRange('3m');
  
       const ciudades = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
-      document.getElementById('f-ciudad').innerHTML =
-        '<option value="">TODAS LAS CIUDADES</option>' +
+      const ciudadOpts = '<option value="">TODAS LAS CIUDADES</option>' +
+        ciudades.map(ciudad => `<option value="${ciudad}">${ciudad}</option>`).join('');
+      document.getElementById('f-ciudad').innerHTML = ciudadOpts;
+      // Poblar también el selector de ciudades del mapa
+      document.getElementById('map-ciudad').innerHTML =
+        '<option value="todas">TODAS LAS CIUDADES</option>' +
         ciudades.map(ciudad => `<option value="${ciudad}">${ciudad}</option>`).join('');
  
       const hora = new Date().toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit' });
@@ -1223,6 +1299,13 @@
     document.getElementById('tab-'   + name)?.classList.add('active');
     document.getElementById('panel-' + name)?.classList.add('active');
     if (name === 'graficas' && lastFilteredRows.length) renderCharts(lastFilteredRows);
+    if (name === 'mapa') {
+      // Leaflet necesita que el contenedor sea visible antes de inicializar
+      setTimeout(() => {
+        initMap();
+        aplicarFiltroMapa();
+      }, 80);
+    }
   }
  
   /* ─── Gráficas ──────────────────────────────────────────────────
@@ -1357,6 +1440,148 @@
     });
   }
  
+ 
+  /* ─── Mapa de Incidencias (Leaflet) ─────────────────────────────
+     mapInstance y markersLayer se crean una sola vez (initMap).
+     aplicarFiltroMapa() limpia y redibuja los marcadores cada vez.
+     Los marcadores críticos (apagado/accidente) tienen glow rojo.
+  ─────────────────────────────────────────────────────────────── */
+ 
+  let mapInstance    = null; // instancia de Leaflet — solo una
+  let markersLayer   = null; // capa de marcadores — se borra y recrea al filtrar
+ 
+  // Inicializa el mapa una sola vez; centrado en El Salvador
+  function initMap() {
+    if (mapInstance) {
+      mapInstance.invalidateSize(); // recalcula dimensiones si el panel era invisible
+      return;
+    }
+    mapInstance = L.map('map-container').setView([13.6894, -89.1872], 8);
+ 
+    // Tiles de CartoDB (sin API key, sin cuota, apariencia limpia)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org">OSM</a> &amp; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19,
+      minZoom: 5,
+    }).addTo(mapInstance);
+ 
+    markersLayer = L.layerGroup().addTo(mapInstance);
+  }
+ 
+  // Dibuja los marcadores según los filtros propios del mapa
+  function aplicarFiltroMapa() {
+    if (!mapInstance) return;
+ 
+    const tipo   = document.getElementById('map-tipo').value;
+    const ciudad = document.getElementById('map-ciudad').value;
+    const limite = document.getElementById('map-limite').value;
+ 
+    // Partir de los datos ya filtrados por el dashboard (fecha, incidencia, ciudad, reporte)
+    let rows = [...lastFilteredRows];
+ 
+    // Filtro adicional por tipo (categoria del mapa)
+    if (tipo !== 'todos') {
+      rows = rows.filter(r => getTipo(r.incidencia).category === tipo);
+    }
+ 
+    // Filtro adicional por ciudad
+    if (ciudad !== 'todas') {
+      rows = rows.filter(r => r.ciudad === ciudad);
+    }
+ 
+    // Solo registros con coordenadas válidas
+    rows = rows.filter(r => {
+      const lat = parseFloat(r.latitud);
+      const lng = parseFloat(r.longitud);
+      return !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;
+    });
+ 
+    const totalConCoords = rows.length;
+ 
+    // Limitar cantidad de marcadores para evitar lentitud
+    if (limite !== 'todos') {
+      rows = rows.slice(-parseInt(limite));
+    }
+ 
+    // Actualizar nota de estado
+    const statusEl = document.getElementById('map-status-text');
+    if (totalConCoords === 0) {
+      statusEl.textContent = 'No hay registros con coordenadas válidas para los filtros seleccionados.';
+    } else {
+      statusEl.textContent =
+        `Mostrando ${rows.length} de ${totalConCoords} registros con coordenadas válidas.`;
+    }
+ 
+    // Limpiar marcadores anteriores
+    if (markersLayer) markersLayer.clearLayers();
+ 
+    const bounds = [];
+ 
+    rows.forEach(r => {
+      const lat = parseFloat(r.latitud);
+      const lng = parseFloat(r.longitud);
+      const t   = getTipo(r.incidencia);
+ 
+      // Marcadores críticos con glow rojo
+      const isCritical = r.incidencia.toLowerCase().includes('apagado') ||
+                         r.incidencia.toLowerCase().includes('accidente');
+ 
+      const iconHtml = `
+        <div style="
+          width:22px; height:22px;
+          background:${t.color};
+          border-radius:50%;
+          border:2.5px solid #fff;
+          box-shadow:${isCritical ? '0 0 8px #ef4444, 0 2px 4px rgba(0,0,0,.3)' : '0 2px 5px rgba(0,0,0,.25)'};
+          display:flex; align-items:center; justify-content:center;
+          font-size:9px; color:#fff; font-weight:800;
+        ">${isCritical ? '!' : ''}</div>`;
+ 
+      const icon = L.divIcon({
+        html:      iconHtml,
+        iconSize:  [22, 22],
+        iconAnchor:[11, 11],
+        className: 'custom-marker',
+      });
+ 
+      // Popup con información del registro
+      const popup = `
+        <div style="font-family:'Inter',sans-serif;font-size:12px;min-width:200px;line-height:1.7">
+          <div style="font-weight:700;color:#111;margin-bottom:4px">${t.label}</div>
+          <div style="color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">
+            ${r.codigo}
+          </div>
+          <div>📍 ${r.dir || 'Sin dirección'}</div>
+          <div>🏙️ ${r.ciudad || 'Sin ciudad'}</div>
+          <div>📅 ${r.fecha} &nbsp; ${r.hora}</div>
+          <div>👤 ${r.operador || 'Sin operador'}</div>
+          <div>📋 ${r.reporte}</div>
+        </div>`;
+ 
+      L.marker([lat, lng], { icon })
+        .bindPopup(popup, { maxWidth: 260 })
+        .addTo(markersLayer);
+ 
+      bounds.push([lat, lng]);
+    });
+ 
+    // Ajustar vista a los marcadores o volver a El Salvador si no hay ninguno
+    if (bounds.length > 0) {
+      mapInstance.fitBounds(bounds, { padding: [30, 30], maxZoom: 15 });
+    } else {
+      mapInstance.setView([13.6894, -89.1872], 8);
+    }
+  }
+ 
+  // Resetea los filtros propios del mapa y redibuja
+  function limpiarFiltrosMapa() {
+    document.getElementById('map-tipo').value   = 'todos';
+    document.getElementById('map-ciudad').value = 'todas';
+    document.getElementById('map-limite').value = '100';
+    aplicarFiltroMapa();
+  }
+ 
   // Punto de entrada: espera el DOM, carga datos y quita el loading
   window.addEventListener('DOMContentLoaded', async () => {
     renderOperativo(); // lista estática — solo necesita ejecutarse una vez
@@ -1366,5 +1591,76 @@
     setTimeout(() => overlay.remove(), 400);
   });
 </script>
+ 
+<!-- ── Pestaña: Mapa de Incidencias ────────────────────────── -->
+<div class="tab-panel" id="panel-mapa">
+  <main class="main">
+    <div class="card">
+      <div class="card-title">MAPA DE INCIDENCIAS — EL SALVADOR</div>
+ 
+      <!-- Filtros propios del mapa -->
+      <div class="map-filters">
+        <select class="filter-select" id="map-tipo" onchange="aplicarFiltroMapa()">
+          <option value="todos">TODOS LOS TIPOS</option>
+          <option value="forzamiento">Forzamiento de Tiempos</option>
+          <option value="apagado">Apagado</option>
+          <option value="accidente">Apoyo en Accidentes</option>
+          <option value="mejora">Mejora de Tiempos</option>
+          <option value="intermitencia">Intermitencia</option>
+          <option value="error">Error de Comunicación</option>
+          <option value="vdt">Revisión VDT</option>
+        </select>
+ 
+        <select class="filter-select" id="map-ciudad">
+          <option value="todas">TODAS LAS CIUDADES</option>
+        </select>
+ 
+        <select class="filter-select" id="map-limite">
+          <option value="50">Últimos 50 puntos</option>
+          <option value="100" selected>Últimos 100 puntos</option>
+          <option value="200">Últimos 200 puntos</option>
+          <option value="500">Últimos 500 puntos</option>
+          <option value="todos">Todos los puntos</option>
+        </select>
+ 
+        <button class="btn-map btn-map-apply" onclick="aplicarFiltroMapa()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          APLICAR
+        </button>
+        <button class="btn-map btn-map-clear" onclick="limpiarFiltrosMapa()">
+          ✕ LIMPIAR
+        </button>
+      </div>
+ 
+      <!-- Mapa Leaflet -->
+      <div class="map-container" id="map-container"></div>
+ 
+      <!-- Nota de estado -->
+      <div class="map-status" id="map-status">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="map-status-text">Activa los filtros del dashboard y luego abre esta pestaña para ver las ubicaciones.</span>
+      </div>
+ 
+      <!-- Leyenda -->
+      <div class="map-legend">
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#ca8a04"></div>Forzamiento</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#dc2626"></div>Apagado</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#65a30d"></div>Mejora</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#2563eb"></div>Intermitencia</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#9333ea"></div>Error Comun.</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#ea580c"></div>Accidentes</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#0d9488"></div>VDT</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#94a3b8"></div>Otro</div>
+      </div>
+    </div>
+    <div class="footer">
+      Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte
+    </div>
+  </main>
+</div>
 </body>
 </html>

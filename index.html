@@ -1079,10 +1079,12 @@
       const ciudadOpts = '<option value="">TODAS LAS CIUDADES</option>' +
         ciudades.map(ciudad => `<option value="${ciudad}">${ciudad}</option>`).join('');
       document.getElementById('f-ciudad').innerHTML = ciudadOpts;
-      // Poblar también el selector de ciudades del mapa
+      // Poblar el selector de ciudades del mapa con San Salvador preseleccionada
       document.getElementById('map-ciudad').innerHTML =
-        '<option value="todas">TODAS LAS CIUDADES</option>' +
-        ciudades.map(ciudad => `<option value="${ciudad}">${ciudad}</option>`).join('');
+        '<option value="todas">TODAS LAS CIUDADES (nacional)</option>' +
+        ciudades.map(ciudad =>
+          `<option value="${ciudad}" ${ciudad === 'San Salvador' ? 'selected' : ''}>${ciudad}</option>`
+        ).join('');
  
       const hora = new Date().toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit' });
       document.getElementById('update-note').textContent  = `${hora} · ${dataset.length} registros`;
@@ -1169,6 +1171,8 @@
     renderNorEx(filtered);
     renderTable(filtered);
     if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(filtered);
+    // Refrescar mapa si está visible (para que refleje el nuevo rango de fechas)
+    if (document.getElementById('panel-mapa').classList.contains('active')) aplicarFiltroMapa();
   }
  
   /* ─── Render ────────────────────────────────────────────────── */
@@ -1301,6 +1305,7 @@
     if (name === 'graficas' && lastFilteredRows.length) renderCharts(lastFilteredRows);
     if (name === 'mapa') {
       // Leaflet necesita que el contenedor sea visible antes de inicializar
+      // Se llama aplicarFiltroMapa para reflejar siempre el rango activo del dashboard
       setTimeout(() => {
         initMap();
         aplicarFiltroMapa();
@@ -1469,19 +1474,17 @@
     markersLayer = L.layerGroup().addTo(mapInstance);
   }
  
-  // Dibuja los marcadores según los filtros propios del mapa
+  // Dibuja los marcadores según los filtros del mapa.
+  // Toma como base lastFilteredRows (ya filtrado por fecha/rango del dashboard).
+  // Agrupa registros del mismo semáforo (mismo código) en un solo marcador
+  // para evitar superposición cuando hay varias incidencias en el mismo punto.
   function aplicarFiltroMapa() {
     if (!mapInstance) return;
  
     const tipo   = document.getElementById('map-tipo').value;
     const ciudad = document.getElementById('map-ciudad').value;
-    const limite = document.getElementById('map-limite').value;
  
-    // Partir de los datos ya filtrados por el dashboard (fecha, incidencia, ciudad, reporte)
-    let rows = [...lastFilteredRows];
- 
-    // Filtro adicional por tipo — usa substring sobre la incidencia en minúsculas
-    // No depende del campo 'category' (que no existe en TIPOS de este proyecto)
+    // Keywords para filtrar por tipo de incidencia
     const MAP_KW = {
       forzamiento:   'forzamiento',
       apagado:       'apagado',
@@ -1491,16 +1494,21 @@
       error:         'error',
       vdt:           'vdt',
     };
+ 
+    // Partir de los datos ya filtrados por el dashboard (fecha, incidencia, reporte)
+    let rows = [...lastFilteredRows];
+ 
+    // Filtro adicional por tipo
     if (tipo !== 'todos' && MAP_KW[tipo]) {
       rows = rows.filter(r => r.incidencia.toLowerCase().includes(MAP_KW[tipo]));
     }
  
-    // Filtro adicional por ciudad
+    // Filtro por ciudad — San Salvador por defecto, "todas" = nacional
     if (ciudad !== 'todas') {
       rows = rows.filter(r => r.ciudad === ciudad);
     }
  
-    // Solo registros con coordenadas válidas
+    // Solo registros con coordenadas válidas y no nulas
     rows = rows.filter(r => {
       const lat = parseFloat(r.latitud);
       const lng = parseFloat(r.longitud);
@@ -1509,9 +1517,11 @@
  
     const totalConCoords = rows.length;
  
-    // Limitar cantidad de marcadores para evitar lentitud
-    if (limite !== 'todos') {
-      rows = rows.slice(-parseInt(limite));
+    // Aplicar límite de rendimiento solo cuando es vista nacional (todas las ciudades)
+    // San Salvador u otra ciudad específica no necesita límite porque ya es un subconjunto
+    const LIMITE_NACIONAL = 300;
+    if (ciudad === 'todas' && rows.length > LIMITE_NACIONAL) {
+      rows = rows.slice(-LIMITE_NACIONAL);
     }
  
     // Actualizar nota de estado
@@ -1519,64 +1529,109 @@
     if (totalConCoords === 0) {
       statusEl.textContent = 'No hay registros con coordenadas válidas para los filtros seleccionados.';
     } else {
+      const limMsg = ciudad === 'todas' && totalConCoords > LIMITE_NACIONAL
+        ? ` (limitado a ${LIMITE_NACIONAL} para rendimiento)`
+        : '';
       statusEl.textContent =
-        `Mostrando ${rows.length} de ${totalConCoords} registros con coordenadas válidas.`;
+        `Mostrando ${rows.length} de ${totalConCoords} registros con coordenadas válidas${limMsg}.`;
     }
  
     // Limpiar marcadores anteriores
     if (markersLayer) markersLayer.clearLayers();
  
+    // Agrupar por código de semáforo para evitar marcadores apilados
+    // Un semáforo puede tener varias incidencias en el mismo período
+    const grupos = {};
+    rows.forEach(r => {
+      const key = r.codigo || `${r.latitud},${r.longitud}`;
+      if (!grupos[key]) {
+        grupos[key] = { registros: [], lat: parseFloat(r.latitud), lng: parseFloat(r.longitud) };
+      }
+      grupos[key].registros.push(r);
+    });
+ 
     const bounds = [];
  
-    rows.forEach(r => {
-      const lat = parseFloat(r.latitud);
-      const lng = parseFloat(r.longitud);
-      const t   = getTipo(r.incidencia);
+    Object.values(grupos).forEach(grupo => {
+      const { lat, lng, registros } = grupo;
+      const total   = registros.length;
+      // El tipo predominante es el más frecuente en ese semáforo
+      const conteo  = {};
+      registros.forEach(r => {
+        const lbl = getTipo(r.incidencia).label;
+        conteo[lbl] = (conteo[lbl] || 0) + 1;
+      });
+      const tipoPrincipal = Object.entries(conteo).sort((a,b) => b[1]-a[1])[0][0];
+      const color  = Object.values(TIPOS).find(t => t.label === tipoPrincipal)?.color || '#94a3b8';
  
-      // Marcadores críticos con glow rojo
-      const isCritical = r.incidencia.toLowerCase().includes('apagado') ||
-                         r.incidencia.toLowerCase().includes('accidente');
+      const isCritical = registros.some(r =>
+        r.incidencia.toLowerCase().includes('apagado') ||
+        r.incidencia.toLowerCase().includes('accidente')
+      );
+ 
+      // Si hay múltiples incidencias en el mismo semáforo, mostrar el conteo
+      const badgeHtml = total > 1
+        ? `<div style="position:absolute;top:-6px;right:-6px;background:#0033a0;color:#fff;border-radius:20px;font-size:8px;font-weight:800;padding:1px 4px;min-width:14px;text-align:center;border:1.5px solid #fff">${total}</div>`
+        : '';
  
       const iconHtml = `
-        <div style="
-          width:22px; height:22px;
-          background:${t.color};
-          border-radius:50%;
-          border:2.5px solid #fff;
-          box-shadow:${isCritical ? '0 0 8px #ef4444, 0 2px 4px rgba(0,0,0,.3)' : '0 2px 5px rgba(0,0,0,.25)'};
-          display:flex; align-items:center; justify-content:center;
-          font-size:9px; color:#fff; font-weight:800;
-        ">${isCritical ? '!' : ''}</div>`;
+        <div style="position:relative;width:24px;height:24px">
+          <div style="
+            width:24px;height:24px;background:${color};border-radius:50%;
+            border:2.5px solid #fff;
+            box-shadow:${isCritical ? '0 0 8px #ef4444,0 2px 4px rgba(0,0,0,.3)' : '0 2px 5px rgba(0,0,0,.25)'};
+            display:flex;align-items:center;justify-content:center;
+            font-size:9px;color:#fff;font-weight:800;
+          ">${isCritical ? '!' : ''}</div>
+          ${badgeHtml}
+        </div>`;
  
       const icon = L.divIcon({
         html:      iconHtml,
-        iconSize:  [22, 22],
-        iconAnchor:[11, 11],
+        iconSize:  [24, 24],
+        iconAnchor:[12, 12],
         className: 'custom-marker',
       });
  
-      // Popup con información del registro
-      const popup = `
-        <div style="font-family:'Inter',sans-serif;font-size:12px;min-width:200px;line-height:1.7">
-          <div style="font-weight:700;color:#111;margin-bottom:4px">${t.label}</div>
-          <div style="color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">
-            ${r.codigo}
-          </div>
-          <div>📍 ${r.dir || 'Sin dirección'}</div>
-          <div>🏙️ ${r.ciudad || 'Sin ciudad'}</div>
-          <div>📅 ${r.fecha} &nbsp; ${r.hora}</div>
-          <div>👤 ${r.operador || 'Sin operador'}</div>
-          <div>📋 ${r.reporte}</div>
-        </div>`;
+      // Popup: si hay múltiples incidencias muestra el resumen, si es una muestra el detalle
+      let popupHtml;
+      if (total === 1) {
+        const r = registros[0];
+        const t = getTipo(r.incidencia);
+        popupHtml = `
+          <div style="font-family:'Inter',sans-serif;font-size:12px;min-width:210px;line-height:1.7">
+            <div style="font-weight:700;color:#111;margin-bottom:4px">${t.label}</div>
+            <div style="color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">${r.codigo}</div>
+            <div>📍 ${r.dir || 'Sin dirección'}</div>
+            <div>🏙️ ${r.ciudad || 'Sin ciudad'}</div>
+            <div>📅 ${r.fecha} &nbsp; ${r.hora}</div>
+            <div>👤 ${r.operador || 'Sin operador'}</div>
+            <div>📋 ${r.reporte}</div>
+          </div>`;
+      } else {
+        // Múltiples incidencias en el mismo semáforo
+        const resumen = Object.entries(conteo)
+          .sort((a,b) => b[1]-a[1])
+          .map(([lbl, cnt]) => `<div style="display:flex;justify-content:space-between;gap:16px"><span>${lbl}</span><strong>${cnt}</strong></div>`)
+          .join('');
+        const r0 = registros[0];
+        popupHtml = `
+          <div style="font-family:'Inter',sans-serif;font-size:12px;min-width:210px;line-height:1.7">
+            <div style="font-weight:700;color:#111;margin-bottom:2px">${r0.codigo}</div>
+            <div style="color:#6b7280;font-size:10px;margin-bottom:8px">📍 ${r0.dir || 'Sin dirección'} &nbsp;·&nbsp; ${r0.ciudad}</div>
+            <div style="font-size:10px;font-weight:700;color:#0033a0;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">${total} incidencias en el período</div>
+            <div style="border-top:1px solid #f1f5f9;padding-top:6px;font-size:11px;color:#4b5563">${resumen}</div>
+          </div>`;
+      }
  
       L.marker([lat, lng], { icon })
-        .bindPopup(popup, { maxWidth: 260 })
+        .bindPopup(popupHtml, { maxWidth: 280 })
         .addTo(markersLayer);
  
       bounds.push([lat, lng]);
     });
  
-    // Ajustar vista a los marcadores o volver a El Salvador si no hay ninguno
+    // Ajustar vista a los marcadores o centrar en El Salvador
     if (bounds.length > 0) {
       mapInstance.fitBounds(bounds, { padding: [30, 30], maxZoom: 15 });
     } else {
@@ -1584,11 +1639,13 @@
     }
   }
  
-  // Resetea los filtros propios del mapa y redibuja
+  // Resetea los filtros del mapa a valores por defecto y redibuja
   function limpiarFiltrosMapa() {
     document.getElementById('map-tipo').value   = 'todos';
-    document.getElementById('map-ciudad').value = 'todas';
-    document.getElementById('map-limite').value = '100';
+    // Restaurar San Salvador como ciudad por defecto
+    const sel = document.getElementById('map-ciudad');
+    const opt = [...sel.options].find(o => o.value === 'San Salvador');
+    sel.value = opt ? 'San Salvador' : 'todas';
     aplicarFiltroMapa();
   }
  
@@ -1608,9 +1665,11 @@
     <div class="card">
       <div class="card-title">MAPA DE INCIDENCIAS — EL SALVADOR</div>
  
-      <!-- Filtros propios del mapa -->
+      <!-- Filtros propios del mapa
+           Por defecto: San Salvador (rendimiento). "Todas" = nacional completo.
+           El rango de fechas se toma del filtro global del dashboard. -->
       <div class="map-filters">
-        <select class="filter-select" id="map-tipo" onchange="aplicarFiltroMapa()">
+        <select class="filter-select" id="map-tipo">
           <option value="todos">TODOS LOS TIPOS</option>
           <option value="forzamiento">Forzamiento de Tiempos</option>
           <option value="apagado">Apagado</option>
@@ -1621,16 +1680,9 @@
           <option value="vdt">Revisión VDT</option>
         </select>
  
+        <!-- Ciudades: se puebla dinámicamente; San Salvador seleccionada por defecto -->
         <select class="filter-select" id="map-ciudad">
-          <option value="todas">TODAS LAS CIUDADES</option>
-        </select>
- 
-        <select class="filter-select" id="map-limite">
-          <option value="50">Últimos 50 puntos</option>
-          <option value="100" selected>Últimos 100 puntos</option>
-          <option value="200">Últimos 200 puntos</option>
-          <option value="500">Últimos 500 puntos</option>
-          <option value="todos">Todos los puntos</option>
+          <option value="todas">TODAS LAS CIUDADES (nacional)</option>
         </select>
  
         <button class="btn-map btn-map-apply" onclick="aplicarFiltroMapa()">

@@ -1593,9 +1593,15 @@
     // y permite filtrar ciudad de forma independiente.
     let rows = [...mapBaseRows];
 
-    // Filtro adicional por tipo de incidencia (select propio del mapa)
+    // Filtro por tipo de incidencia (select propio del mapa)
     if (tipo !== 'todos' && MAP_KW[tipo]) {
       rows = rows.filter(r => r.incidencia.toLowerCase().includes(MAP_KW[tipo]));
+    }
+
+    // Filtro por ciudad — independiente del filtro de ciudad del dashboard
+    // toLowerCase para evitar problemas de mayúsculas/minúsculas
+    if (ciudad !== 'todas') {
+      rows = rows.filter(r => (r.ciudad || '').toLowerCase() === ciudad.toLowerCase());
     }
 
     // Solo registros con coordenadas válidas y no nulas

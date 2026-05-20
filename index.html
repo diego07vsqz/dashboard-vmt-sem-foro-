@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unidad de Planeamiento Semafórico | CCM</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Leaflet — mapas interactivos (solo se usa en la pestaña Mapa) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     /* ── Variables globales (design tokens) ─────────────────
@@ -516,6 +519,67 @@
       text-align: center; font-size: 9px; color: var(--text-light);
       line-height: 1.7; text-transform: uppercase; letter-spacing: .07em;
     }
+
+    /* ── Pestaña Mapa de Incidencias ────────────────────────── */
+
+    /* Barra de filtros propia del mapa */
+    .map-filters {
+      display: flex; align-items: center; gap: 10px;
+      flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .map-filters .filter-select {
+      font-family: 'Inter', sans-serif; font-size: 11px;
+      color: var(--text-dark); background: var(--bg-white);
+      border: 1px solid var(--border-mid); border-radius: var(--r-sm);
+      padding: 6px 12px; cursor: pointer; outline: none;
+      transition: border-color .15s;
+    }
+    .map-filters .filter-select:focus { border-color: var(--flag-blue); }
+
+    .btn-map {
+      display: flex; align-items: center; gap: 6px;
+      font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700;
+      padding: 6px 14px; border-radius: var(--r-sm); cursor: pointer;
+      transition: all .15s; text-transform: uppercase; letter-spacing: .04em; border: none;
+    }
+    .btn-map-apply  { background: var(--flag-blue); color: #fff; }
+    .btn-map-apply:hover  { background: #002280; }
+    .btn-map-clear  { background: var(--bg-page); color: var(--text-mid); border: 1px solid var(--border-mid); }
+    .btn-map-clear:hover  { background: var(--border-mid); }
+
+    /* Contenedor del mapa — altura fija para que Leaflet lo renderice bien */
+    .map-container {
+      width: 100%; height: 520px;
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      border: 1px solid var(--border-mid);
+      z-index: 0;   /* evita que el mapa tape el header sticky */
+    }
+
+    /* Nota de estado debajo del mapa */
+    .map-status {
+      margin-top: 10px; font-size: 11px; color: var(--text-light);
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    /* Leyenda de colores */
+    .map-legend {
+      display: flex; flex-wrap: wrap; gap: 10px 20px;
+      margin-top: 14px;
+    }
+    .map-legend-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; color: var(--text-mid); font-weight: 500;
+    }
+    .map-legend-dot {
+      width: 11px; height: 11px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.8);
+      box-shadow: 0 1px 3px rgba(0,0,0,.25);
+      flex-shrink: 0;
+    }
+
+    /* Marcador custom de Leaflet */
+    .custom-marker { background: transparent !important; border: none !important; }
   </style>
 </head>
 
@@ -648,6 +712,13 @@
       </svg>
       GRÁFICAS
     </button>
+    <button class="tab-btn" id="tab-mapa" onclick="switchTab('mapa')">
+      <svg viewBox="0 0 24 24" stroke-width="2">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+      MAPA DE INCIDENCIAS
+    </button>
   </div>
 </div>
 
@@ -753,8 +824,13 @@
      Los índices de COL corresponden a columnas del Sheet (base 0).
   ─────────────────────────────────────────────────────────────── */
 
-  const SHEET_ID   = '1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU';
-  const SHEET_NAME = 'P. Semaforico';
+  const SHEET_ID      = '1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU';
+  const SHEET_NAME    = 'P. Semaforico';
+
+  // Listado maestro de semáforos — fuente de coordenadas por código
+  // Columnas: C=2 Código | H=7 Zona/Ciudad | I=8 Latitud | J=9 Longitud
+  const SEMAFOROS_ID   = '12UGyAEYZIz-Qu-3_EKxaaehZwVXnFhvYi-gkBGwPOk0';
+  const SEMAFOROS_NAME = 'Hoja1'; // ajustar si la pestaña tiene otro nombre
 
   const COL = {
     FECHA: 0, HORA: 1, CODIGO: 2, REPORTE: 3, INCIDENCIA: 4,
@@ -968,8 +1044,10 @@
   };
 
   /* ─── Estado global ─────────────────────────────────────────── */
-  let dataset = [];          // Filas cargadas desde el Sheet
-  let lastFilteredRows = []; // Último resultado de applyFilters()
+  let dataset          = []; // Filas cargadas desde el Sheet
+  let lastFilteredRows = []; // Resultado de applyFilters() — incluye filtro de ciudad
+  let mapBaseRows      = []; // Igual que lastFilteredRows pero SIN filtro de ciudad — para el mapa
+  let coordsMap        = {}; // Mapa código → { lat, lng, zona } del listado de semáforos
   let chartBar   = null; // Instancia Chart.js — barras
   let chartDonut = null; // Instancia Chart.js — dona
 
@@ -978,35 +1056,115 @@
      El regex extrae el JSON del wrapper setResponse({...}).
      NOTA: usar substring(47) es frágil; el regex es más robusto.
   ─────────────────────────────────────────────────────────────── */
-  async function loadData() {
-    document.getElementById('update-note').textContent = 'ACTUALIZANDO...';
+  // Carga el listado maestro de semáforos y construye coordsMap:
+  //   codigo → { lat, lng, zona }
+  // Se usa como fallback cuando P. Semaforico no tiene coordenadas en I/J.
+  async function loadSemaforos() {
     try {
-      const url   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+      const url   = `https://docs.google.com/spreadsheets/d/${SEMAFOROS_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SEMAFOROS_NAME)}`;
       const res   = await fetch(url);
       const text  = await res.text();
       const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
-      if (!match) throw new Error('Formato de respuesta inesperado.');
-      const json  = JSON.parse(match[1]);
+      if (!match) return; // si falla, el mapa usará las coordenadas de P. Semaforico
 
-      dataset = (json.table.rows || [])
-        .map(row => {
-          const c   = row.c;
-          const get = i => (c[i]?.v != null) ? String(c[i].f || c[i].v).trim() : '';
-          return {
-            fecha: get(COL.FECHA), hora: get(COL.HORA), codigo: get(COL.CODIGO),
-            reporte: get(COL.REPORTE), incidencia: get(COL.INCIDENCIA),
-            dir: get(COL.DIR), ciudad: get(COL.CIUDAD),
-            operador: get(COL.OPERADOR), anomalia: get(COL.ANOMALIA),
+      const json = JSON.parse(match[1]);
+      coordsMap  = {};
+
+      (json.table.rows || []).forEach(row => {
+        const c   = row.c;
+        const get = i => (c[i]?.v != null) ? String(c[i].f || c[i].v).trim() : '';
+
+        const codigo = get(2); // col C — código del semáforo
+        const zona   = get(7); // col H — nombre de la zona/ciudad
+        const lat    = get(8); // col I — latitud
+        const lng    = get(9); // col J — longitud
+
+        if (!codigo) return;
+
+        const latNum = parseFloat(lat);
+        const lngNum = parseFloat(lng);
+
+        // Corrección de signo: longitud de El Salvador es negativa (-89.x)
+        // Si el Sheet la guarda sin signo, se corrige automáticamente
+        const lngFinal = lngNum > 0 ? -lngNum : lngNum;
+
+        if (!isNaN(latNum) && !isNaN(lngFinal) && latNum !== 0) {
+          coordsMap[codigo.toUpperCase()] = {
+            lat:  latNum,
+            lng:  lngFinal,
+            zona: zona,
           };
-        })
-        .filter(r => r.fecha || r.codigo);
+        }
+      });
+
+      console.info(`Listado de semáforos cargado: ${Object.keys(coordsMap).length} semáforos con coordenadas.`);
+    } catch (err) {
+      // No es crítico — el mapa seguirá funcionando con las coords de P. Semaforico
+      console.warn('No se pudo cargar el listado de semáforos:', err.message);
+    }
+  }
+
+  async function loadData() {
+    document.getElementById('update-note').textContent = 'ACTUALIZANDO...';
+    try {
+      // Cargar listado de semáforos en paralelo con P. Semaforico
+      await Promise.all([
+        loadSemaforos(),
+        (async () => {
+          const url   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+          const res   = await fetch(url);
+          const text  = await res.text();
+          const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+          if (!match) throw new Error('Formato de respuesta inesperado.');
+          const json  = JSON.parse(match[1]);
+
+          dataset = (json.table.rows || [])
+            .map(row => {
+              const c   = row.c;
+              const get = i => (c[i]?.v != null) ? String(c[i].f || c[i].v).trim() : '';
+
+              const codigo = get(COL.CODIGO);
+              const ref    = coordsMap[codigo?.toUpperCase()] || {};
+
+              // Coordenadas: primero las de P. Semaforico (I/J),
+              // si están vacías usa las del listado maestro
+              const latRaw = get(8) || ref.lat?.toString() || '';
+              const lngRaw = get(9) || ref.lng?.toString() || '';
+
+              // Corrección de signo en P. Semaforico también
+              const lngNum = parseFloat(lngRaw);
+              const lngFix = lngNum > 0 ? -lngNum : lngNum;
+
+              return {
+                fecha:     get(COL.FECHA),
+                hora:      get(COL.HORA),
+                codigo,
+                reporte:   get(COL.REPORTE),
+                incidencia:get(COL.INCIDENCIA),
+                dir:       get(COL.DIR),
+                ciudad:    get(COL.CIUDAD) || ref.zona || '',
+                latitud:   latRaw ? parseFloat(latRaw).toString() : '',
+                longitud:  latRaw ? lngFix.toString() : '', // solo si hay latitud
+                operador:  get(COL.OPERADOR),
+                anomalia:  get(COL.ANOMALIA),
+              };
+            })
+            .filter(r => r.fecha || r.codigo);
+        })(),
+      ]);
 
       setRange('3m');
 
       const ciudades = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
-      document.getElementById('f-ciudad').innerHTML =
-        '<option value="">TODAS LAS CIUDADES</option>' +
+      const ciudadOpts = '<option value="">TODAS LAS CIUDADES</option>' +
         ciudades.map(ciudad => `<option value="${ciudad}">${ciudad}</option>`).join('');
+      document.getElementById('f-ciudad').innerHTML = ciudadOpts;
+      // Poblar el selector de ciudades del mapa con San Salvador preseleccionada
+      document.getElementById('map-ciudad').innerHTML =
+        '<option value="todas">TODAS LAS CIUDADES (nacional)</option>' +
+        ciudades.map(ciudad =>
+          `<option value="${ciudad}" ${ciudad === 'San Salvador' ? 'selected' : ''}>${ciudad}</option>`
+        ).join('');
 
       const hora = new Date().toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit' });
       document.getElementById('update-note').textContent  = `${hora} · ${dataset.length} registros`;
@@ -1089,10 +1247,25 @@
     });
 
     lastFilteredRows = filtered;
+
+    // mapBaseRows: mismo período + incidencia + reporte, pero SIN ciudad.
+    // El mapa lo usa para poder filtrar ciudad de forma independiente.
+    mapBaseRows = dataset.filter(r => {
+      if (dateIni || dateFin) {
+        const d = parseSheetDate(r.fecha);
+        if (!d || (dateIni && d < dateIni) || (dateFin && d > dateFin)) return false;
+      }
+      if (inc && !r.incidencia.toLowerCase().includes(inc)) return false;
+      if (rep && !r.reporte.toLowerCase().includes(rep))    return false;
+      return true;
+    });
+
     renderKPIs(filtered);
     renderNorEx(filtered);
     renderTable(filtered);
     if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(filtered);
+    // Refrescar mapa si está visible (para que refleje el nuevo rango de fechas)
+    if (document.getElementById('panel-mapa').classList.contains('active')) aplicarFiltroMapa();
   }
 
   /* ─── Render ────────────────────────────────────────────────── */
@@ -1223,6 +1396,14 @@
     document.getElementById('tab-'   + name)?.classList.add('active');
     document.getElementById('panel-' + name)?.classList.add('active');
     if (name === 'graficas' && lastFilteredRows.length) renderCharts(lastFilteredRows);
+    if (name === 'mapa') {
+      // Leaflet necesita que el contenedor sea visible antes de inicializar
+      // Se llama aplicarFiltroMapa para reflejar siempre el rango activo del dashboard
+      setTimeout(() => {
+        initMap();
+        aplicarFiltroMapa();
+      }, 80);
+    }
   }
 
   /* ─── Gráficas ──────────────────────────────────────────────────
@@ -1357,6 +1538,222 @@
     });
   }
 
+  /* ─── Mapa de Incidencias (Leaflet) ─────────────────────────────
+     mapInstance y markersLayer se crean una sola vez (initMap).
+     aplicarFiltroMapa() limpia y redibuja los marcadores cada vez.
+     Los marcadores críticos (apagado/accidente) tienen glow rojo.
+  ─────────────────────────────────────────────────────────────── */
+
+  let mapInstance    = null; // instancia de Leaflet — solo una
+  let markersLayer   = null; // capa de marcadores — se borra y recrea al filtrar
+
+  // Inicializa el mapa una sola vez; centrado en El Salvador
+  function initMap() {
+    if (mapInstance) {
+      mapInstance.invalidateSize(); // recalcula dimensiones si el panel era invisible
+      return;
+    }
+    mapInstance = L.map('map-container').setView([13.6894, -89.1872], 8);
+
+    // Tiles de CartoDB (sin API key, sin cuota, apariencia limpia)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org">OSM</a> &amp; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19,
+      minZoom: 5,
+    }).addTo(mapInstance);
+
+    markersLayer = L.layerGroup().addTo(mapInstance);
+  }
+
+  /* ─── Mapa: dibuja marcadores ────────────────────────────────
+     Base: mapBaseRows (fecha + incidencia + reporte del dashboard, SIN ciudad).
+     Los totales del mapa coinciden así con KPIs y gráficas.
+     Agrupa por código de semáforo para evitar marcadores apilados.
+  ─────────────────────────────────────────────────────────────── */
+  function aplicarFiltroMapa() {
+    if (!mapInstance) return;
+
+    const tipo   = document.getElementById('map-tipo').value;
+    const ciudad = document.getElementById('map-ciudad').value;
+
+    // Keywords para filtrar por tipo de incidencia
+    const MAP_KW = {
+      forzamiento:   'forzamiento',
+      apagado:       'apagado',
+      accidente:     'accidente',
+      mejora:        'mejora',
+      intermitencia: 'intermitencia',
+      error:         'error',
+      vdt:           'vdt',
+    };
+
+    // mapBaseRows: tiene fecha, incidencia y reporte del dashboard pero NO ciudad.
+    // Esto garantiza que los totales del mapa coincidan con los de las gráficas
+    // y permite filtrar ciudad de forma independiente.
+    let rows = [...mapBaseRows];
+
+    // Filtro adicional por tipo de incidencia (select propio del mapa)
+    if (tipo !== 'todos' && MAP_KW[tipo]) {
+      rows = rows.filter(r => r.incidencia.toLowerCase().includes(MAP_KW[tipo]));
+    }
+
+    // Solo registros con coordenadas válidas y no nulas
+    rows = rows.filter(r => {
+      const lat = parseFloat(r.latitud);
+      const lng = parseFloat(r.longitud);
+      return !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;
+    });
+
+    const totalConCoords = rows.length;
+
+    // Nota de estado: total de registros con coordenadas en el período
+    const statusEl = document.getElementById('map-status-text');
+    if (totalConCoords === 0) {
+      statusEl.textContent = 'No hay registros con coordenadas válidas para los filtros seleccionados.';
+    } else {
+      statusEl.textContent =
+        `Mostrando ${totalConCoords} registros con coordenadas válidas en el período seleccionado.`;
+    }
+
+    // Limpiar marcadores anteriores
+    if (markersLayer) markersLayer.clearLayers();
+
+    // Agrupar por código de semáforo para evitar marcadores apilados
+    // Un semáforo puede tener varias incidencias en el mismo período
+    const grupos = {};
+    rows.forEach(r => {
+      const key = r.codigo || `${r.latitud},${r.longitud}`;
+      if (!grupos[key]) {
+        grupos[key] = { registros: [], lat: parseFloat(r.latitud), lng: parseFloat(r.longitud) };
+      }
+      grupos[key].registros.push(r);
+    });
+
+    const bounds = [];
+
+    Object.values(grupos).forEach(grupo => {
+      const { lat, lng, registros } = grupo;
+      const total   = registros.length;
+      // El tipo predominante es el más frecuente en ese semáforo
+      const conteo  = {};
+      registros.forEach(r => {
+        const lbl = getTipo(r.incidencia).label;
+        conteo[lbl] = (conteo[lbl] || 0) + 1;
+      });
+      const tipoPrincipal = Object.entries(conteo).sort((a,b) => b[1]-a[1])[0][0];
+      const color  = Object.values(TIPOS).find(t => t.label === tipoPrincipal)?.color || '#94a3b8';
+
+      const isCritical = registros.some(r =>
+        r.incidencia.toLowerCase().includes('apagado') ||
+        r.incidencia.toLowerCase().includes('accidente')
+      );
+
+      // Si hay múltiples incidencias en el mismo semáforo, mostrar el conteo
+      const badgeHtml = total > 1
+        ? `<div style="position:absolute;top:-6px;right:-6px;background:#0033a0;color:#fff;border-radius:20px;font-size:8px;font-weight:800;padding:1px 4px;min-width:14px;text-align:center;border:1.5px solid #fff">${total}</div>`
+        : '';
+
+      const iconHtml = `
+        <div style="position:relative;width:24px;height:24px">
+          <div style="
+            width:24px;height:24px;background:${color};border-radius:50%;
+            border:2.5px solid #fff;
+            box-shadow:${isCritical ? '0 0 8px #ef4444,0 2px 4px rgba(0,0,0,.3)' : '0 2px 5px rgba(0,0,0,.25)'};
+            display:flex;align-items:center;justify-content:center;
+            font-size:9px;color:#fff;font-weight:800;
+          ">${isCritical ? '!' : ''}</div>
+          ${badgeHtml}
+        </div>`;
+
+      const icon = L.divIcon({
+        html:      iconHtml,
+        iconSize:  [24, 24],
+        iconAnchor:[12, 12],
+        className: 'custom-marker',
+      });
+
+      // ── Popup ────────────────────────────────────────────────────
+      // 1 incidencia: detalle completo
+      // N incidencias: desglose por tipo con dot de color + barra proporcional
+      let popupHtml;
+      const r0 = registros[0];
+
+      if (total === 1) {
+        const t = getTipo(r0.incidencia);
+        popupHtml = `
+          <div style="font-family:'Inter',sans-serif;font-size:12px;min-width:220px;line-height:1.75">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+              <div style="width:10px;height:10px;border-radius:50%;background:${t.color};flex-shrink:0"></div>
+              <div style="font-weight:700;color:#111">${t.label}</div>
+            </div>
+            <div style="color:#0033a0;font-size:10px;font-weight:700;text-transform:uppercase;
+                        letter-spacing:.06em;margin-bottom:6px">${r0.codigo}</div>
+            <div style="color:#6b7280;font-size:11px">📍 ${r0.dir || 'Sin dirección'}</div>
+            <div style="color:#6b7280;font-size:11px">🏙️ ${r0.ciudad || 'Sin ciudad'}</div>
+            <div style="color:#6b7280;font-size:11px">📅 ${r0.fecha} &nbsp; ${r0.hora}</div>
+            <div style="color:#6b7280;font-size:11px">👤 ${r0.operador || 'Sin operador'}</div>
+          </div>`;
+      } else {
+        // Desglose: dot de color + tipo + barra proporcional + cantidad
+        const maxCnt = Math.max(...Object.values(conteo));
+        const filas  = Object.entries(conteo)
+          .sort((a, b) => b[1] - a[1])
+          .map(([lbl, cnt]) => {
+            const tipoColor = Object.values(TIPOS).find(t => t.label === lbl)?.color || '#94a3b8';
+            const pct       = Math.round((cnt / maxCnt) * 100);
+            return `
+              <div style="display:flex;align-items:center;gap:7px;padding:4px 0;
+                          border-bottom:1px solid #f1f5f9">
+                <div style="width:8px;height:8px;border-radius:50%;background:${tipoColor};flex-shrink:0"></div>
+                <div style="flex:1;font-size:11px;color:#374151">${lbl}</div>
+                <div style="width:60px;height:5px;background:#f1f5f9;border-radius:3px;flex-shrink:0">
+                  <div style="width:${pct}%;height:100%;background:${tipoColor};border-radius:3px"></div>
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+                            color:#111;min-width:22px;text-align:right">${cnt}</div>
+              </div>`;
+          }).join('');
+
+        popupHtml = `
+          <div style="font-family:'Inter',sans-serif;font-size:12px;min-width:260px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px">
+              <div style="font-weight:700;color:#0033a0;font-size:13px">${r0.codigo}</div>
+              <div style="font-size:10px;font-weight:700;color:#64748b">${total} incidencias</div>
+            </div>
+            <div style="color:#6b7280;font-size:10px;margin-bottom:8px;padding-bottom:7px;
+                        border-bottom:1.5px solid #e2e8f0">
+              📍 ${r0.dir || 'Sin dirección'} &nbsp;·&nbsp; ${r0.ciudad || ''}
+            </div>
+            ${filas}
+          </div>`;
+      }
+
+      L.marker([lat, lng], { icon })
+        .bindPopup(popupHtml, { maxWidth: 280 })
+        .addTo(markersLayer);
+
+      bounds.push([lat, lng]);
+    });
+
+    // Ajustar vista a los marcadores o centrar en El Salvador
+    if (bounds.length > 0) {
+      mapInstance.fitBounds(bounds, { padding: [30, 30], maxZoom: 15 });
+    } else {
+      mapInstance.setView([13.6894, -89.1872], 8);
+    }
+  }
+
+  // Resetea los filtros del mapa a valores por defecto y redibuja
+  function limpiarFiltrosMapa() {
+    document.getElementById('map-tipo').value   = 'todos';
+    // Restaurar San Salvador como ciudad por defecto
+    const sel = document.getElementById('map-ciudad');
+    const opt = [...sel.options].find(o => o.value === 'San Salvador');
+    sel.value = opt ? 'San Salvador' : 'todas';
+    aplicarFiltroMapa();
+  }
+
   // Punto de entrada: espera el DOM, carga datos y quita el loading
   window.addEventListener('DOMContentLoaded', async () => {
     renderOperativo(); // lista estática — solo necesita ejecutarse una vez
@@ -1366,5 +1763,71 @@
     setTimeout(() => overlay.remove(), 400);
   });
 </script>
+
+<!-- ── Pestaña: Mapa de Incidencias ────────────────────────── -->
+<div class="tab-panel" id="panel-mapa">
+  <main class="main">
+    <div class="card">
+      <div class="card-title">MAPA DE INCIDENCIAS — EL SALVADOR</div>
+
+      <!-- Filtros propios del mapa
+           Por defecto: San Salvador (rendimiento). "Todas" = nacional completo.
+           El rango de fechas se toma del filtro global del dashboard. -->
+      <div class="map-filters">
+        <select class="filter-select" id="map-tipo">
+          <option value="todos">TODOS LOS TIPOS</option>
+          <option value="forzamiento">Forzamiento de Tiempos</option>
+          <option value="apagado">Apagado</option>
+          <option value="accidente">Apoyo en Accidentes</option>
+          <option value="mejora">Mejora de Tiempos</option>
+          <option value="intermitencia">Intermitencia</option>
+          <option value="error">Error de Comunicación</option>
+          <option value="vdt">Revisión VDT</option>
+        </select>
+
+        <!-- Ciudades: se puebla dinámicamente; San Salvador seleccionada por defecto -->
+        <select class="filter-select" id="map-ciudad">
+          <option value="todas">TODAS LAS CIUDADES (nacional)</option>
+        </select>
+
+        <button class="btn-map btn-map-apply" onclick="aplicarFiltroMapa()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          APLICAR
+        </button>
+        <button class="btn-map btn-map-clear" onclick="limpiarFiltrosMapa()">
+          ✕ LIMPIAR
+        </button>
+      </div>
+
+      <!-- Mapa Leaflet -->
+      <div class="map-container" id="map-container"></div>
+
+      <!-- Nota de estado -->
+      <div class="map-status" id="map-status">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="map-status-text">Activa los filtros del dashboard y luego abre esta pestaña para ver las ubicaciones.</span>
+      </div>
+
+      <!-- Leyenda -->
+      <div class="map-legend">
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#ca8a04"></div>Forzamiento</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#dc2626"></div>Apagado</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#65a30d"></div>Mejora</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#2563eb"></div>Intermitencia</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#9333ea"></div>Error Comun.</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#ea580c"></div>Accidentes</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#0d9488"></div>VDT</div>
+        <div class="map-legend-item"><div class="map-legend-dot" style="background:#94a3b8"></div>Otro</div>
+      </div>
+    </div>
+    <div class="footer">
+      Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte
+    </div>
+  </main>
+</div>
 </body>
 </html>

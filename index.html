@@ -607,6 +607,73 @@
       text-align: center; font-size: 9px; color: var(--text-light);
       line-height: 1.7; text-transform: uppercase; letter-spacing: .07em;
     }
+
+    /* ── Micro-animación stagger en filas de tabla ───────────── */
+    @keyframes rowIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+    tbody tr { animation: rowIn .25s ease both; }
+    tbody tr:nth-child(1)  { animation-delay:.02s }
+    tbody tr:nth-child(2)  { animation-delay:.04s }
+    tbody tr:nth-child(3)  { animation-delay:.06s }
+    tbody tr:nth-child(4)  { animation-delay:.08s }
+    tbody tr:nth-child(5)  { animation-delay:.10s }
+    tbody tr:nth-child(6)  { animation-delay:.12s }
+    tbody tr:nth-child(7)  { animation-delay:.14s }
+    tbody tr:nth-child(8)  { animation-delay:.16s }
+    tbody tr:nth-child(9)  { animation-delay:.18s }
+    tbody tr:nth-child(10) { animation-delay:.20s }
+
+    /* ── Barra de progreso en KPIs ───────────────────────────── */
+    .kpi-bar-wrap {
+      height: 3px; background: var(--border-mid);
+      border-radius: 2px; margin-top: 7px; overflow: hidden;
+    }
+    .kpi-bar-fill {
+      height: 100%; border-radius: 2px;
+      transition: width .6s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── Pantalla completa ───────────────────────────────────── */
+    .btn-fullscreen {
+      display:flex; align-items:center; gap:6px;
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+      border-radius:var(--r-sm); color:rgba(255,255,255,.7);
+      font-size:11px; font-weight:600; padding:5px 12px; cursor:pointer;
+      transition:background .2s; font-family:inherit;
+    }
+    .btn-fullscreen:hover { background:rgba(255,255,255,.12); }
+
+    /* ── Chips de filtros activos ────────────────────────────── */
+    #chips-bar {
+      display:none; align-items:center; gap:7px; flex-wrap:wrap;
+      padding:7px 32px; background:var(--bg-white);
+      border-bottom:1px solid var(--border);
+    }
+    #chips-bar.visible { display:flex; }
+    .chip {
+      display:inline-flex; align-items:center; gap:5px;
+      background:var(--flag-blue-soft); color:var(--flag-blue);
+      font-size:11px; font-weight:600; padding:3px 10px 3px 12px;
+      border-radius:20px; border:1px solid #c7d3f0;
+    }
+    .chip-x {
+      background:none; border:none; cursor:pointer;
+      color:var(--flag-blue); font-size:14px; line-height:1;
+      padding:0 2px; opacity:.7;
+    }
+    .chip-x:hover { opacity:1; }
+    [data-theme="dark"] .chip { background:#0a1628; border-color:#1e3a5f; }
+
+    /* ── Toast ───────────────────────────────────────────────── */
+    .toast {
+      position:fixed; bottom:28px; left:50%;
+      transform:translateX(-50%) translateY(20px);
+      background:#1e293b; color:#fff; font-size:12px; font-weight:600;
+      padding:10px 20px; border-radius:var(--r-lg); z-index:500;
+      opacity:0; transition:all .3s ease; pointer-events:none;
+      box-shadow:0 4px 20px rgba(0,0,0,.3); white-space:nowrap;
+    }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
   </style>
 </head>
 
@@ -671,6 +738,12 @@
         <div class="live-dot"></div>
         <span id="live-label">EN LÍNEA</span>
       </div>
+      <button class="btn-fullscreen" onclick="toggleFullscreen()" id="btn-fullscreen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+        </svg>
+        <span id="fs-label">PANTALLA COMPLETA</span>
+      </button>
       <button class="dark-toggle" id="dark-toggle" onclick="toggleDarkMode()" title="Modo oscuro">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
           <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
@@ -734,6 +807,9 @@
     </div>
   </div>
 </div>
+
+<!-- ── Chips de filtros activos ──────────────────────────────── -->
+<div id="chips-bar"></div>
 
 <!-- ── Navegación de pestañas ───────────────────────────────── -->
 <div class="tab-bar">
@@ -1295,6 +1371,7 @@
     renderKPIs(filtered);
     renderNorEx(filtered);
     renderTable(filtered);
+    renderChips();
     if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(filtered);
   }
 
@@ -1364,6 +1441,8 @@
           </div>
         </div>`;
     }).join('');
+    // Barras de progreso: se ejecutan tras el render del DOM
+    requestAnimationFrame(() => renderKPIBars(cards, totalOperativo));
   }
 
   // Renderiza el contenido del desplegable de composición del Total Operativo.
@@ -1630,6 +1709,97 @@
     });
   }
 
+  /* ─── Toast ─────────────────────────────────────────────────── */
+  function showToast(msg, dur = 2800) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), dur);
+  }
+
+  /* ─── Pantalla completa ──────────────────────────────────────── */
+  function toggleFullscreen() {
+    const lbl = document.getElementById('fs-label');
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        lbl.textContent = 'SALIR PANTALLA';
+        showToast('📺 Modo pantalla completa — presiona ESC para salir');
+      }).catch(() => showToast('❌ El navegador bloqueó la pantalla completa'));
+    } else {
+      document.exitFullscreen();
+      lbl.textContent = 'PANTALLA COMPLETA';
+    }
+  }
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      const lbl = document.getElementById('fs-label');
+      if (lbl) lbl.textContent = 'PANTALLA COMPLETA';
+    }
+  });
+
+  /* ─── Chips de filtros activos ───────────────────────────────── */
+  function renderChips() {
+    const inc    = document.getElementById('f-incidencia').value;
+    const ciudad = document.getElementById('f-ciudad').value;
+    const rep    = document.getElementById('f-reporte').value;
+    const ini    = document.getElementById('f-fecha-ini').value;
+    const fin    = document.getElementById('f-fecha-fin').value;
+
+    const chips = [];
+    if (inc)    chips.push({ label: inc,                        clear: () => { document.getElementById('f-incidencia').value = ''; applyFilters(); } });
+    if (ciudad) chips.push({ label: ciudad,                     clear: () => { document.getElementById('f-ciudad').value = '';     applyFilters(); } });
+    if (rep)    chips.push({ label: rep,                        clear: () => { document.getElementById('f-reporte').value = '';    applyFilters(); } });
+    if (ini)    chips.push({ label: `Desde ${ini}`,             clear: () => { document.getElementById('f-fecha-ini').value = ''; setActiveRangeBtn(null); applyFilters(); } });
+    if (fin)    chips.push({ label: `Hasta ${fin}`,             clear: () => { document.getElementById('f-fecha-fin').value = ''; setActiveRangeBtn(null); applyFilters(); } });
+
+    const bar = document.getElementById('chips-bar');
+    if (chips.length === 0) { bar.classList.remove('visible'); bar.innerHTML = ''; return; }
+
+    bar.classList.add('visible');
+    bar.innerHTML = '<span style="font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.08em">Filtros activos:</span>'
+      + chips.map((ch, i) => `
+          <span class="chip">
+            ${ch.label}
+            <button class="chip-x" onclick="window._chipClear[${i}]()" title="Quitar filtro">&times;</button>
+          </span>`).join('');
+    // Guardar funciones de limpieza en un array global accesible desde HTML
+    window._chipClear = chips.map(ch => ch.clear);
+  }
+
+  /* ─── Barra de progreso en KPIs ──────────────────────────────── */
+  // Se llama desde renderKPIs con el total operativo para calcular %
+  function renderKPIBars(cards, totalOp) {
+    cards.forEach((c, i) => {
+      const card = document.querySelectorAll('.kpi-card')[i];
+      if (!card) return;
+      // Solo para las 7 categorías principales (no Total Operativo ni Total General)
+      if (i >= 7) return;
+      const pct = totalOp > 0 ? Math.min(100, Math.round((c.val / totalOp) * 100)) : 0;
+      // Obtener color de la barra lateral del KPI
+      const barColor = getComputedStyle(card).getPropertyValue('--kpi-accent') ||
+        (card.classList.contains('k-yellow') ? '#f59e0b' :
+         card.classList.contains('k-red')    ? '#ef4444' :
+         card.classList.contains('k-green')  ? '#10b981' :
+         card.classList.contains('k-purple') ? '#8b5cf6' :
+         card.classList.contains('k-orange') ? '#f97316' :
+         card.classList.contains('k-blue')   ? '#3b82f6' : '#94a3b8');
+      // Agregar barra si no existe
+      let barWrap = card.querySelector('.kpi-bar-wrap');
+      if (!barWrap) {
+        barWrap = document.createElement('div');
+        barWrap.className = 'kpi-bar-wrap';
+        barWrap.innerHTML = `<div class="kpi-bar-fill" style="background:${barColor};width:0%"></div>`;
+        card.querySelector('.kpi-content').appendChild(barWrap);
+      }
+      // Animar la barra con requestAnimationFrame para activar la transición CSS
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          barWrap.querySelector('.kpi-bar-fill').style.width = pct + '%';
+        });
+      });
+    });
+  }
+
   // Punto de entrada
   window.addEventListener('DOMContentLoaded', async () => {
     // Restaurar tema guardado
@@ -1649,5 +1819,6 @@
 
   });
 </script>
+<div class="toast" id="toast"></div>
 </body>
 </html>

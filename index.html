@@ -114,25 +114,8 @@
     }
     /* Animación de entrada para KPI numbers */
     .kpi-num-anim { animation: countUp .4s ease both; }
-    /* KPI tooltip */
+    /* .kpi-card sin tooltip */
     .kpi-card { position: relative; }
-    .kpi-tooltip {
-      position: absolute; bottom: calc(100% + 8px); left: 50%;
-      transform: translateX(-50%);
-      background: #1e293b; color: #e2e8f0;
-      font-size: 11px; font-weight: 500;
-      padding: 7px 12px; border-radius: var(--r-md);
-      white-space: nowrap; pointer-events: none;
-      opacity: 0; transition: opacity .18s ease;
-      z-index: 50; box-shadow: 0 4px 16px rgba(0,0,0,.25);
-    }
-    .kpi-tooltip::after {
-      content: ''; position: absolute; top: 100%; left: 50%;
-      transform: translateX(-50%);
-      border: 5px solid transparent;
-      border-top-color: #1e293b;
-    }
-    .kpi-card:hover .kpi-tooltip { opacity: 1; }
 
     /* Banner de alerta apagados */
     .alert-banner {
@@ -210,7 +193,6 @@
     /* ── Barra de filtros ───────────────────────────────── */
     .filter-bar { background: var(--bg-white); border-bottom: 1px solid var(--border); }
     .filter-bar-inner { max-width: 1400px; margin: 0 auto; padding: 11px 32px; }
-    .filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .filter-row + .filter-row { margin-top: 9px; }
 
     .filter-label {
@@ -267,12 +249,13 @@
 
     .btn-clear {
       font-family: 'Inter', sans-serif; font-size: 10px;
-      color: var(--text-mid); background: transparent;
-      border: 1px solid var(--border-mid); border-radius: var(--r-sm);
+      color: #fff; background: var(--red);
+      border: 1px solid var(--red); border-radius: var(--r-sm);
       padding: 5px 11px; cursor: pointer;
-      transition: all .15s; text-transform: uppercase; letter-spacing: .04em;
+      transition: all .15s; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .04em;
     }
-    .btn-clear:hover { color: #fff; background: var(--flag-blue); border-color: var(--flag-blue); }
+    .btn-clear:hover { background: #dc2626; border-color: #dc2626; }
 
     .range-btns { display: flex; gap: 6px; }
     .range-btn {
@@ -652,16 +635,6 @@
     tbody tr:nth-child(9)  { animation-delay:.18s }
     tbody tr:nth-child(10) { animation-delay:.20s }
 
-    /* ── Barra de progreso en KPIs ───────────────────────────── */
-    .kpi-bar-wrap {
-      height: 3px; background: var(--border-mid);
-      border-radius: 2px; margin-top: 7px; overflow: hidden;
-    }
-    .kpi-bar-fill {
-      height: 100%; border-radius: 2px;
-      transition: width .6s cubic-bezier(.4,0,.2,1);
-    }
-
     /* ── Pantalla completa ───────────────────────────────────── */
     .btn-fullscreen {
       display:flex; align-items:center; gap:6px;
@@ -671,27 +644,6 @@
       transition:background .2s; font-family:inherit;
     }
     .btn-fullscreen:hover { background:rgba(255,255,255,.12); }
-
-    /* ── Chips de filtros activos ────────────────────────────── */
-    #chips-bar {
-      display:none; align-items:center; gap:7px; flex-wrap:wrap;
-      padding:7px 32px; background:var(--bg-white);
-      border-bottom:1px solid var(--border);
-    }
-    #chips-bar.visible { display:flex; }
-    .chip {
-      display:inline-flex; align-items:center; gap:5px;
-      background:var(--flag-blue-soft); color:var(--flag-blue);
-      font-size:11px; font-weight:600; padding:3px 10px 3px 12px;
-      border-radius:20px; border:1px solid #c7d3f0;
-    }
-    .chip-x {
-      background:none; border:none; cursor:pointer;
-      color:var(--flag-blue); font-size:14px; line-height:1;
-      padding:0 2px; opacity:.7;
-    }
-    .chip-x:hover { opacity:1; }
-    [data-theme="dark"] .chip { background:#0a1628; border-color:#1e3a5f; }
 
     /* ── Toast ───────────────────────────────────────────────── */
     .toast {
@@ -703,6 +655,283 @@
       box-shadow:0 4px 20px rgba(0,0,0,.3); white-space:nowrap;
     }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    /* ══════════════════════════════════════════════════════════
+       BARRA DE FILTROS — una sola fila compacta
+    ══════════════════════════════════════════════════════════ */
+    .filter-bar {
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+    }
+    .filter-bar-inner {
+      max-width: 1400px; margin: 0 auto; padding: 0 32px;
+      display: flex; align-items: center; height: 54px; gap: 6px;
+    }
+
+    /* Divisor vertical entre secciones */
+    .filter-divider {
+      width: 1px; height: 22px;
+      background: var(--border-mid); flex-shrink: 0; margin: 0 6px;
+    }
+
+    /* Label de sección */
+    .filter-label {
+      font-size: 9px; font-weight: 800; color: var(--text-light);
+      text-transform: uppercase; letter-spacing: .12em; white-space: nowrap;
+      margin-right: 2px;
+    }
+
+    /* Botones de rango */
+    .range-btns { display: flex; gap: 3px; }
+    .range-btn {
+      font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+      color: var(--text-mid); background: transparent;
+      border: 1px solid transparent; border-radius: 20px;
+      padding: 4px 12px; cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .range-btn:hover        { background: var(--flag-blue-soft); color: var(--flag-blue); border-color: #c7d3f0; }
+    .range-btn.active-range { background: var(--flag-blue); color: #fff; border-color: var(--flag-blue); }
+
+    /* Aviso "Todo puede tardar" */
+    .range-warning {
+      font-size: 10px; color: var(--orange);
+      background: var(--orange-soft); border: 1px solid rgba(249,115,22,.2);
+      border-radius: 20px; padding: 3px 10px; display: none; white-space: nowrap;
+    }
+    .range-warning.visible { display: inline-block; }
+
+    /* Fechas */
+    .date-range-group { display: flex; align-items: center; gap: 5px; }
+    .date-sep { color: var(--text-light); font-size: 12px; }
+    .date-input {
+      font-family: 'Inter', sans-serif; font-size: 11px;
+      color: var(--text-dark); background: var(--bg-white);
+      border: 1px solid var(--border-mid); border-radius: var(--r-sm);
+      padding: 4px 9px; outline: none; transition: border-color .15s; width: 126px;
+    }
+    .date-input:focus { border-color: var(--flag-blue); }
+
+    /* Botón LIMPIAR */
+    .btn-clear {
+      font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700;
+      color: #fff; background: var(--red); border: 1px solid var(--red);
+      border-radius: var(--r-sm); padding: 4px 11px; cursor: pointer;
+      transition: all .15s; text-transform: uppercase; letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .btn-clear:hover { background: #dc2626; border-color: #dc2626; }
+
+    /* Nota de actualización */
+    .update-note {
+      font-size: 10px; color: var(--text-light);
+      background: var(--bg-page); padding: 3px 10px; border-radius: 20px;
+      white-space: nowrap; margin-left: auto;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       DROPDOWNS GLASSMORPHISM
+    ══════════════════════════════════════════════════════════ */
+
+    /* Overlay para cerrar al clic fuera */
+    .fdd-overlay { position:fixed; inset:0; z-index:199; display:none; }
+    .fdd-overlay.active { display:block; }
+
+    /* Wrapper posicionador */
+    .fdd-wrap { position: relative; }
+
+    /* Botón activador */
+    .fdd-btn {
+      display: flex; align-items: center; gap: 7px;
+      font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+      color: var(--text-mid); background: var(--bg-white);
+      border: 1px solid var(--border-mid); border-radius: var(--r-sm);
+      padding: 5px 13px; cursor: pointer; transition: all .2s;
+      white-space: nowrap; user-select: none;
+    }
+    .fdd-btn:hover         { border-color: var(--flag-blue); color: var(--flag-blue); background: var(--flag-blue-soft); }
+    .fdd-btn.fdd-active    { border-color: var(--flag-blue); color: var(--flag-blue); background: var(--flag-blue-soft); }
+    .fdd-btn svg           { transition: transform .25s ease; flex-shrink: 0; opacity: .6; }
+    .fdd-btn.fdd-active svg { transform: rotate(180deg); opacity: 1; }
+    .fdd-dot { width:6px; height:6px; border-radius:50%; background:var(--flag-blue); flex-shrink:0; display:none; }
+    .fdd-btn.fdd-has-value .fdd-dot { display:block; }
+
+    /* Panel glassmorphism */
+    .fdd-panel {
+      position: absolute; top: calc(100% + 10px); left: 0;
+      min-width: 230px; z-index: 200;
+      display: none;
+      border-radius: 20px;
+      overflow: hidden;
+      /* Glassmorphism */
+      background: linear-gradient(145deg, rgba(255,255,255,.95) 0%, rgba(240,245,255,.97) 100%);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,.6);
+      box-shadow:
+        0 20px 60px rgba(0,51,160,.12),
+        0 4px 16px rgba(0,0,0,.08),
+        inset 0 1px 0 rgba(255,255,255,.8);
+      animation: glassIn .18s cubic-bezier(.34,1.56,.64,1);
+    }
+    .fdd-panel.open { display: block; }
+
+    @keyframes glassIn {
+      from { opacity:0; transform:translateY(-10px) scale(.97); }
+      to   { opacity:1; transform:translateY(0)     scale(1);   }
+    }
+
+    /* Cabecera del panel */
+    .fdd-panel-header {
+      padding: 12px 16px 8px;
+      font-size: 9px; font-weight: 800; color: #7c8db5;
+      text-transform: uppercase; letter-spacing: .1em;
+      border-bottom: 1px solid rgba(0,51,160,.08);
+    }
+
+    /* Opciones — estilo píldora */
+    .fdd-options { padding: 8px; display: flex; flex-direction: column; gap: 3px; }
+
+    .fdd-option {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 14px; border-radius: 12px;
+      font-size: 12px; font-weight: 500; color: #4b5563;
+      cursor: pointer;
+      transition: all .15s ease;
+      background: transparent;
+    }
+    .fdd-option:hover {
+      background: rgba(0,51,160,.06);
+      color: var(--flag-blue);
+      transform: translateX(2px);
+    }
+    .fdd-option.active {
+      background: linear-gradient(135deg, rgba(0,51,160,.1), rgba(59,130,246,.08));
+      color: var(--flag-blue); font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba(0,51,160,.15);
+    }
+    .fdd-option-dot {
+      width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+
+    [data-theme="dark"] .fdd-panel {
+      background: linear-gradient(145deg, rgba(30,41,59,.95), rgba(15,23,42,.97));
+      border-color: rgba(255,255,255,.08);
+      box-shadow: 0 20px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    [data-theme="dark"] .fdd-panel-header { color: #64748b; border-color: rgba(255,255,255,.06); }
+    [data-theme="dark"] .fdd-option       { color: #94a3b8; }
+    [data-theme="dark"] .fdd-option:hover { background:rgba(255,255,255,.06); color:#e2e8f0; }
+    [data-theme="dark"] .fdd-option.active{ background:rgba(0,51,160,.25); color:#93c5fd; }
+
+
+    /* ══ Botón FILTROS principal ══════════════════════════════ */
+    .filter-main-btn {
+      display:flex; align-items:center; gap:8px;
+      font-family:'Inter',sans-serif; font-size:12px; font-weight:700;
+      color:var(--text-dark); background:var(--bg-white);
+      border:1.5px solid var(--border-mid); border-radius:var(--r-md);
+      padding:6px 16px; cursor:pointer; transition:all .2s ease;
+      user-select:none; white-space:nowrap; letter-spacing:.02em;
+    }
+    .filter-main-btn:hover, .filter-main-btn.open {
+      border-color:var(--flag-blue); color:var(--flag-blue);
+      background:var(--flag-blue-soft); box-shadow:0 0 0 3px rgba(0,51,160,.08);
+    }
+    .filter-main-btn .fmb-chevron { transition:transform .25s cubic-bezier(.68,-.55,.265,1.55); opacity:.6; }
+    .filter-main-btn.open .fmb-chevron { transform:rotate(180deg); opacity:1; }
+    .filter-main-btn .fmb-dot { width:7px; height:7px; border-radius:50%; background:var(--flag-blue); flex-shrink:0; display:none; margin-left:2px; }
+    .filter-main-btn.has-filters .fmb-dot { display:block; }
+
+    /* ══ Panel glassmorphism ══════════════════════════════════ */
+    .fp-wrap { position:relative; }
+    .fp-overlay { position:fixed; inset:0; z-index:299; display:none; }
+    .fp-overlay.active { display:block; }
+
+    .filter-panel {
+      position:absolute; top:calc(100% + 10px); left:0; width:400px; z-index:300;
+      border-radius:20px; overflow:hidden; display:none;
+      background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(240,245,255,.98));
+      backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+      border:1px solid rgba(255,255,255,.7);
+      box-shadow:0 24px 64px rgba(0,51,160,.14),0 4px 16px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.9);
+      animation:panelIn .3s cubic-bezier(.68,-.55,.265,1.55);
+    }
+    .filter-panel.open { display:block; }
+    @keyframes panelIn {
+      from { opacity:0; transform:translateY(-12px) scale(.96); }
+      to   { opacity:1; transform:translateY(0)     scale(1);   }
+    }
+
+    .fp-header {
+      padding:16px 20px 12px;
+      background:linear-gradient(135deg, var(--flag-blue), #3b82f6);
+      display:flex; align-items:center; gap:10px;
+    }
+    .fp-header-title { font-size:14px; font-weight:800; color:#fff; letter-spacing:.02em; }
+    .fp-header-sub   { font-size:11px; color:rgba(255,255,255,.75); margin-top:2px; }
+
+    .fp-body { padding:16px 20px; display:flex; flex-direction:column; gap:14px; }
+    .fp-section-label {
+      display:flex; align-items:center; gap:7px;
+      font-size:10px; font-weight:800; color:var(--text-light);
+      text-transform:uppercase; letter-spacing:.1em; margin-bottom:7px;
+    }
+    .fp-select {
+      width:100%; font-family:'Inter',sans-serif; font-size:12px;
+      color:var(--text-dark); background:var(--bg-white);
+      border:1.5px solid var(--border-mid); border-radius:var(--r-md);
+      padding:9px 14px; outline:none; cursor:pointer; transition:border-color .15s;
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 12px center; background-size:14px;
+    }
+    .fp-select:focus { border-color:var(--flag-blue); box-shadow:0 0 0 3px rgba(0,51,160,.08); }
+
+    .fp-dates { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .fp-date-input {
+      flex:1; font-family:'Inter',sans-serif; font-size:12px;
+      color:var(--text-dark); background:var(--bg-white);
+      border:1.5px solid var(--border-mid); border-radius:var(--r-md);
+      padding:9px 12px; outline:none; transition:border-color .15s;
+    }
+    .fp-date-input:focus { border-color:var(--flag-blue); box-shadow:0 0 0 3px rgba(0,51,160,.08); }
+
+    .fp-range-btns { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+    .fp-range-btn {
+      font-family:'Inter',sans-serif; font-size:11px; font-weight:600;
+      color:var(--text-mid); background:var(--bg-page);
+      border:1px solid var(--border-mid); border-radius:20px;
+      padding:6px 12px; cursor:pointer; transition:all .15s; text-align:center;
+    }
+    .fp-range-btn:hover        { background:var(--flag-blue-soft); color:var(--flag-blue); border-color:#c7d3f0; }
+    .fp-range-btn.active-range { background:var(--flag-blue); color:#fff; border-color:var(--flag-blue); }
+
+    .fp-footer { padding:12px 20px 16px; border-top:1px solid var(--border); display:flex; gap:8px; }
+    .fp-apply {
+      flex:1; font-family:'Inter',sans-serif; font-size:12px; font-weight:700;
+      color:#fff; background:var(--flag-blue); border:none; border-radius:var(--r-md);
+      padding:10px; cursor:pointer; transition:background .15s;
+      text-transform:uppercase; letter-spacing:.05em;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .fp-apply:hover { background:#002280; }
+    .fp-clear-all {
+      font-family:'Inter',sans-serif; font-size:11px; font-weight:700;
+      color:#fff; background:var(--red); border:none; border-radius:var(--r-md);
+      padding:10px 16px; cursor:pointer; transition:background .15s;
+    }
+    .fp-clear-all:hover { background:#dc2626; }
+
+    [data-theme="dark"] .filter-panel {
+      background:linear-gradient(145deg,rgba(30,41,59,.97),rgba(15,23,42,.98));
+      border-color:rgba(255,255,255,.08);
+      box-shadow:0 24px 64px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    [data-theme="dark"] .fp-select,
+    [data-theme="dark"] .fp-date-input { background:#1e293b; color:#f1f5f9; border-color:#334155; }
+    [data-theme="dark"] .fp-footer     { border-color:#1e293b; }
+    [data-theme="dark"] .fp-range-btn  { background:#0f172a; color:#94a3b8; border-color:#334155; }
 
   </style>
 </head>
@@ -791,55 +1020,144 @@
   </div>
 </header>
 
-<!-- ── Barra de filtros (fechas, incidencia, ciudad, reporte) ── -->
+<!-- ── Overlay del panel de filtros ────────────────────────── -->
+<div class="fp-overlay" id="fp-overlay" onclick="closeFiltroPanel()"></div>
+
+<!-- ── Barra de filtros ─────────────────────────────────────── -->
 <div class="filter-bar">
   <div class="filter-bar-inner">
-    <div class="filter-row">
-      <span class="filter-label">FILTROS</span>
-      <div class="date-range-group">
-        <input type="date" class="date-input" id="f-fecha-ini" onchange="onManualDate()">
-        <span class="date-sep">→</span>
-        <input type="date" class="date-input" id="f-fecha-fin" onchange="onManualDate()">
-        <button class="btn-clear" onclick="clearDates()">✕ LIMPIAR</button>
-      </div>
-      <select class="filter-select" id="f-incidencia" onchange="applyFilters()">
-        <option value="">TODAS LAS INCIDENCIAS</option>
-        <option>Forzamiento de Tiempos</option>
-        <option>Apagado</option>
-        <option>Mejora de Tiempo</option>
-        <option>Intermitencia</option>
-        <option>Error de Comunicación</option>
-        <option>Funcionamiento</option>
-        <option>Programa</option>
-        <option>Accidente</option>
-        <option>VDT Volumen</option>
-      </select>
-      <select class="filter-select" id="f-ciudad" onchange="applyFilters()">
-        <option value="">TODAS LAS CIUDADES</option>
-      </select>
-      <select class="filter-select" id="f-reporte" onchange="applyFilters()">
-        <option value="">TODOS LOS REPORTES</option>
-        <option>Planeamiento</option>
-        <option>Monitoreo</option>
-        <option>Spinnaker</option>
-      </select>
-      <span class="update-note" id="update-note">CARGANDO...</span>
+
+    <!-- Botón principal FILTROS + panel desplegable -->
+    <div class="fp-wrap">
+
+      <button class="filter-main-btn" id="filter-main-btn" onclick="toggleFiltroPanel()">
+        <svg class="fmb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+          <line x1="4" y1="6"  x2="20" y2="6"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+          <line x1="11" y1="18" x2="13" y2="18"/>
+        </svg>
+        FILTROS
+        <div class="fmb-dot"></div>
+        <svg class="fmb-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+
+      <!-- Panel glassmorphism unificado -->
+      <div class="filter-panel" id="filter-panel">
+
+        <!-- Cabecera -->
+        <div class="fp-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="2.5" width="18" height="18">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+            <line x1="11" y1="18" x2="13" y2="18"/>
+          </svg>
+          <div>
+            <div class="fp-header-title">Filtrar incidencias</div>
+            <div class="fp-header-sub">Selecciona los criterios para filtrar los datos</div>
+          </div>
+        </div>
+
+        <!-- Cuerpo -->
+        <div class="fp-body">
+
+          <!-- Tipo de incidencia -->
+          <div class="fp-section">
+            <div class="fp-section-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              Tipo de incidencia
+            </div>
+            <select class="fp-select" id="f-incidencia" onchange="updateFiltroBtn()">
+              <option value="">Todas las incidencias</option>
+              <option>Forzamiento de Tiempos</option>
+              <option>Apagado</option>
+              <option>Mejora de Tiempo</option>
+              <option>Intermitencia</option>
+              <option>Error de Comunicaci&oacute;n</option>
+              <option>Funcionamiento</option>
+              <option>Programa</option>
+              <option>Accidente</option>
+              <option>VDT Volumen</option>
+            </select>
+          </div>
+
+          <!-- Ciudad -->
+          <div class="fp-section">
+            <div class="fp-section-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+              Ciudad
+            </div>
+            <select class="fp-select" id="f-ciudad" onchange="updateFiltroBtn()">
+              <option value="">Todas las ciudades</option>
+            </select>
+          </div>
+
+          <!-- Rango de fechas -->
+          <div class="fp-section">
+            <div class="fp-section-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              Rango de fechas
+            </div>
+            <!-- Fechas personalizadas -->
+            <div class="fp-dates" style="margin-bottom:8px">
+              <input type="date" class="fp-date-input" id="f-fecha-ini" onchange="onManualDate()">
+              <span style="color:var(--text-light);font-size:13px">→</span>
+              <input type="date" class="fp-date-input" id="f-fecha-fin" onchange="onManualDate()">
+            </div>
+            <!-- Botones de rango rápido -->
+            <div class="fp-range-btns">
+              <button class="fp-range-btn"              id="rbtn-mes"  onclick="setRange('mes')">Este mes</button>
+              <button class="fp-range-btn"              id="rbtn-ant"  onclick="setRange('ant')">Mes anterior</button>
+              <button class="fp-range-btn active-range" id="rbtn-3m"   onclick="setRange('3m')">&Uacute;ltimos 3 meses</button>
+              <button class="fp-range-btn"              id="rbtn-todo" onclick="setRange('todo')">Todo</button>
+            </div>
+            <span class="range-warning" id="range-warning" style="margin-top:6px;display:none">⚠️ Puede tardar con muchos registros</span>
+          </div>
+
+        <!-- Input oculto reporte para compatibilidad -->
+        <input type="hidden" id="f-reporte" value="">
+        </div><!-- /.fp-body -->
+
+        <!-- Pie: APLICAR + LIMPIAR -->
+        <div class="fp-footer">
+          <button class="fp-apply" onclick="aplicarFiltros()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            APLICAR FILTROS
+          </button>
+          <button class="fp-clear-all" onclick="clearAll()">&#10005; LIMPIAR</button>
+        </div>
+
+      </div><!-- /.filter-panel -->
+    </div><!-- /.fp-wrap -->
+
+    <div class="filter-divider"></div>
+
+    <!-- Rangos rápidos en la barra principal -->
+    <span class="filter-label">RANGO</span>
+    <div class="range-btns">
+      <button class="range-btn"              id="rbtn-mes-bar"  onclick="setRange('mes')">Este mes</button>
+      <button class="range-btn"              id="rbtn-ant-bar"  onclick="setRange('ant')">Mes ant.</button>
+      <button class="range-btn active-range" id="rbtn-3m-bar"   onclick="setRange('3m')">3 meses</button>
+      <button class="range-btn"              id="rbtn-todo-bar" onclick="setRange('todo')">Todo</button>
     </div>
-    <div class="filter-row">
-      <span class="filter-label">RANGO</span>
-      <div class="range-btns">
-        <button class="range-btn"              id="rbtn-mes"  onclick="setRange('mes')">ESTE MES</button>
-        <button class="range-btn"              id="rbtn-ant"  onclick="setRange('ant')">MES ANTERIOR</button>
-        <button class="range-btn active-range" id="rbtn-3m"   onclick="setRange('3m')">ÚLTIMOS 3 MESES</button>
-        <button class="range-btn"              id="rbtn-todo" onclick="setRange('todo')">TODO</button>
-      </div>
-      <span class="range-warning" id="range-warning">⚠️ Puede tardar con muchos registros</span>
-    </div>
+
+    <div class="filter-divider"></div>
+
+    <!-- LIMPIAR en rojo + nota -->
+    <button class="btn-clear" onclick="clearAll()">&#10005; LIMPIAR</button>
+    <span class="update-note" id="update-note">CARGANDO...</span>
+
   </div>
 </div>
-
-<!-- ── Chips de filtros activos ──────────────────────────────── -->
-<div id="chips-bar"></div>
 
 <!-- ── Navegación de pestañas ───────────────────────────────── -->
 <div class="tab-bar">
@@ -1313,9 +1631,13 @@
       setRange('3m');
 
       const ciudades = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
-      document.getElementById('f-ciudad').innerHTML =
-        '<option value="">TODAS LAS CIUDADES</option>' +
-        ciudades.map(ciudad => `<option value="${ciudad}">${ciudad}</option>`).join('');
+      // Poblar dropdown de ciudades
+      // Poblar select de ciudades en el panel
+      const selCiudad = document.getElementById('f-ciudad');
+      const currentCiudad = selCiudad.value;
+      selCiudad.innerHTML = '<option value="">Todas las ciudades</option>' +
+        ciudades.map(c => `<option value="${c}">${c}</option>`).join('');
+      selCiudad.value = currentCiudad;
 
       const hora = new Date().toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit' });
       document.getElementById('update-note').textContent  = `${hora} · ${dataset.length} registros`;
@@ -1343,12 +1665,13 @@
     );
   }
 
-  // Limpia los inputs de fecha y vuelve a filtrar
+  // Limpia solo las fechas y vuelve a filtrar
   function clearDates() {
     document.getElementById('f-fecha-ini').value = '';
     document.getElementById('f-fecha-fin').value = '';
     setActiveRangeBtn(null);
     applyFilters();
+    renderChips();
   }
 
   // Se llama cuando el usuario edita una fecha manualmente
@@ -1373,6 +1696,7 @@
     document.getElementById('f-fecha-fin').value = fin ? fmt(fin) : '';
     document.getElementById('range-warning').classList.toggle('visible', rango === 'todo');
     setActiveRangeBtn(rango);
+    syncRangeBtns(rango);
     applyFilters();
   }
 
@@ -1443,46 +1767,14 @@
       { label: 'TOTAL OPERATIVO',        val: totalOperativo,                 cls: 'k-blue',          bg: '#eff6ff', icon: ICONS.total        },
       { label: 'TOTAL GENERAL',          val: totalGeneral,                   cls: 'k-slate',         bg: '#f1f5f9', icon: ICONS.totalGeneral },
     ];
-    // Tooltips enriquecidos: última incidencia + código más frecuente
-    const hoy    = new Date();
-    const hace30 = new Date(hoy - 30*24*60*60*1000);
-    function topCodigo(rows, kw) {
-      const sub = kw ? rows.filter(r => r.incidencia.toLowerCase().includes(kw)) : rows;
-      const cnt = {}; sub.forEach(r => { cnt[r.codigo] = (cnt[r.codigo]||0)+1; });
-      const top = Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
-      return top ? `Top: ${top[0]} (${top[1]})` : '';
-    }
-    function ultimaFecha(rows, kw) {
-      const sub = kw ? rows.filter(r => r.incidencia.toLowerCase().includes(kw)) : rows;
-      return sub.length ? `Última: ${sub[sub.length-1].fecha}` : '';
-    }
-    const tooltips = [
-      [ultimaFecha(rows,'forzamiento'),  topCodigo(rows,'forzamiento')],
-      [ultimaFecha(rows,'apagado'),       topCodigo(rows,'apagado')],
-      [ultimaFecha(rows,'mejora'),        topCodigo(rows,'mejora')],
-      [ultimaFecha(rows,'intermitencia'), topCodigo(rows,'intermitencia')],
-      [ultimaFecha(rows,'error'),         topCodigo(rows,'error')],
-      [ultimaFecha(rows,'accidente'),     topCodigo(rows,'accidente')],
-      [ultimaFecha(rows,'vdt'),           topCodigo(rows,'vdt')],
-      [ultimaFecha(rows,''),              topCodigo(rows,'')],
-      [`Total: ${rows.length} registros`, ''],
-    ];
-
-    document.getElementById('kpi-grid').innerHTML = cards.map((c, i) => {
-      const [t1, t2] = tooltips[i] || [];
-      const tipHtml  = (t1||t2) ? `<div class="kpi-tooltip">${[t1,t2].filter(Boolean).join(' &nbsp;·&nbsp; ')}</div>` : '';
-      return `
-        <div class="kpi-card ${c.cls}">
-          ${tipHtml}
-          <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
-          <div class="kpi-content">
-            <div class="kpi-num kpi-num-anim">${c.val}</div>
-            <div class="kpi-label">${c.label}</div>
-          </div>
-        </div>`;
-    }).join('');
-    // Barras de progreso: se ejecutan tras el render del DOM
-    requestAnimationFrame(() => renderKPIBars(cards, totalOperativo));
+    document.getElementById('kpi-grid').innerHTML = cards.map(c => `
+      <div class="kpi-card ${c.cls}">
+        <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
+        <div class="kpi-content">
+          <div class="kpi-num kpi-num-anim">${c.val}</div>
+          <div class="kpi-label">${c.label}</div>
+        </div>
+      </div>`).join('');
   }
 
   // Renderiza el contenido del desplegable de composición del Total Operativo.
@@ -1748,6 +2040,74 @@
       },
     });
   }
+  function clearAll() {
+    // Fechas
+    document.getElementById('f-fecha-ini').value = '';
+    document.getElementById('f-fecha-fin').value = '';
+    setActiveRangeBtn(null);
+    // Dropdowns
+    ['inc','ciudad','rep'].forEach(key => selectFilter(key, '', Object.entries({
+      inc:'Incidencia', ciudad:'Ciudad', rep:'Reporte'
+    }).find(([k]) => k===key)?.[1] || key));
+    document.getElementById('range-warning').classList.remove('visible');
+    applyFilters();
+    renderChips();
+    updateFiltroBtn();
+    closeFiltroPanel();
+    showToast('🧹 Todos los filtros limpiados');
+  }
+
+  /* ─── Panel de filtros unificado ─────────────────────────────── */
+  function toggleFiltroPanel() {
+    const panel = document.getElementById('filter-panel');
+    const btn   = document.getElementById('filter-main-btn');
+    const over  = document.getElementById('fp-overlay');
+    const isOpen = panel.classList.contains('open');
+    if (isOpen) {
+      panel.classList.remove('open');
+      btn.classList.remove('open');
+      over.classList.remove('active');
+    } else {
+      panel.classList.add('open');
+      btn.classList.add('open');
+      over.classList.add('active');
+    }
+  }
+
+  function closeFiltroPanel() {
+    document.getElementById('filter-panel')?.classList.remove('open');
+    document.getElementById('filter-main-btn')?.classList.remove('open');
+    document.getElementById('fp-overlay')?.classList.remove('active');
+  }
+
+  // Aplicar filtros y cerrar el panel
+  function aplicarFiltros() {
+    applyFilters();
+    updateFiltroBtn();
+    closeFiltroPanel();
+    showToast('✅ Filtros aplicados');
+  }
+
+  // Actualiza el punto azul del botón principal si hay filtros activos
+  function updateFiltroBtn() {
+    const inc    = document.getElementById('f-incidencia').value;
+    const ciudad = document.getElementById('f-ciudad').value;
+    const ini    = document.getElementById('f-fecha-ini').value;
+    const fin    = document.getElementById('f-fecha-fin').value;
+    const hasFilters = !!(inc || ciudad || ini || fin);
+    document.getElementById('filter-main-btn').classList.toggle('has-filters', hasFilters);
+  }
+
+  // Sincronizar botones de rango de la barra con los del panel
+  function syncRangeBtns(id) {
+    const barMap  = { mes:'rbtn-mes-bar', ant:'rbtn-ant-bar', '3m':'rbtn-3m-bar', todo:'rbtn-todo-bar' };
+    const panMap  = { mes:'rbtn-mes',     ant:'rbtn-ant',     '3m':'rbtn-3m',     todo:'rbtn-todo'     };
+    // Barra
+    ['mes','ant','3m','todo'].forEach(k => {
+      document.getElementById(barMap[k])?.classList.toggle('active-range', k === id);
+      document.getElementById(panMap[k])?.classList.toggle('active-range', k === id);
+    });
+  }
 
   /* ─── Toast ─────────────────────────────────────────────────── */
   function showToast(msg, dur = 2800) {
@@ -1778,67 +2138,7 @@
   });
 
   /* ─── Chips de filtros activos ───────────────────────────────── */
-  function renderChips() {
-    const inc    = document.getElementById('f-incidencia').value;
-    const ciudad = document.getElementById('f-ciudad').value;
-    const rep    = document.getElementById('f-reporte').value;
-    const ini    = document.getElementById('f-fecha-ini').value;
-    const fin    = document.getElementById('f-fecha-fin').value;
-
-    const chips = [];
-    if (inc)    chips.push({ label: inc,                        clear: () => { document.getElementById('f-incidencia').value = ''; applyFilters(); } });
-    if (ciudad) chips.push({ label: ciudad,                     clear: () => { document.getElementById('f-ciudad').value = '';     applyFilters(); } });
-    if (rep)    chips.push({ label: rep,                        clear: () => { document.getElementById('f-reporte').value = '';    applyFilters(); } });
-    if (ini)    chips.push({ label: `Desde ${ini}`,             clear: () => { document.getElementById('f-fecha-ini').value = ''; setActiveRangeBtn(null); applyFilters(); } });
-    if (fin)    chips.push({ label: `Hasta ${fin}`,             clear: () => { document.getElementById('f-fecha-fin').value = ''; setActiveRangeBtn(null); applyFilters(); } });
-
-    const bar = document.getElementById('chips-bar');
-    if (chips.length === 0) { bar.classList.remove('visible'); bar.innerHTML = ''; return; }
-
-    bar.classList.add('visible');
-    bar.innerHTML = '<span style="font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.08em">Filtros activos:</span>'
-      + chips.map((ch, i) => `
-          <span class="chip">
-            ${ch.label}
-            <button class="chip-x" onclick="window._chipClear[${i}]()" title="Quitar filtro">&times;</button>
-          </span>`).join('');
-    // Guardar funciones de limpieza en un array global accesible desde HTML
-    window._chipClear = chips.map(ch => ch.clear);
-  }
-
-  /* ─── Barra de progreso en KPIs ──────────────────────────────── */
-  // Se llama desde renderKPIs con el total operativo para calcular %
-  function renderKPIBars(cards, totalOp) {
-    cards.forEach((c, i) => {
-      const card = document.querySelectorAll('.kpi-card')[i];
-      if (!card) return;
-      // Solo para las 7 categorías principales (no Total Operativo ni Total General)
-      if (i >= 7) return;
-      const pct = totalOp > 0 ? Math.min(100, Math.round((c.val / totalOp) * 100)) : 0;
-      // Obtener color de la barra lateral del KPI
-      const barColor = getComputedStyle(card).getPropertyValue('--kpi-accent') ||
-        (card.classList.contains('k-yellow') ? '#f59e0b' :
-         card.classList.contains('k-red')    ? '#ef4444' :
-         card.classList.contains('k-green')  ? '#10b981' :
-         card.classList.contains('k-purple') ? '#8b5cf6' :
-         card.classList.contains('k-orange') ? '#f97316' :
-         card.classList.contains('k-blue')   ? '#3b82f6' : '#94a3b8');
-      // Agregar barra si no existe
-      let barWrap = card.querySelector('.kpi-bar-wrap');
-      if (!barWrap) {
-        barWrap = document.createElement('div');
-        barWrap.className = 'kpi-bar-wrap';
-        barWrap.innerHTML = `<div class="kpi-bar-fill" style="background:${barColor};width:0%"></div>`;
-        card.querySelector('.kpi-content').appendChild(barWrap);
-      }
-      // Animar la barra con requestAnimationFrame para activar la transición CSS
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          barWrap.querySelector('.kpi-bar-fill').style.width = pct + '%';
-        });
-      });
-    });
-  }
+  function renderChips() { /* chips eliminados — filtros activos se muestran en el botón */ }
 
   // Punto de entrada
   window.addEventListener('DOMContentLoaded', async () => {

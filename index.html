@@ -114,25 +114,8 @@
     }
     /* Animación de entrada para KPI numbers */
     .kpi-num-anim { animation: countUp .4s ease both; }
-    /* KPI tooltip */
+    /* .kpi-card sin tooltip */
     .kpi-card { position: relative; }
-    .kpi-tooltip {
-      position: absolute; bottom: calc(100% + 8px); left: 50%;
-      transform: translateX(-50%);
-      background: #1e293b; color: #e2e8f0;
-      font-size: 11px; font-weight: 500;
-      padding: 7px 12px; border-radius: var(--r-md);
-      white-space: nowrap; pointer-events: none;
-      opacity: 0; transition: opacity .18s ease;
-      z-index: 50; box-shadow: 0 4px 16px rgba(0,0,0,.25);
-    }
-    .kpi-tooltip::after {
-      content: ''; position: absolute; top: 100%; left: 50%;
-      transform: translateX(-50%);
-      border: 5px solid transparent;
-      border-top-color: #1e293b;
-    }
-    .kpi-card:hover .kpi-tooltip { opacity: 1; }
 
     /* Banner de alerta apagados */
     .alert-banner {
@@ -267,12 +250,13 @@
 
     .btn-clear {
       font-family: 'Inter', sans-serif; font-size: 10px;
-      color: var(--text-mid); background: transparent;
-      border: 1px solid var(--border-mid); border-radius: var(--r-sm);
+      color: #fff; background: var(--red);
+      border: 1px solid var(--red); border-radius: var(--r-sm);
       padding: 5px 11px; cursor: pointer;
-      transition: all .15s; text-transform: uppercase; letter-spacing: .04em;
+      transition: all .15s; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .04em;
     }
-    .btn-clear:hover { color: #fff; background: var(--flag-blue); border-color: var(--flag-blue); }
+    .btn-clear:hover { background: #dc2626; border-color: #dc2626; }
 
     .range-btns { display: flex; gap: 6px; }
     .range-btn {
@@ -651,16 +635,6 @@
     tbody tr:nth-child(8)  { animation-delay:.16s }
     tbody tr:nth-child(9)  { animation-delay:.18s }
     tbody tr:nth-child(10) { animation-delay:.20s }
-
-    /* ── Barra de progreso en KPIs ───────────────────────────── */
-    .kpi-bar-wrap {
-      height: 3px; background: var(--border-mid);
-      border-radius: 2px; margin-top: 7px; overflow: hidden;
-    }
-    .kpi-bar-fill {
-      height: 100%; border-radius: 2px;
-      transition: width .6s cubic-bezier(.4,0,.2,1);
-    }
 
     /* ── Pantalla completa ───────────────────────────────────── */
     .btn-fullscreen {
@@ -1443,46 +1417,14 @@
       { label: 'TOTAL OPERATIVO',        val: totalOperativo,                 cls: 'k-blue',          bg: '#eff6ff', icon: ICONS.total        },
       { label: 'TOTAL GENERAL',          val: totalGeneral,                   cls: 'k-slate',         bg: '#f1f5f9', icon: ICONS.totalGeneral },
     ];
-    // Tooltips enriquecidos: última incidencia + código más frecuente
-    const hoy    = new Date();
-    const hace30 = new Date(hoy - 30*24*60*60*1000);
-    function topCodigo(rows, kw) {
-      const sub = kw ? rows.filter(r => r.incidencia.toLowerCase().includes(kw)) : rows;
-      const cnt = {}; sub.forEach(r => { cnt[r.codigo] = (cnt[r.codigo]||0)+1; });
-      const top = Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
-      return top ? `Top: ${top[0]} (${top[1]})` : '';
-    }
-    function ultimaFecha(rows, kw) {
-      const sub = kw ? rows.filter(r => r.incidencia.toLowerCase().includes(kw)) : rows;
-      return sub.length ? `Última: ${sub[sub.length-1].fecha}` : '';
-    }
-    const tooltips = [
-      [ultimaFecha(rows,'forzamiento'),  topCodigo(rows,'forzamiento')],
-      [ultimaFecha(rows,'apagado'),       topCodigo(rows,'apagado')],
-      [ultimaFecha(rows,'mejora'),        topCodigo(rows,'mejora')],
-      [ultimaFecha(rows,'intermitencia'), topCodigo(rows,'intermitencia')],
-      [ultimaFecha(rows,'error'),         topCodigo(rows,'error')],
-      [ultimaFecha(rows,'accidente'),     topCodigo(rows,'accidente')],
-      [ultimaFecha(rows,'vdt'),           topCodigo(rows,'vdt')],
-      [ultimaFecha(rows,''),              topCodigo(rows,'')],
-      [`Total: ${rows.length} registros`, ''],
-    ];
-
-    document.getElementById('kpi-grid').innerHTML = cards.map((c, i) => {
-      const [t1, t2] = tooltips[i] || [];
-      const tipHtml  = (t1||t2) ? `<div class="kpi-tooltip">${[t1,t2].filter(Boolean).join(' &nbsp;·&nbsp; ')}</div>` : '';
-      return `
-        <div class="kpi-card ${c.cls}">
-          ${tipHtml}
-          <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
-          <div class="kpi-content">
-            <div class="kpi-num kpi-num-anim">${c.val}</div>
-            <div class="kpi-label">${c.label}</div>
-          </div>
-        </div>`;
-    }).join('');
-    // Barras de progreso: se ejecutan tras el render del DOM
-    requestAnimationFrame(() => renderKPIBars(cards, totalOperativo));
+    document.getElementById('kpi-grid').innerHTML = cards.map(c => `
+      <div class="kpi-card ${c.cls}">
+        <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
+        <div class="kpi-content">
+          <div class="kpi-num kpi-num-anim">${c.val}</div>
+          <div class="kpi-label">${c.label}</div>
+        </div>
+      </div>`).join('');
   }
 
   // Renderiza el contenido del desplegable de composición del Total Operativo.
@@ -1804,40 +1746,6 @@
           </span>`).join('');
     // Guardar funciones de limpieza en un array global accesible desde HTML
     window._chipClear = chips.map(ch => ch.clear);
-  }
-
-  /* ─── Barra de progreso en KPIs ──────────────────────────────── */
-  // Se llama desde renderKPIs con el total operativo para calcular %
-  function renderKPIBars(cards, totalOp) {
-    cards.forEach((c, i) => {
-      const card = document.querySelectorAll('.kpi-card')[i];
-      if (!card) return;
-      // Solo para las 7 categorías principales (no Total Operativo ni Total General)
-      if (i >= 7) return;
-      const pct = totalOp > 0 ? Math.min(100, Math.round((c.val / totalOp) * 100)) : 0;
-      // Obtener color de la barra lateral del KPI
-      const barColor = getComputedStyle(card).getPropertyValue('--kpi-accent') ||
-        (card.classList.contains('k-yellow') ? '#f59e0b' :
-         card.classList.contains('k-red')    ? '#ef4444' :
-         card.classList.contains('k-green')  ? '#10b981' :
-         card.classList.contains('k-purple') ? '#8b5cf6' :
-         card.classList.contains('k-orange') ? '#f97316' :
-         card.classList.contains('k-blue')   ? '#3b82f6' : '#94a3b8');
-      // Agregar barra si no existe
-      let barWrap = card.querySelector('.kpi-bar-wrap');
-      if (!barWrap) {
-        barWrap = document.createElement('div');
-        barWrap.className = 'kpi-bar-wrap';
-        barWrap.innerHTML = `<div class="kpi-bar-fill" style="background:${barColor};width:0%"></div>`;
-        card.querySelector('.kpi-content').appendChild(barWrap);
-      }
-      // Animar la barra con requestAnimationFrame para activar la transición CSS
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          barWrap.querySelector('.kpi-bar-fill').style.width = pct + '%';
-        });
-      });
-    });
   }
 
   // Punto de entrada

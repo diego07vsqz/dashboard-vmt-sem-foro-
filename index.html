@@ -117,19 +117,6 @@
     /* .kpi-card sin tooltip */
     .kpi-card { position: relative; }
 
-    /* Banner de alerta apagados */
-    .alert-banner {
-      display: none; align-items: center; gap: 12px;
-      background: #fffbeb; border-bottom: 1px solid #fde68a;
-      padding: 10px 32px; font-size: 12px; color: #92400e;
-    }
-    .alert-banner.visible { display: flex; }
-    [data-theme='dark'] .alert-banner { background:#1c1400; border-color:#78350f; color:#fbbf24; }
-    .alert-banner-close {
-      margin-left: auto; background: none; border: none;
-      cursor: pointer; color: #b45309; font-size: 16px; line-height: 1;
-    }
-
     /* ── Loading overlay (se elimina del DOM al cargar datos) */
     #loading-overlay {
       position: fixed; inset: 0;
@@ -824,23 +811,53 @@
     [data-theme="dark"] .fdd-option:hover { background:rgba(255,255,255,.06); color:#e2e8f0; }
     [data-theme="dark"] .fdd-option.active{ background:rgba(0,51,160,.25); color:#93c5fd; }
 
-    /* ══ Botón FILTROS principal ══════════════════════════════ */
+    /* ══ Botón FILTROS principal — resaltado para llamar la atención ══ */
+    @keyframes fmb-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,51,160,.35), 0 2px 8px rgba(0,51,160,.2); }
+      50%       { box-shadow: 0 0 0 6px rgba(0,51,160,0), 0 2px 8px rgba(0,51,160,.2); }
+    }
     .filter-main-btn {
-      display:flex; align-items:center; gap:8px;
-      font-family:'Inter',sans-serif; font-size:12px; font-weight:700;
-      color:var(--text-dark); background:var(--bg-white);
-      border:1.5px solid var(--border-mid); border-radius:var(--r-md);
-      padding:6px 16px; cursor:pointer; transition:all .2s ease;
-      user-select:none; white-space:nowrap; letter-spacing:.02em;
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, var(--flag-blue) 0%, #3b82f6 100%);
+      border: none;
+      border-radius: var(--r-md);
+      padding: 7px 18px; cursor: pointer;
+      transition: all .2s ease;
+      user-select: none; white-space: nowrap; letter-spacing: .03em;
+      box-shadow: 0 2px 8px rgba(0,51,160,.3);
+      animation: fmb-pulse 2.2s ease-in-out infinite;
     }
-    .filter-main-btn:hover, .filter-main-btn.open {
-      border-color:var(--flag-blue); color:var(--flag-blue);
-      background:var(--flag-blue-soft); box-shadow:0 0 0 3px rgba(0,51,160,.08);
+    .filter-main-btn:hover {
+      background: linear-gradient(135deg, #002280 0%, #2563eb 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0,51,160,.4);
+      animation: none;
     }
-    .filter-main-btn .fmb-chevron { transition:transform .25s cubic-bezier(.68,-.55,.265,1.55); opacity:.6; }
-    .filter-main-btn.open .fmb-chevron { transform:rotate(180deg); opacity:1; }
-    .filter-main-btn .fmb-dot { width:7px; height:7px; border-radius:50%; background:var(--flag-blue); flex-shrink:0; display:none; margin-left:2px; }
-    .filter-main-btn.has-filters .fmb-dot { display:block; }
+    .filter-main-btn.open {
+      background: linear-gradient(135deg, #002280 0%, #2563eb 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0,51,160,.4);
+      animation: none;
+    }
+    .filter-main-btn .fmb-chevron {
+      transition: transform .25s cubic-bezier(.68,-.55,.265,1.55);
+      opacity: .8;
+    }
+    .filter-main-btn.open .fmb-chevron { transform: rotate(180deg); opacity: 1; }
+    /* Punto blanco cuando hay filtros activos */
+    .filter-main-btn .fmb-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #fff; flex-shrink: 0; display: none; margin-left: 2px;
+      box-shadow: 0 0 0 2px rgba(255,255,255,.4);
+    }
+    .filter-main-btn.has-filters .fmb-dot { display: block; }
+    /* Modo oscuro */
+    [data-theme="dark"] .filter-main-btn {
+      background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+      box-shadow: 0 2px 8px rgba(29,78,216,.4);
+    }
 
     /* ══ Panel glassmorphism ══════════════════════════════════ */
     .fp-wrap { position:relative; }
@@ -939,16 +956,6 @@
   </div>
   <div class="spinner"></div>
   <div class="loading-msg">CARGANDO DATOS</div>
-</div>
-
-<!-- ── Banner alerta apagados recientes ────────────────────── -->
-<div class="alert-banner" id="alert-banner">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-  </svg>
-  <span id="alert-text">⚠️ Se han registrado apagados en las últimas 24 horas.</span>
-  <button class="alert-banner-close" onclick="document.getElementById('alert-banner').classList.remove('visible')">&times;</button>
 </div>
 
 <!-- ── Header ──────────────────────────────────────────────── -->
@@ -1560,11 +1567,6 @@
         document.getElementById('f-ciudad').innerHTML =
           '<option value="">TODAS LAS CIUDADES</option>' +
           ciudadesC.map(c => `<option value="${c}">${c}</option>`).join('');
-        // Verificar banner apagados con datos cacheados
-        const hace24hC = new Date(Date.now() - 24*60*60*1000);
-        const apagC = dataset.filter(r => { const d = parseSheetDate(r.fecha); return d && d >= hace24hC && r.incidencia.toLowerCase().includes('apagado'); });
-        const bannerC = document.getElementById('alert-banner');
-        if (apagC.length > 0) { document.getElementById('alert-text').textContent = `⚠️ ${apagC.length} apagado${apagC.length>1?'s':''} en las últimas 24 horas.`; bannerC.classList.add('visible'); } else { bannerC.classList.remove('visible'); }
         setRange('3m');
         return; // salir sin fetch
       } else {
@@ -1587,21 +1589,6 @@
           })
           .filter(r => r.fecha || r.codigo);
         cacheGuardar(dataset); // guarda con timestamp, count y version
-      }
-
-      // Banner: apagados en las últimas 24 horas
-      const hace24h = new Date(Date.now() - 24*60*60*1000);
-      const apagadosRecientes = dataset.filter(r => {
-        const d = parseSheetDate(r.fecha);
-        return d && d >= hace24h && r.incidencia.toLowerCase().includes('apagado');
-      });
-      const banner = document.getElementById('alert-banner');
-      if (apagadosRecientes.length > 0) {
-        document.getElementById('alert-text').textContent =
-          `⚠️ ${apagadosRecientes.length} apagado${apagadosRecientes.length>1?'s':''} registrado${apagadosRecientes.length>1?'s':''} en las últimas 24 horas.`;
-        banner.classList.add('visible');
-      } else {
-        banner.classList.remove('visible');
       }
 
       setRange('3m');
@@ -1630,7 +1617,7 @@
 
   // Convierte "d/m/yyyy" del Sheet a objeto Date; retorna null si inválido
   function parseSheetDate(str) {
-    const [d, m, y] = str.split('/');
+    const [d, m, y] = (str || '').split('/');
     return y ? new Date(+y, +m - 1, +d) : null;
   }
 

@@ -824,7 +824,6 @@
     [data-theme="dark"] .fdd-option:hover { background:rgba(255,255,255,.06); color:#e2e8f0; }
     [data-theme="dark"] .fdd-option.active{ background:rgba(0,51,160,.25); color:#93c5fd; }
 
-
     /* ══ Botón FILTROS principal ══════════════════════════════ */
     .filter-main-btn {
       display:flex; align-items:center; gap:8px;
@@ -897,16 +896,6 @@
     }
     .fp-date-input:focus { border-color:var(--flag-blue); box-shadow:0 0 0 3px rgba(0,51,160,.08); }
 
-    .fp-range-btns { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-    .fp-range-btn {
-      font-family:'Inter',sans-serif; font-size:11px; font-weight:600;
-      color:var(--text-mid); background:var(--bg-page);
-      border:1px solid var(--border-mid); border-radius:20px;
-      padding:6px 12px; cursor:pointer; transition:all .15s; text-align:center;
-    }
-    .fp-range-btn:hover        { background:var(--flag-blue-soft); color:var(--flag-blue); border-color:#c7d3f0; }
-    .fp-range-btn.active-range { background:var(--flag-blue); color:#fff; border-color:var(--flag-blue); }
-
     .fp-footer { padding:12px 20px 16px; border-top:1px solid var(--border); display:flex; gap:8px; }
     .fp-apply {
       flex:1; font-family:'Inter',sans-serif; font-size:12px; font-weight:700;
@@ -916,12 +905,6 @@
       display:flex; align-items:center; justify-content:center; gap:8px;
     }
     .fp-apply:hover { background:#002280; }
-    .fp-clear-all {
-      font-family:'Inter',sans-serif; font-size:11px; font-weight:700;
-      color:#fff; background:var(--red); border:none; border-radius:var(--r-md);
-      padding:10px 16px; cursor:pointer; transition:background .15s;
-    }
-    .fp-clear-all:hover { background:#dc2626; }
 
     [data-theme="dark"] .filter-panel {
       background:linear-gradient(145deg,rgba(30,41,59,.97),rgba(15,23,42,.98));
@@ -1111,14 +1094,7 @@
               <span style="color:var(--text-light);font-size:13px">→</span>
               <input type="date" class="fp-date-input" id="f-fecha-fin" onchange="onManualDate()">
             </div>
-            <!-- Botones de rango rápido -->
-            <div class="fp-range-btns">
-              <button class="fp-range-btn"              id="rbtn-mes"  onclick="setRange('mes')">Este mes</button>
-              <button class="fp-range-btn"              id="rbtn-ant"  onclick="setRange('ant')">Mes anterior</button>
-              <button class="fp-range-btn active-range" id="rbtn-3m"   onclick="setRange('3m')">&Uacute;ltimos 3 meses</button>
-              <button class="fp-range-btn"              id="rbtn-todo" onclick="setRange('todo')">Todo</button>
-            </div>
-            <span class="range-warning" id="range-warning" style="margin-top:6px;display:none">⚠️ Puede tardar con muchos registros</span>
+
           </div>
 
         <!-- Input oculto reporte para compatibilidad -->
@@ -1133,7 +1109,6 @@
             </svg>
             APLICAR FILTROS
           </button>
-          <button class="fp-clear-all" onclick="clearAll()">&#10005; LIMPIAR</button>
         </div>
 
       </div><!-- /.filter-panel -->
@@ -1149,6 +1124,7 @@
       <button class="range-btn active-range" id="rbtn-3m-bar"   onclick="setRange('3m')">3 meses</button>
       <button class="range-btn"              id="rbtn-todo-bar" onclick="setRange('todo')">Todo</button>
     </div>
+    <span class="range-warning" id="range-warning">⚠️ Puede tardar</span>
 
     <div class="filter-divider"></div>
 
@@ -2041,20 +2017,25 @@
     });
   }
   function clearAll() {
-    // Fechas
-    document.getElementById('f-fecha-ini').value = '';
-    document.getElementById('f-fecha-fin').value = '';
-    setActiveRangeBtn(null);
-    // Dropdowns
-    ['inc','ciudad','rep'].forEach(key => selectFilter(key, '', Object.entries({
-      inc:'Incidencia', ciudad:'Ciudad', rep:'Reporte'
-    }).find(([k]) => k===key)?.[1] || key));
+    // Limpiar selects del panel
+    document.getElementById('f-incidencia').value = '';
+    document.getElementById('f-ciudad').value     = '';
+    document.getElementById('f-reporte').value    = '';
+    // Limpiar fechas
+    document.getElementById('f-fecha-ini').value  = '';
+    document.getElementById('f-fecha-fin').value  = '';
+    // Quitar warning de todo
     document.getElementById('range-warning').classList.remove('visible');
-    applyFilters();
-    renderChips();
-    updateFiltroBtn();
+    // Desmarcar todos los botones de rango
+    setActiveRangeBtn(null);
+    syncRangeBtns(null);
+    // Quitar punto azul del botón FILTROS
+    document.getElementById('filter-main-btn').classList.remove('has-filters');
+    // Cerrar el panel si estaba abierto
     closeFiltroPanel();
-    showToast('🧹 Todos los filtros limpiados');
+    // Reaplicar filtros (sin ningún filtro activo = muestra todo)
+    applyFilters();
+    showToast('🧹 Filtros limpiados');
   }
 
   /* ─── Panel de filtros unificado ─────────────────────────────── */
@@ -2100,12 +2081,9 @@
 
   // Sincronizar botones de rango de la barra con los del panel
   function syncRangeBtns(id) {
-    const barMap  = { mes:'rbtn-mes-bar', ant:'rbtn-ant-bar', '3m':'rbtn-3m-bar', todo:'rbtn-todo-bar' };
-    const panMap  = { mes:'rbtn-mes',     ant:'rbtn-ant',     '3m':'rbtn-3m',     todo:'rbtn-todo'     };
-    // Barra
+    const barMap = { mes:'rbtn-mes-bar', ant:'rbtn-ant-bar', '3m':'rbtn-3m-bar', todo:'rbtn-todo-bar' };
     ['mes','ant','3m','todo'].forEach(k => {
       document.getElementById(barMap[k])?.classList.toggle('active-range', k === id);
-      document.getElementById(panMap[k])?.classList.toggle('active-range', k === id);
     });
   }
 

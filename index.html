@@ -1222,8 +1222,8 @@
           <table>
             <thead>
               <tr>
-                <th onclick="sortTable(0)" style="cursor:pointer;user-select:none">FECHA <span id="sort-0"></span></th><th onclick="sortTable(1)" style="cursor:pointer;user-select:none">HORA <span id="sort-1"></span></th><th onclick="sortTable(2)" style="cursor:pointer;user-select:none">CÓDIGO <span id="sort-2"></span></th>
-                <th onclick="sortTable(3)" style="cursor:pointer;user-select:none">REPORTE <span id="sort-3"></span></th><th onclick="sortTable(4)" style="cursor:pointer;user-select:none">INCIDENCIA <span id="sort-4"></span></th><th>DIRECCIÓN</th>
+                <th>FECHA</th><th>HORA</th><th>CÓDIGO</th>
+                <th>REPORTE</th><th>INCIDENCIA</th><th>DIRECCIÓN</th>
               </tr>
             </thead>
             <tbody id="tabla-body"></tbody>
@@ -1489,8 +1489,6 @@
   let lastFilteredRows = [];
   let chartBar         = null;
   let chartDonut       = null;
-  let sortCol          = -1;   // columna activa de ordenación (-1 = sin ordenar)
-  let sortDir          = 'asc'; // 'asc' | 'desc'
 
   /* ─── Caché mejorado con sessionStorage ─────────────────────
      - TTL de 15 minutos (suficiente para consultas normales)
@@ -1804,34 +1802,9 @@
     `;
   }
 
-  // Ordenación de columnas
-  function sortTable(col) {
-    if (sortCol === col) {
-      sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-    } else {
-      sortCol = col; sortDir = 'asc';
-    }
-    // Resetear iconos
-    [0,1,2,3,4].forEach(i => {
-      const el = document.getElementById('sort-'+i);
-      if (el) el.textContent = i === sortCol ? (sortDir==='asc' ? ' ↑' : ' ↓') : '';
-    });
-    renderTable(lastFilteredRows);
-  }
-
-  // Muestra los últimos 15 registros (o los ordenados) en #tabla-body
+  // Muestra los últimos 15 registros del período — orden fijo, sin ordenación
   function renderTable(rows) {
-    let items = [...rows].slice(-30).reverse().slice(0, 15);
-    // Aplicar ordenación si hay una columna activa
-    if (sortCol >= 0) {
-      const keys = ['fecha','hora','codigo','reporte','incidencia'];
-      const key  = keys[sortCol];
-      items = [...rows].sort((a, b) => {
-        const va = (a[key]||'').toLowerCase();
-        const vb = (b[key]||'').toLowerCase();
-        return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
-      }).slice(0, 30);
-    }
+    const items = [...rows].slice(-30).reverse().slice(0, 15);
     document.getElementById('tabla-body').innerHTML = items.length
       ? items.map(r => {
           const t = getTipo(r.incidencia);

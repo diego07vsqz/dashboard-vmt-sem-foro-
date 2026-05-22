@@ -42,6 +42,49 @@
       --r-xl: 20px;
     }
 
+    /* ── Modo oscuro ─────────────────────────────────────── */
+    [data-theme="dark"] {
+      --bg-page:        #0f172a;
+      --bg-white:       #1e293b;
+      --bg-header:      #020617;
+      --text-dark:      #f1f5f9;
+      --text-mid:       #94a3b8;
+      --text-light:     #475569;
+      --border:         #1e293b;
+      --border-mid:     #334155;
+      --yellow-soft:    #1c1400;
+      --red-soft:       #1c0000;
+      --green-soft:     #001c0f;
+      --blue-soft:      #00101c;
+      --purple-soft:    #0e0018;
+      --orange-soft:    #1c0a00;
+      --teal-soft:      #001c1a;
+      --flag-blue-soft: #00081c;
+      --bg-page-chart:  #1e293b;
+    }
+    [data-theme="dark"] .header { background:#020617; }
+    [data-theme="dark"] .filter-bar { background:#0f172a; border-color:#1e293b; }
+    [data-theme="dark"] .tab-bar { background:#0f172a; border-color:#1e293b; }
+    [data-theme="dark"] .tab-btn { color:#64748b; }
+    [data-theme="dark"] .tab-btn.active { color:#fff; }
+    [data-theme="dark"] .kpi-card { border-color:#334155; }
+    [data-theme="dark"] thead th { border-color:#334155; }
+    [data-theme="dark"] tbody td { border-color:#1e293b; }
+    [data-theme="dark"] tbody tr:hover td { background:#0f172a; }
+    [data-theme="dark"] .date-input,
+    [data-theme="dark"] .filter-select { background:#1e293b; color:#f1f5f9; border-color:#334155; }
+    [data-theme="dark"] .code-tag { background:#172554; color:#93c5fd; }
+
+    /* Botón toggle modo oscuro */
+    .dark-toggle {
+      display:flex; align-items:center; gap:6px;
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+      border-radius:var(--r-sm); color:rgba(255,255,255,.7);
+      font-size:11px; font-weight:600; padding:5px 12px; cursor:pointer;
+      transition:background .2s; font-family:inherit;
+    }
+    .dark-toggle:hover { background:rgba(255,255,255,.12); }
+
     /* ── Reset y tipografía base ─────────────────────────── */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -54,9 +97,57 @@
     }
 
     /* ── Animaciones ─────────────────────────────────────── */
-    @keyframes spin    { to { transform: rotate(360deg); } }
-    @keyframes pulse   { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin      { to { transform: rotate(360deg); } }
+    @keyframes pulse     { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+    @keyframes slideUp   { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes shimmer   { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+    @keyframes countUp   { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Skeleton cards */
+    .skeleton {
+      background: linear-gradient(90deg, var(--border) 25%, var(--border-mid) 50%, var(--border) 75%);
+      background-size: 400px 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+      border-radius: var(--r-md);
+    }
+    .kpi-skeleton {
+      height: 88px; border-radius: var(--r-lg);
+      border: 1px solid var(--border);
+    }
+    /* Animación de entrada para KPI numbers */
+    .kpi-num-anim { animation: countUp .4s ease both; }
+    /* KPI tooltip */
+    .kpi-card { position: relative; }
+    .kpi-tooltip {
+      position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b; color: #e2e8f0;
+      font-size: 11px; font-weight: 500;
+      padding: 7px 12px; border-radius: var(--r-md);
+      white-space: nowrap; pointer-events: none;
+      opacity: 0; transition: opacity .18s ease;
+      z-index: 50; box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    }
+    .kpi-tooltip::after {
+      content: ''; position: absolute; top: 100%; left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #1e293b;
+    }
+    .kpi-card:hover .kpi-tooltip { opacity: 1; }
+
+    /* Banner de alerta apagados */
+    .alert-banner {
+      display: none; align-items: center; gap: 12px;
+      background: #fffbeb; border-bottom: 1px solid #fde68a;
+      padding: 10px 32px; font-size: 12px; color: #92400e;
+    }
+    .alert-banner.visible { display: flex; }
+    [data-theme='dark'] .alert-banner { background:#1c1400; border-color:#78350f; color:#fbbf24; }
+    .alert-banner-close {
+      margin-left: auto; background: none; border: none;
+      cursor: pointer; color: #b45309; font-size: 16px; line-height: 1;
+    }
 
     /* ── Loading overlay (se elimina del DOM al cargar datos) */
     #loading-overlay {
@@ -516,7 +607,6 @@
       text-align: center; font-size: 9px; color: var(--text-light);
       line-height: 1.7; text-transform: uppercase; letter-spacing: .07em;
     }
-
   </style>
 </head>
 
@@ -540,6 +630,16 @@
   </div>
   <div class="spinner"></div>
   <div class="loading-msg">CARGANDO DATOS</div>
+</div>
+
+<!-- ── Banner alerta apagados recientes ────────────────────── -->
+<div class="alert-banner" id="alert-banner">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>
+  <span id="alert-text">⚠️ Se han registrado apagados en las últimas 24 horas.</span>
+  <button class="alert-banner-close" onclick="document.getElementById('alert-banner').classList.remove('visible')">&times;</button>
 </div>
 
 <!-- ── Header ──────────────────────────────────────────────── -->
@@ -571,7 +671,13 @@
         <div class="live-dot"></div>
         <span id="live-label">EN LÍNEA</span>
       </div>
-      <button class="btn-refresh" onclick="loadData()">
+      <button class="dark-toggle" id="dark-toggle" onclick="toggleDarkMode()" title="Modo oscuro">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>
+        </svg>
+        <span id="dark-label">OSCURO</span>
+      </button>
+      <button class="btn-refresh" onclick="loadData(true)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
           <polyline points="23 4 23 10 17 10"/>
           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
@@ -657,7 +763,10 @@
 ─────────────────────────────────────────────────────────────── -->
 <div class="tab-panel active" id="panel-dashboard">
   <main class="main">
-    <div class="kpi-grid" id="kpi-grid"></div>
+    <!-- kpi-grid arranca con skeletons; renderKPIs los reemplaza -->
+    <div class="kpi-grid" id="kpi-grid">
+      <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div>
+    </div>
 
     <!-- Desplegable: composición del Total Operativo
          Cerrado por defecto para capturas. Clic en el summary para expandir. -->
@@ -706,8 +815,8 @@
           <table>
             <thead>
               <tr>
-                <th>FECHA</th><th>HORA</th><th>CÓDIGO</th>
-                <th>REPORTE</th><th>INCIDENCIA</th><th>DIRECCIÓN</th>
+                <th onclick="sortTable(0)" style="cursor:pointer;user-select:none">FECHA <span id="sort-0"></span></th><th onclick="sortTable(1)" style="cursor:pointer;user-select:none">HORA <span id="sort-1"></span></th><th onclick="sortTable(2)" style="cursor:pointer;user-select:none">CÓDIGO <span id="sort-2"></span></th>
+                <th onclick="sortTable(3)" style="cursor:pointer;user-select:none">REPORTE <span id="sort-3"></span></th><th onclick="sortTable(4)" style="cursor:pointer;user-select:none">INCIDENCIA <span id="sort-4"></span></th><th>DIRECCIÓN</th>
               </tr>
             </thead>
             <tbody id="tabla-body"></tbody>
@@ -754,8 +863,8 @@
      Los índices de COL corresponden a columnas del Sheet (base 0).
   ─────────────────────────────────────────────────────────────── */
 
-  const SHEET_ID      = '1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU';
-  const SHEET_NAME    = 'P. Semaforico';
+  const SHEET_ID   = '1z7RURqLK9EQGftyyre7FcGdj_i7WWjWFWAvMFhgsQgU';
+  const SHEET_NAME = 'P. Semaforico';
 
   const COL = {
     FECHA: 0, HORA: 1, CODIGO: 2, REPORTE: 3, INCIDENCIA: 4,
@@ -969,49 +1078,138 @@
   };
 
   /* ─── Estado global ─────────────────────────────────────────── */
-  let dataset          = []; // Filas cargadas desde el Sheet
-  let lastFilteredRows = []; // Resultado de applyFilters() — incluye filtro de ciudad
-  let chartBar   = null; // Instancia Chart.js — barras
-  let chartDonut = null; // Instancia Chart.js — dona
+  let dataset          = [];
+  let lastFilteredRows = [];
+  let chartBar         = null;
+  let chartDonut       = null;
+  let sortCol          = -1;   // columna activa de ordenación (-1 = sin ordenar)
+  let sortDir          = 'asc'; // 'asc' | 'desc'
+
+  /* ─── Caché mejorado con sessionStorage ─────────────────────
+     - TTL de 15 minutos (suficiente para consultas normales)
+     - Guarda metadatos: timestamp, cantidad de registros, fecha
+       de la última actualización para mostrar al usuario
+     - Versión en la clave: cambiar CACHE_VER invalida todos los
+       cachés de versiones anteriores automáticamente
+     - Si el Sheet devuelve menos registros que el caché (datos
+       borrados o error), descarta el resultado y usa el caché
+     - El botón ACTUALIZAR siempre invalida el caché (fetch fresco)
+  ─────────────────────────────────────────────────────────────── */
+  const CACHE_VER = 'v2';                          // incrementar si cambia la estructura
+  const CACHE_KEY = `ccm_dashboard_${CACHE_VER}`;
+  const CACHE_TTL = 15 * 60 * 1000;               // 15 minutos
+
+  function cacheGuardar(data) {
+    try {
+      const meta = {
+        ts:       Date.now(),
+        count:    data.length,
+        version:  CACHE_VER,
+        data,
+      };
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(meta));
+    } catch(e) {
+      // sessionStorage lleno (raro) — limpiar entradas viejas
+      try { sessionStorage.clear(); } catch(_) {}
+    }
+  }
+
+  function cacheLeer() {
+    try {
+      const raw = sessionStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const meta = JSON.parse(raw);
+      // Verificar versión y TTL
+      if (meta.version !== CACHE_VER)                    { sessionStorage.removeItem(CACHE_KEY); return null; }
+      if (Date.now() - meta.ts > CACHE_TTL)              { sessionStorage.removeItem(CACHE_KEY); return null; }
+      return meta;
+    } catch(e) { return null; }
+  }
+
+  function cacheEdad() {
+    // Devuelve cuántos minutos tiene el caché activo, o null si no hay
+    try {
+      const raw = sessionStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const { ts } = JSON.parse(raw);
+      return Math.floor((Date.now() - ts) / 60000);
+    } catch(e) { return null; }
+  }
 
   /* ─── Carga de datos ────────────────────────────────────────────
      Usa la API GViz de Google Sheets (no requiere clave de API).
      El regex extrae el JSON del wrapper setResponse({...}).
      NOTA: usar substring(47) es frágil; el regex es más robusto.
   ─────────────────────────────────────────────────────────────── */
-  async function loadData() {
+  async function loadData(invalidarCache = false) {
     document.getElementById('update-note').textContent = 'ACTUALIZANDO...';
+    // Invalidar caché si el usuario presiona ACTUALIZAR manualmente
+    if (invalidarCache) sessionStorage.removeItem(CACHE_KEY);
     try {
-      {
-          const url   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
-          const res   = await fetch(url);
-          const text  = await res.text();
-          const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
-          if (!match) throw new Error('Formato de respuesta inesperado.');
-          const json  = JSON.parse(match[1]);
+      const cached = cacheLeer();
+      if (cached) {
+        dataset = cached.data;
+        const min = cacheEdad();
+        const nota = min !== null ? ` (caché ~${min}m)` : ' (caché)';
+        console.info(`Datos desde caché: ${dataset.length} registros, ${min} min de antigüedad`);
+        // Mostrar datos cacheados de inmediato y saltar el fetch
+        const horaC = new Date().toLocaleTimeString('es-SV', { hour:'2-digit', minute:'2-digit' });
+        document.getElementById('update-note').textContent = `${horaC} · ${dataset.length} registros${nota}`;
+        document.getElementById('live-label').textContent  = `Actualizado ${horaC}`;
+        const ciudadesC = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
+        document.getElementById('f-ciudad').innerHTML =
+          '<option value="">TODAS LAS CIUDADES</option>' +
+          ciudadesC.map(c => `<option value="${c}">${c}</option>`).join('');
+        // Verificar banner apagados con datos cacheados
+        const hace24hC = new Date(Date.now() - 24*60*60*1000);
+        const apagC = dataset.filter(r => { const d = parseSheetDate(r.fecha); return d && d >= hace24hC && r.incidencia.toLowerCase().includes('apagado'); });
+        const bannerC = document.getElementById('alert-banner');
+        if (apagC.length > 0) { document.getElementById('alert-text').textContent = `⚠️ ${apagC.length} apagado${apagC.length>1?'s':''} en las últimas 24 horas.`; bannerC.classList.add('visible'); } else { bannerC.classList.remove('visible'); }
+        setRange('3m');
+        return; // salir sin fetch
+      } else {
+        const url   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+        const res   = await fetch(url);
+        const text  = await res.text();
+        const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+        if (!match) throw new Error('Formato de respuesta inesperado.');
+        const json  = JSON.parse(match[1]);
+        dataset = (json.table.rows || [])
+          .map(row => {
+            const c   = row.c;
+            const get = i => (c[i]?.v != null) ? String(c[i].f || c[i].v).trim() : '';
+            return {
+              fecha: get(COL.FECHA), hora: get(COL.HORA), codigo: get(COL.CODIGO),
+              reporte: get(COL.REPORTE), incidencia: get(COL.INCIDENCIA),
+              dir: get(COL.DIR), ciudad: get(COL.CIUDAD),
+              operador: get(COL.OPERADOR), anomalia: get(COL.ANOMALIA),
+            };
+          })
+          .filter(r => r.fecha || r.codigo);
+        cacheGuardar(dataset); // guarda con timestamp, count y version
+      }
 
-          dataset = (json.table.rows || [])
-            .map(row => {
-              const c   = row.c;
-              const get = i => (c[i]?.v != null) ? String(c[i].f || c[i].v).trim() : '';
-
-              const codigo = get(COL.CODIGO);
-              return {
-                fecha: get(COL.FECHA), hora: get(COL.HORA), codigo,
-                reporte: get(COL.REPORTE), incidencia: get(COL.INCIDENCIA),
-                dir: get(COL.DIR), ciudad: get(COL.CIUDAD),
-                operador: get(COL.OPERADOR), anomalia: get(COL.ANOMALIA),
-              };
-            })
-            .filter(r => r.fecha || r.codigo);
+      // Banner: apagados en las últimas 24 horas
+      const hace24h = new Date(Date.now() - 24*60*60*1000);
+      const apagadosRecientes = dataset.filter(r => {
+        const d = parseSheetDate(r.fecha);
+        return d && d >= hace24h && r.incidencia.toLowerCase().includes('apagado');
+      });
+      const banner = document.getElementById('alert-banner');
+      if (apagadosRecientes.length > 0) {
+        document.getElementById('alert-text').textContent =
+          `⚠️ ${apagadosRecientes.length} apagado${apagadosRecientes.length>1?'s':''} registrado${apagadosRecientes.length>1?'s':''} en las últimas 24 horas.`;
+        banner.classList.add('visible');
+      } else {
+        banner.classList.remove('visible');
       }
 
       setRange('3m');
 
       const ciudades = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
-      const ciudadOpts = '<option value="">TODAS LAS CIUDADES</option>' +
+      document.getElementById('f-ciudad').innerHTML =
+        '<option value="">TODAS LAS CIUDADES</option>' +
         ciudades.map(ciudad => `<option value="${ciudad}">${ciudad}</option>`).join('');
-      document.getElementById('f-ciudad').innerHTML = ciudadOpts;
 
       const hora = new Date().toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit' });
       document.getElementById('update-note').textContent  = `${hora} · ${dataset.length} registros`;
@@ -1094,7 +1292,6 @@
     });
 
     lastFilteredRows = filtered;
-
     renderKPIs(filtered);
     renderNorEx(filtered);
     renderTable(filtered);
@@ -1129,15 +1326,44 @@
       { label: 'TOTAL OPERATIVO',        val: totalOperativo,                 cls: 'k-blue',          bg: '#eff6ff', icon: ICONS.total        },
       { label: 'TOTAL GENERAL',          val: totalGeneral,                   cls: 'k-slate',         bg: '#f1f5f9', icon: ICONS.totalGeneral },
     ];
-    document.getElementById('kpi-grid').innerHTML = cards.map(c => `
-      <div class="kpi-card ${c.cls}">
-        <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
-        <div class="kpi-content">
-          <div class="kpi-num">${c.val}</div>
-          <div class="kpi-label">${c.label}</div>
-        </div>
-      </div>
-    `).join('');
+    // Tooltips enriquecidos: última incidencia + código más frecuente
+    const hoy    = new Date();
+    const hace30 = new Date(hoy - 30*24*60*60*1000);
+    function topCodigo(rows, kw) {
+      const sub = kw ? rows.filter(r => r.incidencia.toLowerCase().includes(kw)) : rows;
+      const cnt = {}; sub.forEach(r => { cnt[r.codigo] = (cnt[r.codigo]||0)+1; });
+      const top = Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
+      return top ? `Top: ${top[0]} (${top[1]})` : '';
+    }
+    function ultimaFecha(rows, kw) {
+      const sub = kw ? rows.filter(r => r.incidencia.toLowerCase().includes(kw)) : rows;
+      return sub.length ? `Última: ${sub[sub.length-1].fecha}` : '';
+    }
+    const tooltips = [
+      [ultimaFecha(rows,'forzamiento'),  topCodigo(rows,'forzamiento')],
+      [ultimaFecha(rows,'apagado'),       topCodigo(rows,'apagado')],
+      [ultimaFecha(rows,'mejora'),        topCodigo(rows,'mejora')],
+      [ultimaFecha(rows,'intermitencia'), topCodigo(rows,'intermitencia')],
+      [ultimaFecha(rows,'error'),         topCodigo(rows,'error')],
+      [ultimaFecha(rows,'accidente'),     topCodigo(rows,'accidente')],
+      [ultimaFecha(rows,'vdt'),           topCodigo(rows,'vdt')],
+      [ultimaFecha(rows,''),              topCodigo(rows,'')],
+      [`Total: ${rows.length} registros`, ''],
+    ];
+
+    document.getElementById('kpi-grid').innerHTML = cards.map((c, i) => {
+      const [t1, t2] = tooltips[i] || [];
+      const tipHtml  = (t1||t2) ? `<div class="kpi-tooltip">${[t1,t2].filter(Boolean).join(' &nbsp;·&nbsp; ')}</div>` : '';
+      return `
+        <div class="kpi-card ${c.cls}">
+          ${tipHtml}
+          <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
+          <div class="kpi-content">
+            <div class="kpi-num kpi-num-anim">${c.val}</div>
+            <div class="kpi-label">${c.label}</div>
+          </div>
+        </div>`;
+    }).join('');
   }
 
   // Renderiza el contenido del desplegable de composición del Total Operativo.
@@ -1204,9 +1430,34 @@
     `;
   }
 
-  // Muestra los últimos 15 registros del período en #tabla-body
+  // Ordenación de columnas
+  function sortTable(col) {
+    if (sortCol === col) {
+      sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortCol = col; sortDir = 'asc';
+    }
+    // Resetear iconos
+    [0,1,2,3,4].forEach(i => {
+      const el = document.getElementById('sort-'+i);
+      if (el) el.textContent = i === sortCol ? (sortDir==='asc' ? ' ↑' : ' ↓') : '';
+    });
+    renderTable(lastFilteredRows);
+  }
+
+  // Muestra los últimos 15 registros (o los ordenados) en #tabla-body
   function renderTable(rows) {
-    const items = [...rows].slice(-30).reverse().slice(0, 15);
+    let items = [...rows].slice(-30).reverse().slice(0, 15);
+    // Aplicar ordenación si hay una columna activa
+    if (sortCol >= 0) {
+      const keys = ['fecha','hora','codigo','reporte','incidencia'];
+      const key  = keys[sortCol];
+      items = [...rows].sort((a, b) => {
+        const va = (a[key]||'').toLowerCase();
+        const vb = (b[key]||'').toLowerCase();
+        return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+      }).slice(0, 30);
+    }
     document.getElementById('tabla-body').innerHTML = items.length
       ? items.map(r => {
           const t = getTipo(r.incidencia);
@@ -1220,6 +1471,22 @@
           </tr>`;
         }).join('')
       : '<tr><td colspan="6" class="empty">Sin registros para el período seleccionado</td></tr>';
+  }
+
+  /* ─── Modo oscuro ─────────────────────────────────────────── */
+  function toggleDarkMode() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    const lbl = document.getElementById('dark-label');
+    const btn = document.getElementById('dark-toggle');
+    if (!isDark) {
+      lbl.textContent = 'CLARO';
+      btn.querySelector('svg').innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    } else {
+      lbl.textContent = 'OSCURO';
+      btn.querySelector('svg').innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>';
+    }
+    localStorage.setItem('ccm_theme', isDark ? 'light' : 'dark');
   }
 
   // Activa la pestaña seleccionada; renderiza gráficas si es necesario
@@ -1363,15 +1630,24 @@
     });
   }
 
-  // Punto de entrada: espera el DOM, carga datos y quita el loading
+  // Punto de entrada
   window.addEventListener('DOMContentLoaded', async () => {
-    renderOperativo(); // lista estática — solo necesita ejecutarse una vez
+    // Restaurar tema guardado
+    const savedTheme = localStorage.getItem('ccm_theme');
+    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+    if (savedTheme === 'dark') {
+      document.getElementById('dark-label').textContent = 'CLARO';
+    }
+
+    renderOperativo();
     await loadData();
+
+    // Quitar loading overlay
     const overlay = document.getElementById('loading-overlay');
     overlay.classList.add('fade-out');
     setTimeout(() => overlay.remove(), 400);
+
   });
 </script>
-
 </body>
 </html>

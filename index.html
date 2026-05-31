@@ -1038,6 +1038,90 @@
     /* ══ Gráfica de tendencia temporal ════════════════════════════ */
     .chart-box { position: relative; }
 
+    /* ══ Mapa de calor días × horas (estilo Power BI) ════════════
+       Grilla de 7 columnas (días) × 24 filas (horas).
+       El color de cada celda va de blanco (0) a azul oscuro (máximo).
+       Al pasar el mouse se muestra un tooltip con el detalle exacto.
+    ═══════════════════════════════════════════════════════════════ */
+    .heatmap-wrap {
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    .heatmap-container {
+      display: grid;
+      /* col etiquetas horas + 7 días de la semana */
+      grid-template-columns: 52px repeat(7, 1fr);
+      gap: 3px;
+      min-width: 520px;
+    }
+    .hm-header {
+      font-size: 10px; font-weight: 700;
+      color: var(--text-light); text-transform: uppercase;
+      letter-spacing: .06em; text-align: center;
+      padding: 4px 0 8px;
+    }
+    .hm-header:first-child { /* esquina vacía */ }
+    .hm-row-label {
+      font-size: 10px; font-family: 'JetBrains Mono', monospace;
+      color: var(--text-light); text-align: right;
+      padding-right: 8px; line-height: 1;
+      display: flex; align-items: center; justify-content: flex-end;
+    }
+    .hm-cell {
+      height: 22px; border-radius: 4px;
+      cursor: default; transition: transform .1s, opacity .1s;
+      position: relative;
+    }
+    .hm-cell:hover { transform: scale(1.15); opacity: .9; z-index: 10; }
+
+    /* Tooltip del heatmap */
+    .hm-tooltip {
+      position: fixed;
+      background: #1e293b; color: #f1f5f9;
+      font-size: 11px; font-family: 'Inter', sans-serif;
+      padding: 7px 12px; border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.3);
+      pointer-events: none; z-index: 999;
+      white-space: nowrap; display: none;
+      line-height: 1.6;
+    }
+
+    /* Leyenda del heatmap */
+    .hm-legend {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 14px; font-size: 11px; color: var(--text-mid);
+    }
+    .hm-legend-bar {
+      width: 140px; height: 10px; border-radius: 5px;
+      background: linear-gradient(to right, #eff6ff, #0033a0);
+    }
+    .hm-legend-labels {
+      display: flex; justify-content: space-between;
+      width: 140px; font-size: 9px;
+      color: var(--text-light); font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Resumen debajo del heatmap */
+    .hm-summary {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      margin-top: 16px; padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .hm-stat {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .hm-stat-val {
+      font-size: 20px; font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--flag-blue);
+    }
+    .hm-stat-lbl {
+      font-size: 10px; font-weight: 600;
+      color: var(--text-light); text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+    [data-theme="dark"] .hm-tooltip { background: #0f172a; }
+
   </style>
 </head>
 
@@ -1270,9 +1354,10 @@
     <button class="tab-btn" id="tab-tendencia" onclick="switchTab('tendencia')">
       <svg viewBox="0 0 24 24" stroke-width="2" fill="none" stroke="currentColor"
            stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <path d="M3 9h18M9 21V9"/>
       </svg>
-      TENDENCIA
+      MAPA DE CALOR
     </button>
   </div>
 </div>
@@ -1379,43 +1464,53 @@
   </main>
 </div>
 
-<!-- ── Pestaña: Tendencia temporal ─────────────────────── -->
+<!-- ── Pestaña: Mapa de calor Días × Horas (estilo Power BI) ─ -->
 <div class="tab-panel" id="panel-tendencia">
   <main class="main">
-    <div class="charts-grid">
-      <div class="card full-width">
-        <!-- Encabezado con título dinámico + descripción fija -->
-        <div style="margin-bottom:12px">
-          <div class="card-title" id="tendencia-title" style="margin-bottom:4px">INCIDENCIAS POR DÍA</div>
-          <p style="font-size:12px;color:var(--text-light);line-height:1.5;max-width:680px">
-            Muestra cu&aacute;ntas incidencias se registraron cada d&iacute;a (o semana si el per&iacute;odo supera 60 d&iacute;as)
-            en el rango de fechas seleccionado. La l&iacute;nea amarilla es la
-            <strong style="color:var(--text-mid)">media m&oacute;vil de 7 d&iacute;as</strong>:
-            suaviza los picos y muestra si la actividad est&aacute; subiendo, bajando o estable.
-            Usa los filtros para comparar por ciudad o tipo de incidencia.
-          </p>
+    <div class="card" style="margin-bottom:0">
+
+      <!-- Encabezado con título y descripción -->
+      <div style="margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:6px">
+          MAPA DE CALOR &mdash; INCIDENCIAS POR DÍA Y HORA
         </div>
-        <div class="chart-box" style="height:360px"><canvas id="chart-line"></canvas></div>
-        <!-- Leyenda de lectura -->
-        <div style="display:flex;gap:20px;margin-top:12px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-mid)">
-            <div style="width:24px;height:3px;background:#0033a0;border-radius:2px"></div>
-            Incidencias del d&iacute;a
-          </div>
-          <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-mid)">
-            <div style="width:24px;height:2px;background:#f59e0b;border-radius:2px;
-                        background-image:repeating-linear-gradient(90deg,#f59e0b 0,#f59e0b 4px,transparent 4px,transparent 7px)">
-            </div>
-            Media m&oacute;vil 7 d&iacute;as
-          </div>
-          <div id="tendencia-note"
-               style="margin-left:auto;font-size:11px;color:var(--text-light);font-style:italic">
-          </div>
-        </div>
+        <p style="font-size:12px;color:var(--text-light);line-height:1.6;max-width:700px">
+          Cada celda muestra cu&aacute;ntas incidencias ocurrieron en ese
+          <strong style="color:var(--text-mid)">d&iacute;a de la semana</strong> y
+          <strong style="color:var(--text-mid)">franja horaria</strong>.
+          Color m&aacute;s intenso = m&aacute;s incidencias.
+          &Uacute;til para identificar los momentos de mayor actividad
+          y planificar la cobertura operativa.
+        </p>
       </div>
+
+      <!-- Tooltip flotante (se mueve con el mouse) -->
+      <div class="hm-tooltip" id="hm-tooltip"></div>
+
+      <!-- Grilla del heatmap — renderizada por JS -->
+      <div class="heatmap-wrap">
+        <div class="heatmap-container" id="heatmap-grid"></div>
+      </div>
+
+      <!-- Leyenda de escala de color -->
+      <div class="hm-legend" style="margin-top:14px">
+        <span>Sin incidencias</span>
+        <div>
+          <div class="hm-legend-bar"></div>
+          <div class="hm-legend-labels">
+            <span>0</span><span id="hm-max-label">máx</span>
+          </div>
+        </div>
+        <span>M&aacute;ximo</span>
+      </div>
+
+      <!-- Estadísticas de resumen -->
+      <div class="hm-summary" id="hm-summary"></div>
+
     </div>
-    <div class="footer">
-      Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte
+    <div class="footer" style="margin-top:20px">
+      Unidad de Planeamiento Semaf&oacute;rico &mdash; CCM &nbsp;&middot;&nbsp;
+      Ministerio de Obras P&uacute;blicas y de Transporte
     </div>
   </main>
 </div>
@@ -1691,7 +1786,6 @@
   let lastFilteredRows = [];
   let chartBar         = null; // Chart.js — barras por tipo
   let chartDonut       = null; // Chart.js — dona porcentual
-  let chartLine        = null; // Chart.js — tendencia temporal
 
   /* ─── Caché mejorado con sessionStorage ─────────────────────
      - TTL de 15 minutos (suficiente para consultas normales)
@@ -2028,144 +2122,138 @@
     }).join('');
   }
 
-  /* ─── Gráfica de tendencia temporal ─────────────────────────────
-     Muestra incidencias agrupadas por día dentro del período filtrado.
-     Si el período supera 60 días, agrupa por semana para legibilidad.
-     Se destruye y recrea en cada llamada para evitar el bug de canvas.
+  /* ─── Mapa de calor días × horas ────────────────────────────────
+     Construye una grilla de 24 horas (filas) × 7 días (columnas).
+     Para cada celda cuenta las incidencias de ese día+hora en los datos
+     filtrados. El color interpola de blanco (#eff6ff) a azul oscuro
+     (#0033a0) proporcionalmente al valor máximo encontrado.
+     El tooltip muestra: día, hora, cantidad exacta y tipo predominante.
   ─────────────────────────────────────────────────────────────────── */
-  function renderTendencia(rows) {
-    if (!rows.length) return;
+  function renderHeatmap(rows) {
+    const DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+    // getDay() devuelve 0=Domingo…6=Sábado; reordenamos a Lun=0…Dom=6
+    const dayIndex = d => (d.getDay() + 6) % 7;
 
-    // ── Agrupar por fecha (string "d/m/yyyy")
-    const byDate = {};
+    // ── Construir matriz[hora 0-23][dia 0-6] con conteo e info de tipos
+    const matrix = Array.from({ length: 24 }, () =>
+      Array.from({ length: 7 }, () => ({ count: 0, tipos: {} }))
+    );
+
     rows.forEach(r => {
-      const fecha = r.fecha || '—';
-      byDate[fecha] = (byDate[fecha] || 0) + 1;
+      // Parsear hora desde "8:15:00 a.m." o "14:30:00"
+      const horaRaw = (r.hora || '').toLowerCase();
+      const mHora   = horaRaw.match(/(\d+):(\d+)/);
+      if (!mHora) return;
+      let h = parseInt(mHora[1]);
+      if (horaRaw.includes('p.m.') && h !== 12) h += 12;
+      if (horaRaw.includes('a.m.') && h === 12) h = 0;
+      if (h < 0 || h > 23) return;
+
+      const fecha = parseSheetDate(r.fecha);
+      if (!fecha) return;
+      const di = dayIndex(fecha);
+
+      matrix[h][di].count++;
+      const lbl = getTipo(r.incidencia).label;
+      matrix[h][di].tipos[lbl] = (matrix[h][di].tipos[lbl] || 0) + 1;
     });
 
-    // Ordenar por fecha real
-    const sorted = Object.entries(byDate)
-      .map(([f, v]) => ({ fecha: f, val: v, date: parseSheetDate(f) }))
-      .filter(e => e.date)
-      .sort((a, b) => a.date - b.date);
+    // ── Encontrar máximo para la escala de color
+    const maxVal = Math.max(...matrix.flat().map(c => c.count), 1);
+    document.getElementById('hm-max-label').textContent = maxVal;
 
-    // Si hay más de 60 días, agrupar por semana (lunes de cada semana)
-    const rangeDays = sorted.length > 1
-      ? (sorted[sorted.length-1].date - sorted[0].date) / 86400000
-      : 0;
-
-    let labels, values;
-    if (rangeDays > 60) {
-      // Agrupar por semana
-      const byWeek = {};
-      sorted.forEach(({ date, val }) => {
-        const d   = new Date(date);
-        const day = d.getDay(); // 0=Dom, 1=Lun…
-        const diff = (day === 0) ? -6 : 1 - day;
-        const lun = new Date(d);
-        lun.setDate(d.getDate() + diff);
-        const key = lun.toLocaleDateString('es-SV', { day:'2-digit', month:'2-digit' });
-        byWeek[key] = (byWeek[key] || 0) + val;
-      });
-      labels = Object.keys(byWeek);
-      values = Object.values(byWeek);
-      document.getElementById('tendencia-title').textContent = 'INCIDENCIAS POR SEMANA';
-    } else {
-      // Diario
-      labels = sorted.map(e => {
-        const [d, m] = e.fecha.split('/');
-        return `${d}/${m}`;
-      });
-      values = sorted.map(e => e.val);
-      document.getElementById('tendencia-title').textContent = 'INCIDENCIAS POR DÍA';
+    // ── Función de color: interpola de #eff6ff (0) a #0033a0 (max)
+    function heatColor(val) {
+      if (val === 0) return '#f8fafc';
+      const t = val / maxVal;
+      // Interpolación en RGB: #eff6ff → #0033a0
+      const r = Math.round(239 + (0   - 239) * t);
+      const g = Math.round(246 + (51  - 246) * t);
+      const b = Math.round(255 + (160 - 255) * t);
+      return `rgb(${r},${g},${b})`;
     }
 
-    // Calcular media móvil de 7 puntos para suavizado
-    const media7 = values.map((_, i) => {
-      const ventana = values.slice(Math.max(0, i-3), i+4);
-      return Math.round(ventana.reduce((a,b)=>a+b,0) / ventana.length);
-    });
+    // ── Construir HTML de la grilla
+    const grid = document.getElementById('heatmap-grid');
+    let html = '';
 
-    // ── Destruir instancia anterior y crear nueva
-    if (chartLine) { chartLine.destroy(); chartLine = null; }
+    // Fila de encabezados: esquina vacía + 7 días
+    html += '<div class="hm-header"></div>';
+    DIAS.forEach(d => { html += `<div class="hm-header">${d.slice(0,3)}</div>`; });
 
-    chartLine = new Chart(document.getElementById('chart-line'), {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Incidencias',
-            data: values,
-            borderColor: '#0033a0',
-            backgroundColor: 'rgba(0,51,160,.08)',
-            borderWidth: 2,
-            pointRadius: values.length > 40 ? 0 : 3,
-            pointHoverRadius: 5,
-            fill: true,
-            tension: 0.3,
-            order: 1,
-          },
-          {
-            label: 'Media móvil (7)',
-            data: media7,
-            borderColor: '#f59e0b',
-            borderWidth: 1.5,
-            borderDash: [4, 3],
-            pointRadius: 0,
-            fill: false,
-            tension: 0.4,
-            order: 0,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: { boxWidth: 10, font: { size: 11 }, usePointStyle: true, pointStyle: 'circle' },
-          },
-          tooltip: {
-            backgroundColor: '#1e293b',
-            titleColor: '#f1f5f9',
-            bodyColor: '#94a3b8',
-            padding: 10, cornerRadius: 10,
-            titleFont: { family: 'Inter', size: 12, weight: '700' },
-            bodyFont:  { family: 'Inter', size: 11 },
-          },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: { color: '#e5e7eb' },
-            title: { display: true, text: 'Incidencias', font: { size: 11, weight: '600' }, color: '#6b7280' },
-            ticks: { precision: 0 },
-          },
-          x: {
-            grid: { display: false },
-            ticks: {
-              font: { size: 10 }, color: '#374151',
-              maxTicksLimit: 20,
-              maxRotation: 45, minRotation: 0,
-            },
-          },
-        },
-        animation: { duration: 600, easing: 'easeOutQuart' },
-      },
-    });
-
-    // Mostrar nota de contexto: día con más y menos incidencias
-    const maxVal  = Math.max(...values);
-    const minVal  = Math.min(...values);
-    const maxIdx  = values.indexOf(maxVal);
-    const noteEl  = document.getElementById('tendencia-note');
-    if (noteEl && labels.length) {
-      noteEl.textContent =
-        `Pico: ${labels[maxIdx]} (${maxVal}) · Mín: ${minVal}`;
+    // Filas de horas (0-23)
+    for (let h = 0; h < 24; h++) {
+      const lbl = h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h-12}pm`;
+      html += `<div class="hm-row-label">${lbl}</div>`;
+      for (let d = 0; d < 7; d++) {
+        const cell  = matrix[h][d];
+        const color = heatColor(cell.count);
+        // Tipo predominante para el tooltip
+        const topTipo = Object.entries(cell.tipos)
+          .sort((a,b) => b[1]-a[1])[0]?.[0] || '—';
+        html += `<div class="hm-cell"
+          style="background:${color}"
+          data-h="${h}" data-d="${d}"
+          data-count="${cell.count}"
+          data-tipo="${topTipo}"
+          data-dia="${DIAS[d]}"
+        ></div>`;
+      }
     }
+    grid.innerHTML = html;
+
+    // ── Event listeners del tooltip (delegación en el grid)
+    const tooltip = document.getElementById('hm-tooltip');
+    grid.addEventListener('mousemove', e => {
+      const cell = e.target.closest('.hm-cell');
+      if (!cell) { tooltip.style.display = 'none'; return; }
+      const h     = cell.dataset.h;
+      const count = cell.dataset.count;
+      const tipo  = cell.dataset.tipo;
+      const dia   = cell.dataset.dia;
+      const lbl   = +h === 0 ? '12:00 am'
+                  : +h < 12  ? `${h}:00 am`
+                  : +h === 12 ? '12:00 pm'
+                  : `${h-12}:00 pm`;
+      tooltip.innerHTML =
+        `<strong>${dia} ${lbl}</strong><br>` +
+        `${count} incidencia${count != 1 ? 's' : ''}<br>` +
+        `<span style="color:#94a3b8;font-size:10px">${count > 0 ? 'Más frecuente: ' + tipo : 'Sin registros'}</span>`;
+      tooltip.style.display = 'block';
+      tooltip.style.left    = (e.clientX + 14) + 'px';
+      tooltip.style.top     = (e.clientY - 10) + 'px';
+    });
+    grid.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+
+    // ── Estadísticas de resumen
+    const totalHoras  = rows.length;
+    // Día de la semana con más incidencias
+    const byDay = Array(7).fill(0);
+    matrix.forEach(fila => fila.forEach((c, d) => { byDay[d] += c.count; }));
+    const maxDayIdx = byDay.indexOf(Math.max(...byDay));
+    // Franja horaria con más incidencias
+    const byHour = matrix.map(fila => fila.reduce((s,c)=>s+c.count, 0));
+    const maxHourIdx = byHour.indexOf(Math.max(...byHour));
+    const maxHourLbl = maxHourIdx < 12 ? `${maxHourIdx}:00 am` : `${maxHourIdx-12}:00 pm`;
+
+    document.getElementById('hm-summary').innerHTML = `
+      <div class="hm-stat">
+        <div class="hm-stat-val">${totalHoras.toLocaleString('es-SV')}</div>
+        <div class="hm-stat-lbl">Total en período</div>
+      </div>
+      <div class="hm-stat">
+        <div class="hm-stat-val">${DIAS[maxDayIdx]}</div>
+        <div class="hm-stat-lbl">Día más activo</div>
+      </div>
+      <div class="hm-stat">
+        <div class="hm-stat-val">${maxHourLbl}</div>
+        <div class="hm-stat-lbl">Hora más activa</div>
+      </div>
+      <div class="hm-stat">
+        <div class="hm-stat-val">${maxVal}</div>
+        <div class="hm-stat-lbl">Máximo en una celda</div>
+      </div>
+    `;
   }
 
   /* ─── Modo oscuro ─────────────────────────────────────────── */
@@ -2191,7 +2279,7 @@
     document.getElementById('tab-'   + name)?.classList.add('active');
     document.getElementById('panel-' + name)?.classList.add('active');
     if (name === 'graficas'   && lastFilteredRows.length) renderCharts(lastFilteredRows);
-    if (name === 'tendencia'  && lastFilteredRows.length) renderTendencia(lastFilteredRows);
+    if (name === 'tendencia'  && lastFilteredRows.length) renderHeatmap(lastFilteredRows);
   }
 
   /* ─── Gráficas ──────────────────────────────────────────────────

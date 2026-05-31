@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unidad de Planeamiento Semafórico | CCM</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 52'%3E%3Crect x='10' y='2' width='24' height='48' rx='5' fill='%230f2236'/%3E%3Ccircle cx='22' cy='13' r='7' fill='%23e03535'/%3E%3Ccircle cx='22' cy='26' r='7' fill='%23c98a10'/%3E%3Ccircle cx='22' cy='39' r='7' fill='%231e8a4a'/%3E%3C/svg%3E">
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
@@ -933,6 +934,76 @@
     [data-theme="dark"] .fp-footer     { border-color:#1e293b; }
     [data-theme="dark"] .fp-range-btn  { background:#0f172a; color:#94a3b8; border-color:#334155; }
 
+    /* ── KPI hover: elevación suave ─────────────────────────────
+       translateY(-3px) + sombra al hacer hover sobre cualquier card.
+    ─────────────────────────────────────────────────────────────── */
+    .kpi-card {
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.09);
+    }
+
+    /* ── Stagger en filas de tabla ───────────────────────────────
+       Cada fila entra con un retardo escalonado de 20ms.
+       Produce efecto fluido al cambiar filtros.
+    ─────────────────────────────────────────────────────────────── */
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to   { opacity: 1; transform: translateY(0);   }
+    }
+    tbody tr { animation: rowIn .22s ease both; }
+    tbody tr:nth-child(1)  { animation-delay: .02s }
+    tbody tr:nth-child(2)  { animation-delay: .04s }
+    tbody tr:nth-child(3)  { animation-delay: .06s }
+    tbody tr:nth-child(4)  { animation-delay: .08s }
+    tbody tr:nth-child(5)  { animation-delay: .10s }
+    tbody tr:nth-child(6)  { animation-delay: .12s }
+    tbody tr:nth-child(7)  { animation-delay: .14s }
+    tbody tr:nth-child(8)  { animation-delay: .16s }
+    tbody tr:nth-child(9)  { animation-delay: .18s }
+    tbody tr:nth-child(10) { animation-delay: .20s }
+    tbody tr:nth-child(11) { animation-delay: .22s }
+    tbody tr:nth-child(12) { animation-delay: .24s }
+    tbody tr:nth-child(13) { animation-delay: .26s }
+    tbody tr:nth-child(14) { animation-delay: .28s }
+    tbody tr:nth-child(15) { animation-delay: .30s }
+
+    /* ── Franja de color por tipo en filas de tabla ──────────────
+       3px a la izquierda con el color del tipo de incidencia.
+       El color se inyecta via JS como --row-color en cada <tr>.
+    ─────────────────────────────────────────────────────────────── */
+    tbody tr {
+      border-left: 3px solid transparent;
+      transition: border-left-color .15s;
+    }
+
+    /* ── Estado vacío ilustrado ──────────────────────────────────
+       Reemplaza el texto plano cuando la tabla no tiene registros.
+    ─────────────────────────────────────────────────────────────── */
+    .tabla-empty {
+      display: flex; flex-direction: column;
+      align-items: center; padding: 36px 20px; gap: 10px;
+    }
+    .tabla-empty-icon { font-size: 38px; opacity: .35; }
+    .tabla-empty-msg  { font-size: 13px; font-weight: 600; color: var(--text-light); }
+    .tabla-empty-sub  { font-size: 11px; color: var(--text-light); text-align: center; }
+
+    /* ── Efecto ripple en botones ────────────────────────────────
+       Al hacer clic en cualquier .ripple-btn se genera una onda
+       que sale del punto de contacto y desaparece.
+    ─────────────────────────────────────────────────────────────── */
+    .ripple-btn { position: relative; overflow: hidden; }
+    .ripple-wave {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,.32);
+      transform: scale(0);
+      animation: rippleAnim .55s linear;
+      pointer-events: none;
+    }
+    @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
   </style>
 </head>
 
@@ -999,7 +1070,7 @@
         </svg>
         <span id="dark-label">OSCURO</span>
       </button>
-      <button class="btn-refresh" onclick="loadData(true)">
+      <button class="btn-refresh ripple-btn" onclick="loadData(true)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
           <polyline points="23 4 23 10 17 10"/>
           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
@@ -1110,7 +1181,7 @@
 
         <!-- Pie: APLICAR + LIMPIAR -->
         <div class="fp-footer">
-          <button class="fp-apply" onclick="aplicarFiltros()">
+          <button class="fp-apply ripple-btn" onclick="aplicarFiltros()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
@@ -1136,7 +1207,7 @@
     <div class="filter-divider"></div>
 
     <!-- LIMPIAR en rojo + nota -->
-    <button class="btn-clear" onclick="clearAll()">&#10005; LIMPIAR</button>
+    <button class="btn-clear ripple-btn" onclick="clearAll()">&#10005; LIMPIAR</button>
     <span class="update-note" id="update-note">CARGANDO...</span>
 
   </div>
@@ -1485,6 +1556,50 @@
   };
 
   /* ─── Estado global ─────────────────────────────────────────── */
+
+  /* ─── Caché con sessionStorage ──────────────────────────────────
+     Evita llamadas repetidas a GViz si el usuario recarga la página.
+     TTL: 15 minutos. CACHE_VER invalida cachés de versiones previas.
+     El botón ACTUALIZAR siempre llama loadData(true) para forzar fetch.
+  ─────────────────────────────────────────────────────────────────── */
+  const CACHE_KEY = 'ccm_dashboard_v2';
+  const CACHE_TTL = 15 * 60 * 1000; // 15 minutos en ms
+
+  function cacheGuardar(data) {
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+        ts: Date.now(),
+        count: data.length,
+        data,
+      }));
+    } catch(e) {
+      // sessionStorage lleno — limpiar y continuar sin error
+      try { sessionStorage.clear(); } catch(_) {}
+    }
+  }
+
+  function cacheLeer() {
+    try {
+      const raw = sessionStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const { ts, data } = JSON.parse(raw);
+      // Invalidar si superó el TTL
+      if (Date.now() - ts > CACHE_TTL) {
+        sessionStorage.removeItem(CACHE_KEY);
+        return null;
+      }
+      return { ts, data };
+    } catch(e) { return null; }
+  }
+
+  function cacheEdad() {
+    try {
+      const raw = sessionStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      return Math.floor((Date.now() - JSON.parse(raw).ts) / 60000);
+    } catch(e) { return null; }
+  }
+
   let dataset          = [];
   let lastFilteredRows = [];
   let chartBar         = null;
@@ -1501,45 +1616,6 @@
      - El botón ACTUALIZAR siempre invalida el caché (fetch fresco)
   ─────────────────────────────────────────────────────────────── */
   const CACHE_VER = 'v2';                          // incrementar si cambia la estructura
-  const CACHE_KEY = `ccm_dashboard_${CACHE_VER}`;
-  const CACHE_TTL = 15 * 60 * 1000;               // 15 minutos
-
-  function cacheGuardar(data) {
-    try {
-      const meta = {
-        ts:       Date.now(),
-        count:    data.length,
-        version:  CACHE_VER,
-        data,
-      };
-      sessionStorage.setItem(CACHE_KEY, JSON.stringify(meta));
-    } catch(e) {
-      // sessionStorage lleno (raro) — limpiar entradas viejas
-      try { sessionStorage.clear(); } catch(_) {}
-    }
-  }
-
-  function cacheLeer() {
-    try {
-      const raw = sessionStorage.getItem(CACHE_KEY);
-      if (!raw) return null;
-      const meta = JSON.parse(raw);
-      // Verificar versión y TTL
-      if (meta.version !== CACHE_VER)                    { sessionStorage.removeItem(CACHE_KEY); return null; }
-      if (Date.now() - meta.ts > CACHE_TTL)              { sessionStorage.removeItem(CACHE_KEY); return null; }
-      return meta;
-    } catch(e) { return null; }
-  }
-
-  function cacheEdad() {
-    // Devuelve cuántos minutos tiene el caché activo, o null si no hay
-    try {
-      const raw = sessionStorage.getItem(CACHE_KEY);
-      if (!raw) return null;
-      const { ts } = JSON.parse(raw);
-      return Math.floor((Date.now() - ts) / 60000);
-    } catch(e) { return null; }
-  }
 
   /* ─── Carga de datos ────────────────────────────────────────────
      Usa la API GViz de Google Sheets (no requiere clave de API).
@@ -1599,6 +1675,9 @@
       selCiudad.innerHTML = '<option value="">Todas las ciudades</option>' +
         ciudades.map(c => `<option value="${c}">${c}</option>`).join('');
       selCiudad.value = currentCiudad;
+
+      // Guardar en caché para las próximas 15 minutos
+      cacheGuardar(dataset);
 
       const hora = new Date().toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit' });
       document.getElementById('update-note').textContent  = `${hora} · ${dataset.length} registros`;
@@ -1677,7 +1756,7 @@
         if (!d || (dateIni && d < dateIni) || (dateFin && d > dateFin)) return false;
       }
       if (inc    && !r.incidencia.toLowerCase().includes(inc)) return false;
-      if (ciudad && r.ciudad.toLowerCase() !== ciudad)         return false;
+      if (ciudad && (r.ciudad||'').toLowerCase() !== ciudad)   return false;
       if (rep    && !r.reporte.toLowerCase().includes(rep))    return false;
       return true;
     });
@@ -1802,22 +1881,35 @@
     `;
   }
 
-  // Muestra los últimos 15 registros del período — orden fijo, sin ordenación
+  /* Muestra los últimos 15 registros del período — orden fijo, sin ordenación.
+     Incluye franja de color a la izquierda de cada fila (--row-color)
+     y estado vacío ilustrado cuando no hay datos para el filtro. */
   function renderTable(rows) {
     const items = [...rows].slice(-30).reverse().slice(0, 15);
-    document.getElementById('tabla-body').innerHTML = items.length
-      ? items.map(r => {
-          const t = getTipo(r.incidencia);
-          return `<tr>
-            <td style="white-space:nowrap">${r.fecha}</td>
-            <td style="white-space:nowrap">${r.hora}</td>
-            <td><span class="code-tag">${r.codigo}</span></td>
-            <td>${r.reporte}</td>
-            <td><span class="badge ${t.badge}">${t.label}</span></td>
-            <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.dir}">${r.dir}</td>
-          </tr>`;
-        }).join('')
-      : '<tr><td colspan="6" class="empty">Sin registros para el período seleccionado</td></tr>';
+    if (items.length === 0) {
+      document.getElementById('tabla-body').innerHTML = `
+        <tr><td colspan='6'>
+          <div class='tabla-empty'>
+            <div class='tabla-empty-icon'>🔍</div>
+            <div class='tabla-empty-msg'>Sin registros para este filtro</div>
+            <div class='tabla-empty-sub'>Intenta ampliar el rango de fechas<br>o cambiar los criterios de filtro</div>
+          </div>
+        </td></tr>`;
+      return;
+    }
+    document.getElementById('tabla-body').innerHTML = items.map(r => {
+      const t        = getTipo(r.incidencia);
+      const rowColor = t.color || '#e2e8f0'; // color del tipo para la franja izquierda
+      return `<tr style='border-left-color:${rowColor}'>
+        <td style='white-space:nowrap'>${r.fecha}</td>
+        <td style='white-space:nowrap'>${r.hora}</td>
+        <td><span class='code-tag'>${r.codigo}</span></td>
+        <td>${r.reporte}</td>
+        <td><span class='badge ${t.badge}'>${t.label}</span></td>
+        <td style='max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'
+            title='${r.dir}'>${r.dir}</td>
+      </tr>`;
+    }).join('');
   }
 
   /* ─── Modo oscuro ─────────────────────────────────────────── */
@@ -1908,13 +2000,24 @@
         plugins: {
           legend: { display: false },
           tooltip: {
+            // Fondo oscuro con porcentaje del total
+            backgroundColor: '#1e293b',
+            titleColor: '#f1f5f9',
+            bodyColor:  '#94a3b8',
+            padding: 11, cornerRadius: 10,
+            titleFont: { family: 'Inter', weight: '700', size: 12 },
+            bodyFont:  { family: 'Inter', size: 11 },
             callbacks: {
-              // Mostrar el label completo (sin partir) en el tooltip
               title: items => labels[items[0].dataIndex],
-              label: ctx  => ` ${ctx.raw} registros`,
+              label: ctx => {
+                const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                const pct   = total > 0 ? Math.round((ctx.raw/total)*100) : 0;
+                return ` ${ctx.raw} incidencias (${pct}%)`;
+              },
             },
           },
         },
+        animation: { duration: 700, easing: 'easeOutQuart' },
         scales: {
           y: {
             beginAtZero: true,
@@ -2075,6 +2178,25 @@
     }
   });
 
+  /* ─── Efecto ripple — delegado en document ────────────────────
+     Al hacer clic en cualquier .ripple-btn, crea una onda que sale
+     del punto exacto de contacto y desaparece al terminar la animación.
+  ─────────────────────────────────────────────────────────────────── */
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.ripple-btn');
+    if (!btn) return;
+    const wave = document.createElement('span');
+    wave.className = 'ripple-wave';
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    wave.style.cssText =
+      `width:${size}px;height:${size}px;` +
+      `left:${e.clientX - rect.left - size/2}px;` +
+      `top:${e.clientY  - rect.top  - size/2}px`;
+    btn.appendChild(wave);
+    wave.addEventListener('animationend', () => wave.remove(), { once: true });
+  });
+
   /* ─── Chips de filtros activos ───────────────────────────────── */
   function renderChips() { /* chips eliminados — filtros activos se muestran en el botón */ }
 
@@ -2088,15 +2210,18 @@
     }
 
     renderOperativo();
-    await loadData();
-
-    // Quitar loading overlay
-    const overlay = document.getElementById('loading-overlay');
-    overlay.classList.add('fade-out');
-    setTimeout(() => overlay.remove(), 400);
-
+    try {
+      await loadData();
+    } finally {
+      // El overlay se quita SIEMPRE, incluso si loadData falla
+      const overlayEl = document.getElementById('loading-overlay');
+      if (overlayEl) {
+        overlayEl.classList.add('fade-out');
+        setTimeout(() => overlayEl.remove(), 400);
+      }
+    }
   });
 </script>
-<div class="toast" id="toast"></div>
+  <div class="toast" id="toast"></div>
 </body>
 </html>

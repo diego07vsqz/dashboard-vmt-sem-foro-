@@ -1004,6 +1004,52 @@
     }
     @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
 
+    /* ══ 1. KPI count-up animation ════════════════════════════════
+       Los números cuentan desde 0 al valor real en ~600ms.
+       Se activa vía JS (animateKPI) después de renderKPIs.
+       La clase .kpi-num-counting desactiva la animación CSS simple
+       mientras el JS está ejecutando el conteo.
+    ═══════════════════════════════════════════════════════════════ */
+    .kpi-num { transition: none; }
+
+    /* ══ 2. Línea de media en gráfica de barras ════════════════════
+       Plugin annotation de Chart.js no es necesario — se dibuja
+       como dataset secundario tipo 'line'.
+    ═══════════════════════════════════════════════════════════════ */
+
+    /* ══ 3. Pestaña TENDENCIA ══════════════════════════════════════
+       Mismos estilos que las pestañas existentes — sin cambios.
+    ═══════════════════════════════════════════════════════════════ */
+
+    /* ══ 4. Barra de resumen encima de la tabla ════════════════════
+       Línea fina de contexto: "Mostrando 15 de 1,281 · Más reciente: 31/5/2026"
+    ═══════════════════════════════════════════════════════════════ */
+    .tabla-summary {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 4px 8px;
+      font-size: 11px; color: var(--text-light);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2px;
+      flex-wrap: wrap; gap: 4px;
+    }
+    .tabla-summary strong { color: var(--text-mid); font-weight: 600; }
+    .tabla-summary-date  { font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+
+    /* ══ 5. Pulso en KPI crítica (Apagado > umbral) ════════════════
+       Si el valor de Apagado supera UMBRAL_APAGADO, la card parpadea
+       con un anillo rojo pulsante para llamar la atención.
+    ═══════════════════════════════════════════════════════════════ */
+    @keyframes kpi-alert-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,.5), 0 1px 3px rgba(0,0,0,.08); }
+      50%       { box-shadow: 0 0 0 8px rgba(239,68,68,0), 0 1px 3px rgba(0,0,0,.08); }
+    }
+    .kpi-card.alert-pulse {
+      animation: kpi-alert-pulse 1.8s ease-in-out infinite;
+    }
+
+    /* ══ Gráfica de tendencia temporal ════════════════════════════ */
+    .chart-box { position: relative; }
+
   </style>
 </head>
 
@@ -1233,6 +1279,13 @@
       </svg>
       GRÁFICAS
     </button>
+    <button class="tab-btn" id="tab-tendencia" onclick="switchTab('tendencia')">
+      <svg viewBox="0 0 24 24" stroke-width="2" fill="none" stroke="currentColor"
+           stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      TENDENCIA
+    </button>
   </div>
 </div>
 
@@ -1289,6 +1342,11 @@
       </div>
       <div class="card">
         <div class="card-title">ÚLTIMOS EVENTOS</div>
+        <!-- Barra de contexto: registros mostrados + fecha más reciente -->
+        <div class="tabla-summary" id="tabla-summary">
+          <span>Mostrando <strong id="tbl-showing">—</strong> de <strong id="tbl-total">—</strong> registros</span>
+          <span class="tabla-summary-date">Más reciente: <strong id="tbl-latest">—</strong></span>
+        </div>
         <div class="table-scroll">
           <table>
             <thead>
@@ -1325,6 +1383,22 @@
       <div class="card full-width">
         <div class="card-title">INCIDENCIAS POR TIPO</div>
         <div class="chart-box" style="height:340px"><canvas id="chart-bar"></canvas></div>
+      </div>
+    </div>
+    <div class="footer">
+      Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte
+    </div>
+  </main>
+</div>
+
+<!-- ── Pestaña: Tendencia temporal ─────────────────────── -->
+<div class="tab-panel" id="panel-tendencia">
+  <main class="main">
+    <div class="charts-grid">
+      <!-- Gráfica de línea: incidencias por día en el período filtrado -->
+      <div class="card full-width">
+        <div class="card-title" id="tendencia-title">INCIDENCIAS POR DÍA</div>
+        <div class="chart-box" style="height:360px"><canvas id="chart-line"></canvas></div>
       </div>
     </div>
     <div class="footer">
@@ -1602,8 +1676,12 @@
 
   let dataset          = [];
   let lastFilteredRows = [];
-  let chartBar         = null;
-  let chartDonut       = null;
+  let chartBar         = null; // Chart.js — barras por tipo
+  let chartDonut       = null; // Chart.js — dona porcentual
+  let chartLine        = null; // Chart.js — tendencia temporal
+
+  // Umbral de apagados para activar el pulso visual en la KPI card
+  const UMBRAL_APAGADO = 5;
 
   /* ─── Caché mejorado con sessionStorage ─────────────────────
      - TTL de 15 minutos (suficiente para consultas normales)
@@ -1807,14 +1885,43 @@
       { label: 'TOTAL OPERATIVO',        val: totalOperativo,                 cls: 'k-blue',          bg: '#eff6ff', icon: ICONS.total        },
       { label: 'TOTAL GENERAL',          val: totalGeneral,                   cls: 'k-slate',         bg: '#f1f5f9', icon: ICONS.totalGeneral },
     ];
+    // Renderizar cards con valor 0 primero; count-up animará después
     document.getElementById('kpi-grid').innerHTML = cards.map(c => `
-      <div class="kpi-card ${c.cls}">
+      <div class="kpi-card ${c.cls}" data-val="${c.val}">
         <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
         <div class="kpi-content">
-          <div class="kpi-num kpi-num-anim">${c.val}</div>
+          <div class="kpi-num" data-target="${c.val}">0</div>
           <div class="kpi-label">${c.label}</div>
         </div>
       </div>`).join('');
+
+    // ── Count-up: animar cada número desde 0 hasta su valor real
+    document.querySelectorAll('.kpi-num[data-target]').forEach(el => {
+      const target   = +el.dataset.target;
+      const duration = 600;  // ms
+      const steps    = 30;   // fotogramas
+      let   step     = 0;
+      const timer = setInterval(() => {
+        step++;
+        // easeOutQuart para desacelerar al final
+        const progress = 1 - Math.pow(1 - step / steps, 4);
+        el.textContent = Math.round(target * progress).toLocaleString('es-SV');
+        if (step >= steps) {
+          el.textContent = target.toLocaleString('es-SV');
+          clearInterval(timer);
+        }
+      }, duration / steps);
+    });
+
+    // ── Pulso crítico: activar en la card de Apagado si supera el umbral
+    const apagadoVal = countKw(rows, 'apagado');
+    document.querySelectorAll('.kpi-card.k-red').forEach(card => {
+      // Solo activar en la card de Apagado (no en Apoyo en Accidentes)
+      const label = card.querySelector('.kpi-label')?.textContent || '';
+      if (label.includes('APAGADO')) {
+        card.classList.toggle('alert-pulse', apagadoVal >= UMBRAL_APAGADO);
+      }
+    });
   }
 
   // Renderiza el contenido del desplegable de composición del Total Operativo.
@@ -1882,10 +1989,18 @@
   }
 
   /* Muestra los últimos 15 registros del período — orden fijo, sin ordenación.
-     Incluye franja de color a la izquierda de cada fila (--row-color)
-     y estado vacío ilustrado cuando no hay datos para el filtro. */
+     Actualiza la barra de resumen (tbl-showing, tbl-total, tbl-latest).
+     Incluye franja de color izquierda y estado vacío ilustrado. */
   function renderTable(rows) {
     const items = [...rows].slice(-30).reverse().slice(0, 15);
+
+    // ── Actualizar barra de resumen
+    const showEl  = document.getElementById('tbl-showing');
+    const totalEl = document.getElementById('tbl-total');
+    const latEl   = document.getElementById('tbl-latest');
+    if (showEl)  showEl.textContent  = items.length.toLocaleString('es-SV');
+    if (totalEl) totalEl.textContent = rows.length.toLocaleString('es-SV');
+    if (latEl)   latEl.textContent   = items.length > 0 ? items[0].fecha : '—';
     if (items.length === 0) {
       document.getElementById('tabla-body').innerHTML = `
         <tr><td colspan='6'>
@@ -1912,6 +2027,136 @@
     }).join('');
   }
 
+  /* ─── Gráfica de tendencia temporal ─────────────────────────────
+     Muestra incidencias agrupadas por día dentro del período filtrado.
+     Si el período supera 60 días, agrupa por semana para legibilidad.
+     Se destruye y recrea en cada llamada para evitar el bug de canvas.
+  ─────────────────────────────────────────────────────────────────── */
+  function renderTendencia(rows) {
+    if (!rows.length) return;
+
+    // ── Agrupar por fecha (string "d/m/yyyy")
+    const byDate = {};
+    rows.forEach(r => {
+      const fecha = r.fecha || '—';
+      byDate[fecha] = (byDate[fecha] || 0) + 1;
+    });
+
+    // Ordenar por fecha real
+    const sorted = Object.entries(byDate)
+      .map(([f, v]) => ({ fecha: f, val: v, date: parseSheetDate(f) }))
+      .filter(e => e.date)
+      .sort((a, b) => a.date - b.date);
+
+    // Si hay más de 60 días, agrupar por semana (lunes de cada semana)
+    const rangeDays = sorted.length > 1
+      ? (sorted[sorted.length-1].date - sorted[0].date) / 86400000
+      : 0;
+
+    let labels, values;
+    if (rangeDays > 60) {
+      // Agrupar por semana
+      const byWeek = {};
+      sorted.forEach(({ date, val }) => {
+        const d   = new Date(date);
+        const day = d.getDay(); // 0=Dom, 1=Lun…
+        const diff = (day === 0) ? -6 : 1 - day;
+        const lun = new Date(d);
+        lun.setDate(d.getDate() + diff);
+        const key = lun.toLocaleDateString('es-SV', { day:'2-digit', month:'2-digit' });
+        byWeek[key] = (byWeek[key] || 0) + val;
+      });
+      labels = Object.keys(byWeek);
+      values = Object.values(byWeek);
+      document.getElementById('tendencia-title').textContent = 'INCIDENCIAS POR SEMANA';
+    } else {
+      // Diario
+      labels = sorted.map(e => {
+        const [d, m] = e.fecha.split('/');
+        return `${d}/${m}`;
+      });
+      values = sorted.map(e => e.val);
+      document.getElementById('tendencia-title').textContent = 'INCIDENCIAS POR DÍA';
+    }
+
+    // Calcular media móvil de 7 puntos para suavizado
+    const media7 = values.map((_, i) => {
+      const ventana = values.slice(Math.max(0, i-3), i+4);
+      return Math.round(ventana.reduce((a,b)=>a+b,0) / ventana.length);
+    });
+
+    // ── Destruir instancia anterior y crear nueva
+    if (chartLine) { chartLine.destroy(); chartLine = null; }
+
+    chartLine = new Chart(document.getElementById('chart-line'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Incidencias',
+            data: values,
+            borderColor: '#0033a0',
+            backgroundColor: 'rgba(0,51,160,.08)',
+            borderWidth: 2,
+            pointRadius: values.length > 40 ? 0 : 3,
+            pointHoverRadius: 5,
+            fill: true,
+            tension: 0.3,
+            order: 1,
+          },
+          {
+            label: 'Media móvil (7)',
+            data: media7,
+            borderColor: '#f59e0b',
+            borderWidth: 1.5,
+            borderDash: [4, 3],
+            pointRadius: 0,
+            fill: false,
+            tension: 0.4,
+            order: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { boxWidth: 10, font: { size: 11 }, usePointStyle: true, pointStyle: 'circle' },
+          },
+          tooltip: {
+            backgroundColor: '#1e293b',
+            titleColor: '#f1f5f9',
+            bodyColor: '#94a3b8',
+            padding: 10, cornerRadius: 10,
+            titleFont: { family: 'Inter', size: 12, weight: '700' },
+            bodyFont:  { family: 'Inter', size: 11 },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: '#e5e7eb' },
+            title: { display: true, text: 'Incidencias', font: { size: 11, weight: '600' }, color: '#6b7280' },
+            ticks: { precision: 0 },
+          },
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { size: 10 }, color: '#374151',
+              maxTicksLimit: 20,
+              maxRotation: 45, minRotation: 0,
+            },
+          },
+        },
+        animation: { duration: 600, easing: 'easeOutQuart' },
+      },
+    });
+  }
+
   /* ─── Modo oscuro ─────────────────────────────────────────── */
   function toggleDarkMode() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -1928,13 +2173,14 @@
     localStorage.setItem('ccm_theme', isDark ? 'light' : 'dark');
   }
 
-  // Activa la pestaña seleccionada; renderiza gráficas si es necesario
+  // Activa la pestaña seleccionada y renderiza la visualización correspondiente
   function switchTab(name) {
     document.querySelectorAll('.tab-btn').forEach(b   => b.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-'   + name)?.classList.add('active');
     document.getElementById('panel-' + name)?.classList.add('active');
-    if (name === 'graficas' && lastFilteredRows.length) renderCharts(lastFilteredRows);
+    if (name === 'graficas'   && lastFilteredRows.length) renderCharts(lastFilteredRows);
+    if (name === 'tendencia'  && lastFilteredRows.length) renderTendencia(lastFilteredRows);
   }
 
   /* ─── Gráficas ──────────────────────────────────────────────────
@@ -1978,7 +2224,10 @@
         ).join('')
       : '<div class="empty">Sin datos</div>';
 
-    // Gráfica de barras: todos los tipos con etiquetas en 2 líneas
+    // Calcular media para la línea de referencia
+    const media = values.length ? Math.round(values.reduce((a,b)=>a+b,0)/values.length) : 0;
+
+    // Gráfica de barras con línea de media superpuesta
     if (chartBar) chartBar.destroy();
     chartBar = new Chart(document.getElementById('chart-bar'), {
       type: 'bar',
@@ -1992,6 +2241,17 @@
           borderRadius: 5,
           barPercentage: 0.65,
           categoryPercentage: 0.75,
+        }, {
+          // Línea de media — dataset secundario tipo line
+          type: 'line',
+          label: `Media (${media})`,
+          data: values.map(() => media),
+          borderColor: 'rgba(100,116,139,.55)',
+          borderWidth: 1.5,
+          borderDash: [5, 4],
+          pointRadius: 0,
+          fill: false,
+          order: 0, // dibujado encima de las barras
         }],
       },
       options: {
@@ -2010,6 +2270,8 @@
             callbacks: {
               title: items => labels[items[0].dataIndex],
               label: ctx => {
+                // Ocultar tooltip de la línea de media en el label de barras
+                if (ctx.dataset.type === 'line') return ` Media: ${ctx.raw}`;
                 const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
                 const pct   = total > 0 ? Math.round((ctx.raw/total)*100) : 0;
                 return ` ${ctx.raw} incidencias (${pct}%)`;
@@ -2198,7 +2460,8 @@
   });
 
   /* ─── Chips de filtros activos ───────────────────────────────── */
-  function renderChips() { /* chips eliminados — filtros activos se muestran en el botón */ }
+  // renderChips — no-op: chips-bar eliminado del diseño
+  function renderChips() {}
 
   // Punto de entrada
   window.addEventListener('DOMContentLoaded', async () => {

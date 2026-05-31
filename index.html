@@ -1531,7 +1531,6 @@
     `;
   }
 
-  // Muestra los últimos 15 registros (o los ordenados) en #tabla-body
   // Muestra los últimos 15 registros — orden fijo, sin ordenación
   function renderTable(rows) {
     const items = [...rows].slice(-30).reverse().slice(0, 15);
@@ -1756,33 +1755,8 @@
   });
 
   /* ─── Chips de filtros activos ───────────────────────────────── */
-  function renderChips() {
-    const inc    = document.getElementById('f-incidencia').value;
-    const ciudad = document.getElementById('f-ciudad').value;
-    const rep    = document.getElementById('f-reporte').value;
-    const ini    = document.getElementById('f-fecha-ini').value;
-    const fin    = document.getElementById('f-fecha-fin').value;
-
-    const chips = [];
-    if (inc)    chips.push({ label: inc,                        clear: () => { document.getElementById('f-incidencia').value = ''; applyFilters(); } });
-    if (ciudad) chips.push({ label: ciudad,                     clear: () => { document.getElementById('f-ciudad').value = '';     applyFilters(); } });
-    if (rep)    chips.push({ label: rep,                        clear: () => { document.getElementById('f-reporte').value = '';    applyFilters(); } });
-    if (ini)    chips.push({ label: `Desde ${ini}`,             clear: () => { document.getElementById('f-fecha-ini').value = ''; setActiveRangeBtn(null); applyFilters(); } });
-    if (fin)    chips.push({ label: `Hasta ${fin}`,             clear: () => { document.getElementById('f-fecha-fin').value = ''; setActiveRangeBtn(null); applyFilters(); } });
-
-    const bar = document.getElementById('chips-bar');
-    if (chips.length === 0) { bar.classList.remove('visible'); bar.innerHTML = ''; return; }
-
-    bar.classList.add('visible');
-    bar.innerHTML = '<span style="font-size:10px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.08em">Filtros activos:</span>'
-      + chips.map((ch, i) => `
-          <span class="chip">
-            ${ch.label}
-            <button class="chip-x" onclick="window._chipClear[${i}]()" title="Quitar filtro">&times;</button>
-          </span>`).join('');
-    // Guardar funciones de limpieza en un array global accesible desde HTML
-    window._chipClear = chips.map(ch => ch.clear);
-  }
+  // renderChips — no-op: chips-bar fue eliminado del HTML
+  function renderChips() {}
 
   /* ── Ripple en botones ────────────────────────────────────── */
   document.addEventListener('click', e => {
@@ -1807,13 +1781,16 @@
     }
 
     renderOperativo();
-    await loadData();
-
-    // Quitar loading overlay
-    const overlay = document.getElementById('loading-overlay');
-    overlay.classList.add('fade-out');
-    setTimeout(() => overlay.remove(), 400);
-
+    try {
+      await loadData();
+    } finally {
+      // Siempre quitar el overlay — incluso si loadData falla
+      const overlay = document.getElementById('loading-overlay');
+      if (overlay) {
+        overlay.classList.add('fade-out');
+        setTimeout(() => overlay.remove(), 400);
+      }
+    }
   });
 </script>
   <div class="toast" id="toast"></div>

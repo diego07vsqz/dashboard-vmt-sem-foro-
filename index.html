@@ -2196,8 +2196,11 @@
       const mHora   = horaRaw.match(/(\d+):(\d+)/);
       if (!mHora) return;
       let h = parseInt(mHora[1], 10);
-      if (horaRaw.includes('p.m.') && h !== 12) h += 12;
-      if (horaRaw.includes('a.m.') && h === 12) h  = 0;
+      // Detectar pm/am con o sin espacios ('p.m.', 'p. m.', 'pm')
+      const isPM = /p\.?\s*m\.?/.test(horaRaw);
+      const isAM = /a\.?\s*m\.?/.test(horaRaw);
+      if (isPM && h !== 12) h += 12;
+      if (isAM && h === 12) h  = 0;
       if (h < 0 || h > 23) return;
 
       const fecha = parseSheetDate(r.fecha);
@@ -2301,7 +2304,7 @@
       const tipo  = cell.dataset.tipo;
       const dia   = cell.dataset.dia;
       const count = +cell.dataset.count;
-      const lbl   = h === 0 ? '12:00 am' : h < 12 ? `${h}:00 am` : h === 12 ? '12:00 pm' : `${h-12}:00 pm`;
+      const lbl   = h === 0 ? '12:00 am' : h < 12 ? `${h}:00 am` : h === 12 ? '12:00 pm' : `${h-12}:00 pm`; // idéntico a fmtHour
       const label = esModoResumen ? `Promedio: ${disp} inc.` : `${disp} incidencia${count !== 1 ? 's' : ''}`;
       tooltip.innerHTML =
         `<strong>${dia} · ${lbl}</strong><br>` +
@@ -2324,10 +2327,9 @@
     }));
     const maxDayIdx  = byDay.indexOf(Math.max(...byDay));
     const maxHourIdx = byHour.indexOf(Math.max(...byHour));
-    const maxHourLbl = maxHourIdx === 0  ? '12:00 am'
-                     : maxHourIdx < 12  ? `${maxHourIdx}:00 am`
-                     : maxHourIdx === 12 ? '12:00 pm'
-                     : `${maxHourIdx-12}:00 pm`;
+    // fmtHour — misma lógica que el tooltip para garantizar consistencia
+    const fmtHour  = h => h === 0 ? '12:00 am' : h < 12 ? `${h}:00 am` : h === 12 ? '12:00 pm' : `${h-12}:00 pm`;
+    const maxHourLbl = fmtHour(maxHourIdx);
     const topTipos   = Object.entries(tipoTotal).sort((a,b)=>b[1]-a[1]).slice(0,3);
     const topTipoMax = topTipos[0]?.[1] || 1;
     const prefix     = esModoResumen ? '~' : '';

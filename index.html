@@ -2045,10 +2045,7 @@
         ).join('')
       : '<div class="empty">Sin datos</div>';
 
-    // Calcular media para la línea de referencia
-    const media = values.length ? Math.round(values.reduce((a,b)=>a+b,0)/values.length) : 0;
-
-    // Gráfica de barras con línea de media superpuesta
+    // Gráfica de barras
     if (chartBar) chartBar.destroy();
     chartBar = new Chart(document.getElementById('chart-bar'), {
       type: 'bar',
@@ -2062,17 +2059,6 @@
           borderRadius: 5,
           barPercentage: 0.65,
           categoryPercentage: 0.75,
-        }, {
-          // Línea de media — dataset secundario tipo line
-          type: 'line',
-          label: `Media (${media})`,
-          data: values.map(() => media),
-          borderColor: 'rgba(100,116,139,.55)',
-          borderWidth: 1.5,
-          borderDash: [5, 4],
-          pointRadius: 0,
-          fill: false,
-          order: 0, // dibujado encima de las barras
         }],
       },
       options: {
@@ -2091,8 +2077,6 @@
             callbacks: {
               title: items => labels[items[0].dataIndex],
               label: ctx => {
-                // Ocultar tooltip de la línea de media en el label de barras
-                if (ctx.dataset.type === 'line') return ` Media: ${ctx.raw}`;
                 const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
                 const pct   = total > 0 ? Math.round((ctx.raw/total)*100) : 0;
                 return ` ${ctx.raw} incidencias (${pct}%)`;

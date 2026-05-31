@@ -2324,7 +2324,10 @@
     }));
     const maxDayIdx  = byDay.indexOf(Math.max(...byDay));
     const maxHourIdx = byHour.indexOf(Math.max(...byHour));
-    const maxHourLbl = maxHourIdx < 12 ? `${maxHourIdx}:00 am` : `${maxHourIdx-12}:00 pm`;
+    const maxHourLbl = maxHourIdx === 0  ? '12:00 am'
+                     : maxHourIdx < 12  ? `${maxHourIdx}:00 am`
+                     : maxHourIdx === 12 ? '12:00 pm'
+                     : `${maxHourIdx-12}:00 pm`;
     const topTipos   = Object.entries(tipoTotal).sort((a,b)=>b[1]-a[1]).slice(0,3);
     const topTipoMax = topTipos[0]?.[1] || 1;
     const prefix     = esModoResumen ? '~' : '';

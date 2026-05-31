@@ -1038,29 +1038,22 @@
     /* ══ Gráfica de tendencia temporal ════════════════════════════ */
     .chart-box { position: relative; }
 
-    /* ══ Mapa de calor días × horas (estilo Power BI) ════════════
-       Grilla de 7 columnas (días) × 24 filas (horas).
-       El color de cada celda va de blanco (0) a azul oscuro (máximo).
-       Al pasar el mouse se muestra un tooltip con el detalle exacto.
+    /* ══ Diagrama de actividad horaria — días × horas ════════════
+       Grilla 24h × 7 días. Color: verde (poco) → amarillo → rojo (mucho).
+       Incluye leyenda visual con los 3 niveles, rango de fechas visible
+       y resumen gerencial fijo en la parte inferior.
     ═══════════════════════════════════════════════════════════════ */
-    .heatmap-wrap {
-      overflow-x: auto;
-      padding-bottom: 8px;
-    }
+    .heatmap-wrap   { overflow-x: auto; padding-bottom: 8px; }
     .heatmap-container {
       display: grid;
-      /* col etiquetas horas + 7 días de la semana */
       grid-template-columns: 52px repeat(7, 1fr);
-      gap: 3px;
-      min-width: 520px;
+      gap: 3px; min-width: 520px;
     }
     .hm-header {
-      font-size: 10px; font-weight: 700;
-      color: var(--text-light); text-transform: uppercase;
-      letter-spacing: .06em; text-align: center;
-      padding: 4px 0 8px;
+      font-size: 10px; font-weight: 700; color: var(--text-light);
+      text-transform: uppercase; letter-spacing: .06em;
+      text-align: center; padding: 4px 0 8px;
     }
-    .hm-header:first-child { /* esquina vacía */ }
     .hm-row-label {
       font-size: 10px; font-family: 'JetBrains Mono', monospace;
       color: var(--text-light); text-align: right;
@@ -1068,58 +1061,87 @@
       display: flex; align-items: center; justify-content: flex-end;
     }
     .hm-cell {
-      height: 22px; border-radius: 4px;
-      cursor: default; transition: transform .1s, opacity .1s;
-      position: relative;
+      height: 22px; border-radius: 4px; cursor: default;
+      transition: transform .1s, filter .1s; position: relative;
     }
-    .hm-cell:hover { transform: scale(1.15); opacity: .9; z-index: 10; }
+    .hm-cell:hover { transform: scale(1.18); filter: brightness(.88); z-index: 10; }
 
-    /* Tooltip del heatmap */
+    /* Tooltip flotante del heatmap */
     .hm-tooltip {
       position: fixed;
       background: #1e293b; color: #f1f5f9;
       font-size: 11px; font-family: 'Inter', sans-serif;
-      padding: 7px 12px; border-radius: 10px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.3);
+      padding: 8px 13px; border-radius: 10px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.3);
       pointer-events: none; z-index: 999;
-      white-space: nowrap; display: none;
-      line-height: 1.6;
+      white-space: nowrap; display: none; line-height: 1.7;
     }
 
-    /* Leyenda del heatmap */
+    /* Leyenda de 3 niveles con muescas de color */
     .hm-legend {
-      display: flex; align-items: center; gap: 8px;
-      margin-top: 14px; font-size: 11px; color: var(--text-mid);
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 14px; font-size: 11px; flex-wrap: wrap;
     }
-    .hm-legend-bar {
-      width: 140px; height: 10px; border-radius: 5px;
-      background: linear-gradient(to right, #eff6ff, #0033a0);
+    .hm-legend-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--text-mid);
     }
-    .hm-legend-labels {
-      display: flex; justify-content: space-between;
-      width: 140px; font-size: 9px;
-      color: var(--text-light); font-family: 'JetBrains Mono', monospace;
+    .hm-legend-dot {
+      width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0;
     }
 
-    /* Resumen debajo del heatmap */
+    /* Banda de fechas visible */
+    .hm-date-band {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; color: var(--text-light);
+      background: var(--bg-page); border-radius: var(--r-sm);
+      padding: 5px 12px; margin-bottom: 14px;
+      border: 1px solid var(--border);
+    }
+    .hm-date-band strong { color: var(--text-mid); font-weight: 600; }
+
+    /* Panel de resumen gerencial */
     .hm-summary {
-      display: flex; gap: 24px; flex-wrap: wrap;
-      margin-top: 16px; padding-top: 14px;
-      border-top: 1px solid var(--border);
+      margin-top: 16px; padding: 14px 16px;
+      background: var(--bg-page); border-radius: var(--r-lg);
+      border: 1px solid var(--border);
     }
-    .hm-stat {
-      display: flex; flex-direction: column; gap: 2px;
+    .hm-summary-title {
+      font-size: 9px; font-weight: 800; color: var(--text-light);
+      text-transform: uppercase; letter-spacing: .1em; margin-bottom: 12px;
     }
+    .hm-stats-row {
+      display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .hm-stat { display: flex; flex-direction: column; gap: 2px; }
     .hm-stat-val {
       font-size: 20px; font-weight: 800;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--flag-blue);
+      font-family: 'JetBrains Mono', monospace; color: var(--flag-blue);
     }
     .hm-stat-lbl {
-      font-size: 10px; font-weight: 600;
-      color: var(--text-light); text-transform: uppercase;
-      letter-spacing: .07em;
+      font-size: 10px; font-weight: 600; color: var(--text-light);
+      text-transform: uppercase; letter-spacing: .07em;
     }
+    /* Listado de incidencias frecuentes en el resumen */
+    .hm-top-list {
+      display: flex; flex-direction: column; gap: 6px; margin-top: 10px;
+      padding-top: 10px; border-top: 1px solid var(--border);
+    }
+    .hm-top-item {
+      display: flex; align-items: center; gap: 8px; font-size: 12px;
+    }
+    .hm-top-rank {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--flag-blue); color: #fff;
+      font-size: 10px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .hm-top-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .hm-top-bar      { height: 100%; border-radius: 3px; background: var(--flag-blue); }
+    .hm-top-val      { font-size: 11px; font-weight: 700; color: var(--text-mid); min-width: 28px; text-align: right; }
+
+    /* Modo oscuro */
     [data-theme="dark"] .hm-tooltip { background: #0f172a; }
 
   </style>
@@ -1357,7 +1379,7 @@
         <rect x="3" y="3" width="18" height="18" rx="2"/>
         <path d="M3 9h18M9 21V9"/>
       </svg>
-      MAPA DE CALOR
+      ACTIVIDAD
     </button>
   </div>
 </div>
@@ -1464,47 +1486,65 @@
   </main>
 </div>
 
-<!-- ── Pestaña: Mapa de calor Días × Horas (estilo Power BI) ─ -->
+<!-- ── Pestaña: Diagrama de Actividad Horaria ──────────────── -->
 <div class="tab-panel" id="panel-tendencia">
   <main class="main">
     <div class="card" style="margin-bottom:0">
 
-      <!-- Encabezado con título y descripción -->
-      <div style="margin-bottom:16px">
+      <!-- Encabezado -->
+      <div style="margin-bottom:4px">
         <div class="card-title" style="margin-bottom:6px">
-          MAPA DE CALOR &mdash; INCIDENCIAS POR DÍA Y HORA
+          DIAGRAMA DE ACTIVIDAD HORARIA
         </div>
-        <p style="font-size:12px;color:var(--text-light);line-height:1.6;max-width:700px">
-          Cada celda muestra cu&aacute;ntas incidencias ocurrieron en ese
-          <strong style="color:var(--text-mid)">d&iacute;a de la semana</strong> y
-          <strong style="color:var(--text-mid)">franja horaria</strong>.
-          Color m&aacute;s intenso = m&aacute;s incidencias.
-          &Uacute;til para identificar los momentos de mayor actividad
-          y planificar la cobertura operativa.
+        <p style="font-size:12px;color:var(--text-light);line-height:1.6;max-width:680px;margin-bottom:0">
+          Muestra en qu&eacute; <strong style="color:var(--text-mid)">d&iacute;a de la semana</strong>
+          y a qu&eacute; <strong style="color:var(--text-mid)">hora</strong> se registran m&aacute;s
+          incidencias. Verde = poca actividad &nbsp;&bull;&nbsp; Amarillo = actividad moderada
+          &nbsp;&bull;&nbsp; Rojo = alta actividad.
         </p>
       </div>
 
-      <!-- Tooltip flotante (se mueve con el mouse) -->
+      <!-- Banda de fechas visible -->
+      <div class="hm-date-band" id="hm-date-band">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8"  y1="2" x2="8"  y2="6"/>
+          <line x1="3"  y1="10" x2="21" y2="10"/>
+        </svg>
+        <span id="hm-date-text">Calculando fechas...</span>
+      </div>
+
+      <!-- Tooltip flotante -->
       <div class="hm-tooltip" id="hm-tooltip"></div>
 
-      <!-- Grilla del heatmap — renderizada por JS -->
+      <!-- Grilla — generada por JS -->
       <div class="heatmap-wrap">
         <div class="heatmap-container" id="heatmap-grid"></div>
       </div>
 
-      <!-- Leyenda de escala de color -->
-      <div class="hm-legend" style="margin-top:14px">
-        <span>Sin incidencias</span>
-        <div>
-          <div class="hm-legend-bar"></div>
-          <div class="hm-legend-labels">
-            <span>0</span><span id="hm-max-label">máx</span>
-          </div>
+      <!-- Leyenda de 3 niveles -->
+      <div class="hm-legend" style="margin-top:12px">
+        <span style="font-size:11px;color:var(--text-light);margin-right:4px">Nivel de actividad:</span>
+        <div class="hm-legend-item">
+          <div class="hm-legend-dot" style="background:#dcfce7;border:1px solid #bbf7d0"></div>
+          <span>Bajo</span>
         </div>
-        <span>M&aacute;ximo</span>
+        <div class="hm-legend-item">
+          <div class="hm-legend-dot" style="background:#fef08a;border:1px solid #fde047"></div>
+          <span>Moderado</span>
+        </div>
+        <div class="hm-legend-item">
+          <div class="hm-legend-dot" style="background:#ef4444;border:1px solid #dc2626"></div>
+          <span>Alto</span>
+        </div>
+        <div class="hm-legend-item" style="margin-left:8px">
+          <div class="hm-legend-dot" style="background:#f1f5f9;border:1px solid #e2e8f0"></div>
+          <span>Sin registros</span>
+        </div>
       </div>
 
-      <!-- Estadísticas de resumen -->
+      <!-- Resumen gerencial fijo -->
       <div class="hm-summary" id="hm-summary"></div>
 
     </div>
@@ -1823,7 +1863,7 @@
         document.getElementById('f-ciudad').innerHTML =
           '<option value="">TODAS LAS CIUDADES</option>' +
           ciudadesC.map(c => `<option value="${c}">${c}</option>`).join('');
-        setRange('3m');
+        setRange('mes');
         return; // salir sin fetch
       } else {
         const url   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
@@ -1847,7 +1887,7 @@
         cacheGuardar(dataset); // guarda con timestamp, count y version
       }
 
-      setRange('3m');
+      setRange('mes');
 
       const ciudades = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
       // Poblar dropdown de ciudades
@@ -1948,6 +1988,10 @@
     renderNorEx(filtered);
     renderTable(filtered);
     renderChips();
+    // Actualizar heatmap si la pestaña está visible
+    if (document.getElementById('panel-tendencia')?.classList.contains('active')) {
+      renderHeatmap(filtered);
+    }
     updateSelectStates();
     if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(filtered);
   }
@@ -2122,31 +2166,38 @@
     }).join('');
   }
 
-  /* ─── Mapa de calor días × horas ────────────────────────────────
-     Construye una grilla de 24 horas (filas) × 7 días (columnas).
-     Para cada celda cuenta las incidencias de ese día+hora en los datos
-     filtrados. El color interpola de blanco (#eff6ff) a azul oscuro
-     (#0033a0) proporcionalmente al valor máximo encontrado.
-     El tooltip muestra: día, hora, cantidad exacta y tipo predominante.
+  /* ─── Diagrama de actividad horaria ─────────────────────────────
+     Grilla 24 horas × 7 días de la semana.
+     Colores: verde (bajo) → amarillo (moderado) → rojo (alto).
+     Los umbrales se calculan dinámicamente según el máximo del período.
+     Funciona con cualquier filtro activo — siempre refleja los datos
+     actualmente filtrados.
+     Cuando se aplica "TODO", muestra un resumen/promedio en lugar
+     de los datos brutos (que serían imposibles de leer).
   ─────────────────────────────────────────────────────────────────── */
   function renderHeatmap(rows) {
     const DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
-    // getDay() devuelve 0=Domingo…6=Sábado; reordenamos a Lun=0…Dom=6
-    const dayIndex = d => (d.getDay() + 6) % 7;
+    const dayIndex = d => (d.getDay() + 6) % 7; // Lun=0 … Dom=6
 
-    // ── Construir matriz[hora 0-23][dia 0-6] con conteo e info de tipos
+    // ── Detectar si estamos en rango "TODO" por cantidad de datos
+    // Si hay más de 180 días únicos → modo resumen/promedio
+    const fechasUnicas = new Set(rows.map(r => r.fecha).filter(Boolean));
+    const esModoResumen = fechasUnicas.size > 120;
+
+    // ── Construir matriz [hora 0-23][dia 0-6]
     const matrix = Array.from({ length: 24 }, () =>
       Array.from({ length: 7 }, () => ({ count: 0, tipos: {} }))
     );
+    // Si modo resumen: contar días únicos por celda para calcular promedio
+    const diasPorCelda = Array.from({ length: 24 }, () => Array(7).fill(0));
 
     rows.forEach(r => {
-      // Parsear hora desde "8:15:00 a.m." o "14:30:00"
       const horaRaw = (r.hora || '').toLowerCase();
       const mHora   = horaRaw.match(/(\d+):(\d+)/);
       if (!mHora) return;
-      let h = parseInt(mHora[1]);
+      let h = parseInt(mHora[1], 10);
       if (horaRaw.includes('p.m.') && h !== 12) h += 12;
-      if (horaRaw.includes('a.m.') && h === 12) h = 0;
+      if (horaRaw.includes('a.m.') && h === 12) h  = 0;
       if (h < 0 || h > 23) return;
 
       const fecha = parseSheetDate(r.fecha);
@@ -2158,101 +2209,175 @@
       matrix[h][di].tipos[lbl] = (matrix[h][di].tipos[lbl] || 0) + 1;
     });
 
-    // ── Encontrar máximo para la escala de color
-    const maxVal = Math.max(...matrix.flat().map(c => c.count), 1);
-    document.getElementById('hm-max-label').textContent = maxVal;
+    // Modo resumen: dividir conteos entre semanas del período para obtener promedio
+    const totalSemanas = Math.max(1, Math.round(fechasUnicas.size / 7));
+    const displayMatrix = esModoResumen
+      ? matrix.map(fila => fila.map(c => ({
+          count: parseFloat((c.count / totalSemanas).toFixed(1)),
+          tipos: c.tipos,
+        })))
+      : matrix;
 
-    // ── Función de color: interpola de #eff6ff (0) a #0033a0 (max)
+    // ── Máximo para la escala de color
+    const maxVal = Math.max(...displayMatrix.flat().map(c => c.count), 1);
+
+    // ── Umbrales dinámicos: 33% = bajo→mod, 66% = mod→alto
+    const th1 = maxVal * 0.33; // verde → amarillo
+    const th2 = maxVal * 0.66; // amarillo → rojo
+
+    // ── Función de color verde→amarillo→rojo
     function heatColor(val) {
-      if (val === 0) return '#f8fafc';
+      if (val === 0) return '#f1f5f9'; // sin registros
       const t = val / maxVal;
-      // Interpolación en RGB: #eff6ff → #0033a0
-      const r = Math.round(239 + (0   - 239) * t);
-      const g = Math.round(246 + (51  - 246) * t);
-      const b = Math.round(255 + (160 - 255) * t);
+      let r, g, b;
+      if (t <= 0.5) {
+        // Verde (#16a34a) → Amarillo (#eab308)
+        const s = t / 0.5;
+        r = Math.round(22  + (234 - 22)  * s);
+        g = Math.round(163 + (179 - 163) * s);
+        b = Math.round(74  + (8   - 74)  * s);
+      } else {
+        // Amarillo (#eab308) → Rojo (#dc2626)
+        const s = (t - 0.5) / 0.5;
+        r = Math.round(234 + (220 - 234) * s);
+        g = Math.round(179 + (38  - 179) * s);
+        b = Math.round(8   + (38  - 8)   * s);
+      }
       return `rgb(${r},${g},${b})`;
     }
 
+    // ── Texto de nivel para tooltip
+    function nivelTexto(val) {
+      if (val === 0) return 'Sin registros';
+      if (val <= th1) return '🟢 Actividad baja';
+      if (val <= th2) return '🟡 Actividad moderada';
+      return '🔴 Actividad alta';
+    }
+
+    // ── Banda de fechas: mostrar rango real del período filtrado
+    const fechasSorted = [...fechasUnicas].map(f => parseSheetDate(f)).filter(Boolean).sort((a,b)=>a-b);
+    const fmtDate = d => d ? d.toLocaleDateString('es-SV',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
+    const dateText = fechasSorted.length
+      ? (esModoResumen
+          ? `Promedio semanal · ${fmtDate(fechasSorted[0])} al ${fmtDate(fechasSorted[fechasSorted.length-1])} · ${totalSemanas} semanas`
+          : `${fmtDate(fechasSorted[0])} al ${fmtDate(fechasSorted[fechasSorted.length-1])} · ${fechasUnicas.size} días`)
+      : 'Sin datos';
+    const dateEl = document.getElementById('hm-date-text');
+    if (dateEl) dateEl.innerHTML = `<strong>Período:</strong> ${dateText}`;
+
     // ── Construir HTML de la grilla
     const grid = document.getElementById('heatmap-grid');
-    let html = '';
-
-    // Fila de encabezados: esquina vacía + 7 días
-    html += '<div class="hm-header"></div>';
+    let html = '<div class="hm-header"></div>';
     DIAS.forEach(d => { html += `<div class="hm-header">${d.slice(0,3)}</div>`; });
 
-    // Filas de horas (0-23)
     for (let h = 0; h < 24; h++) {
       const lbl = h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h-12}pm`;
       html += `<div class="hm-row-label">${lbl}</div>`;
       for (let d = 0; d < 7; d++) {
-        const cell  = matrix[h][d];
-        const color = heatColor(cell.count);
-        // Tipo predominante para el tooltip
-        const topTipo = Object.entries(cell.tipos)
-          .sort((a,b) => b[1]-a[1])[0]?.[0] || '—';
-        html += `<div class="hm-cell"
-          style="background:${color}"
-          data-h="${h}" data-d="${d}"
-          data-count="${cell.count}"
-          data-tipo="${topTipo}"
-          data-dia="${DIAS[d]}"
-        ></div>`;
+        const cell    = displayMatrix[h][d];
+        const color   = heatColor(cell.count);
+        const topTipo = Object.entries(cell.tipos).sort((a,b)=>b[1]-a[1])[0]?.[0] || '—';
+        const dispVal = esModoResumen ? `~${cell.count}` : cell.count;
+        html += `<div class="hm-cell" style="background:${color}"
+          data-h="${h}" data-d="${d}" data-count="${cell.count}"
+          data-disp="${dispVal}" data-tipo="${topTipo.replace(/"/g,'&quot;')}"
+          data-dia="${DIAS[d]}"></div>`;
       }
     }
     grid.innerHTML = html;
 
-    // ── Event listeners del tooltip (delegación en el grid)
+    // ── Tooltip: delegado en el grid para evitar acumulación de listeners
     const tooltip = document.getElementById('hm-tooltip');
-    grid.addEventListener('mousemove', e => {
+    // Reemplazar el elemento para limpiar listeners anteriores
+    const newGrid = grid.cloneNode(true);
+    grid.parentNode.replaceChild(newGrid, grid);
+    newGrid.innerHTML = html;
+
+    newGrid.addEventListener('mousemove', e => {
       const cell = e.target.closest('.hm-cell');
       if (!cell) { tooltip.style.display = 'none'; return; }
-      const h     = cell.dataset.h;
-      const count = cell.dataset.count;
+      const h     = +cell.dataset.h;
+      const disp  = cell.dataset.disp;
       const tipo  = cell.dataset.tipo;
       const dia   = cell.dataset.dia;
-      const lbl   = +h === 0 ? '12:00 am'
-                  : +h < 12  ? `${h}:00 am`
-                  : +h === 12 ? '12:00 pm'
-                  : `${h-12}:00 pm`;
+      const count = +cell.dataset.count;
+      const lbl   = h === 0 ? '12:00 am' : h < 12 ? `${h}:00 am` : h === 12 ? '12:00 pm' : `${h-12}:00 pm`;
+      const label = esModoResumen ? `Promedio: ${disp} inc.` : `${disp} incidencia${count !== 1 ? 's' : ''}`;
       tooltip.innerHTML =
-        `<strong>${dia} ${lbl}</strong><br>` +
-        `${count} incidencia${count != 1 ? 's' : ''}<br>` +
-        `<span style="color:#94a3b8;font-size:10px">${count > 0 ? 'Más frecuente: ' + tipo : 'Sin registros'}</span>`;
+        `<strong>${dia} · ${lbl}</strong><br>` +
+        `${label}<br>` +
+        `<span style="color:#94a3b8;font-size:10px">${nivelTexto(count)}${count > 0 ? ' · ' + tipo : ''}</span>`;
       tooltip.style.display = 'block';
-      tooltip.style.left    = (e.clientX + 14) + 'px';
-      tooltip.style.top     = (e.clientY - 10) + 'px';
+      tooltip.style.left = (e.clientX + 14) + 'px';
+      tooltip.style.top  = (e.clientY - 10) + 'px';
     });
-    grid.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    newGrid.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
 
-    // ── Estadísticas de resumen
-    const totalHoras  = rows.length;
-    // Día de la semana con más incidencias
-    const byDay = Array(7).fill(0);
-    matrix.forEach(fila => fila.forEach((c, d) => { byDay[d] += c.count; }));
-    const maxDayIdx = byDay.indexOf(Math.max(...byDay));
-    // Franja horaria con más incidencias
-    const byHour = matrix.map(fila => fila.reduce((s,c)=>s+c.count, 0));
+    // ── Resumen gerencial: stats + ranking de incidencias
+    const byDay  = Array(7).fill(0);
+    const byHour = Array(24).fill(0);
+    const tipoTotal = {};
+    displayMatrix.forEach((fila, h) => fila.forEach((c, d) => {
+      byDay[d]  += c.count;
+      byHour[h] += c.count;
+      Object.entries(c.tipos).forEach(([t,v]) => { tipoTotal[t] = (tipoTotal[t]||0)+v; });
+    }));
+    const maxDayIdx  = byDay.indexOf(Math.max(...byDay));
     const maxHourIdx = byHour.indexOf(Math.max(...byHour));
     const maxHourLbl = maxHourIdx < 12 ? `${maxHourIdx}:00 am` : `${maxHourIdx-12}:00 pm`;
+    const topTipos   = Object.entries(tipoTotal).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    const topTipoMax = topTipos[0]?.[1] || 1;
+    const prefix     = esModoResumen ? '~' : '';
+
+    const topListHTML = topTipos.map(([nombre, val], i) => {
+      const pct = Math.round((val / topTipoMax) * 100);
+      return `
+        <div class="hm-top-item">
+          <div class="hm-top-rank">${i+1}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:600;color:var(--text-mid);
+                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nombre}</div>
+            <div class="hm-top-bar-wrap"><div class="hm-top-bar" style="width:${pct}%"></div></div>
+          </div>
+          <div class="hm-top-val">${prefix}${Math.round(val)}</div>
+        </div>`;
+    }).join('');
+
+    const modeNote = esModoResumen
+      ? `<div style="font-size:10px;color:var(--text-light);margin-top:6px">
+           * Valores promedio por semana (período amplio detectado)
+         </div>`
+      : '';
 
     document.getElementById('hm-summary').innerHTML = `
-      <div class="hm-stat">
-        <div class="hm-stat-val">${totalHoras.toLocaleString('es-SV')}</div>
-        <div class="hm-stat-lbl">Total en período</div>
+      <div class="hm-summary-title">📊 Resumen del período</div>
+      <div class="hm-stats-row">
+        <div class="hm-stat">
+          <div class="hm-stat-val">${rows.length.toLocaleString('es-SV')}</div>
+          <div class="hm-stat-lbl">Total incidencias</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-val">${DIAS[maxDayIdx]}</div>
+          <div class="hm-stat-lbl">Día más activo</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-val">${maxHourLbl}</div>
+          <div class="hm-stat-lbl">Hora más activa</div>
+        </div>
+        <div class="hm-stat">
+          <div class="hm-stat-val">${Math.round(maxVal)}</div>
+          <div class="hm-stat-lbl">${esModoResumen ? 'Máx. promedio/celda' : 'Máximo en una celda'}</div>
+        </div>
       </div>
-      <div class="hm-stat">
-        <div class="hm-stat-val">${DIAS[maxDayIdx]}</div>
-        <div class="hm-stat-lbl">Día más activo</div>
-      </div>
-      <div class="hm-stat">
-        <div class="hm-stat-val">${maxHourLbl}</div>
-        <div class="hm-stat-lbl">Hora más activa</div>
-      </div>
-      <div class="hm-stat">
-        <div class="hm-stat-val">${maxVal}</div>
-        <div class="hm-stat-lbl">Máximo en una celda</div>
-      </div>
+      ${topTipos.length ? `
+        <div class="hm-top-list">
+          <div style="font-size:10px;font-weight:700;color:var(--text-light);
+                      text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">
+            Incidencias más frecuentes
+          </div>
+          ${topListHTML}
+        </div>` : ''}
+      ${modeNote}
     `;
   }
 
@@ -2457,8 +2582,8 @@
     document.getElementById('filter-main-btn').classList.remove('has-filters');
     // Cerrar el panel si estaba abierto
     closeFiltroPanel();
-    // Reaplicar filtros (sin ningún filtro activo = muestra todo)
-    applyFilters();
+    // Volver a 'Este mes' como estado neutro al limpiar
+    setRange('mes');
     showToast('🧹 Filtros limpiados');
   }
 

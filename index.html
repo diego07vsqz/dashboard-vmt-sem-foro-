@@ -1607,8 +1607,8 @@
   function cacheGuardar(data) {
     try {
       sessionStorage.setItem(CACHE_KEY, JSON.stringify({
-        ts: Date.now(),
-        count: data.length,
+        ver: CACHE_VER,  // versión para invalidar cachés viejos
+        ts:  Date.now(),
         data,
       }));
     } catch(e) {
@@ -1621,13 +1621,13 @@
     try {
       const raw = sessionStorage.getItem(CACHE_KEY);
       if (!raw) return null;
-      const { ts, data } = JSON.parse(raw);
-      // Invalidar si superó el TTL
-      if (Date.now() - ts > CACHE_TTL) {
+      const parsed = JSON.parse(raw);
+      // Invalidar si es de una versión anterior o superó el TTL
+      if (parsed.ver !== CACHE_VER || Date.now() - parsed.ts > CACHE_TTL) {
         sessionStorage.removeItem(CACHE_KEY);
         return null;
       }
-      return { ts, data };
+      return parsed;
     } catch(e) { return null; }
   }
 
@@ -1635,7 +1635,8 @@
     try {
       const raw = sessionStorage.getItem(CACHE_KEY);
       if (!raw) return null;
-      return Math.floor((Date.now() - JSON.parse(raw).ts) / 60000);
+      const { ts } = JSON.parse(raw);
+      return Math.floor((Date.now() - ts) / 60000);
     } catch(e) { return null; }
   }
 
@@ -1668,7 +1669,7 @@
     try {
       const cached = cacheLeer();
       if (cached) {
-        dataset = cached.data;
+        dataset = cached.data; // cacheLeer() ya validó ver y TTL
         const min = cacheEdad();
         const nota = min !== null ? ` (caché ~${min}m)` : ' (caché)';
         console.info(`Datos desde caché: ${dataset.length} registros, ${min} min de antigüedad`);
@@ -1686,7 +1687,7 @@
         const url   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
         const res   = await fetch(url);
         const text  = await res.text();
-        const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/);
+        const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+?)\)\s*;?\s*$/);
         if (!match) throw new Error('Formato de respuesta inesperado.');
         const json  = JSON.parse(match[1]);
         dataset = (json.table.rows || [])
@@ -1701,22 +1702,20 @@
             };
           })
           .filter(r => r.fecha || r.codigo);
-        cacheGuardar(dataset); // guarda con timestamp, count y version
       }
 
-      setRange('mes');
-
-      const ciudades = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
-      // Poblar dropdown de ciudades
-      // Poblar select de ciudades en el panel
-      const selCiudad = document.getElementById('f-ciudad');
-      const currentCiudad = selCiudad.value;
+      // Poblar select de ciudades
+      const ciudades   = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
+      const selCiudad  = document.getElementById('f-ciudad');
+      const prevCiudad = selCiudad.value;
       selCiudad.innerHTML = '<option value="">Todas las ciudades</option>' +
         ciudades.map(c => `<option value="${c}">${c}</option>`).join('');
-      selCiudad.value = currentCiudad;
+      selCiudad.value = prevCiudad;
 
-      // Guardar en caché para las próximas 15 minutos
+      // Guardar en caché (una sola vez, aquí)
       cacheGuardar(dataset);
+
+      setRange('mes');
 
       const hora = new Date().toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit' });
       document.getElementById('update-note').textContent  = `${hora} · ${dataset.length} registros`;
@@ -1856,22 +1855,21 @@
         </div>
       </div>`).join('');
 
-    // ── Count-up: animar cada número desde 0 hasta su valor real
+    // ── Count-up con rAF — evita acumulación de timers al filtrar rápido
     document.querySelectorAll('.kpi-num[data-target]').forEach(el => {
       const target   = +el.dataset.target;
-      const duration = 600;  // ms
-      const steps    = 30;   // fotogramas
-      let   step     = 0;
-      const timer = setInterval(() => {
-        step++;
-        // easeOutQuart para desacelerar al final
-        const progress = 1 - Math.pow(1 - step / steps, 4);
+      const duration = 550; // ms totales de la animación
+      const start    = performance.now();
+      let   rafId;
+      function tick(now) {
+        // Cancelar si el elemento fue removido del DOM (filtro rápido)
+        if (!el.isConnected) { cancelAnimationFrame(rafId); return; }
+        const t        = Math.min((now - start) / duration, 1);
+        const progress = 1 - Math.pow(1 - t, 4); // easeOutQuart
         el.textContent = Math.round(target * progress).toLocaleString('es-SV');
-        if (step >= steps) {
-          el.textContent = target.toLocaleString('es-SV');
-          clearInterval(timer);
-        }
-      }, duration / steps);
+        if (t < 1) rafId = requestAnimationFrame(tick);
+      }
+      rafId = requestAnimationFrame(tick);
     });
 
   }

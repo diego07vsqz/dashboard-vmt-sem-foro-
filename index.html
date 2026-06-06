@@ -63,7 +63,7 @@
       --flag-blue-soft: #00081c;
       --bg-page-chart:  #1e293b;
     }
-    [data-theme="dark"] .header { background:#020617; }
+    [data-theme="dark"] .header { background: linear-gradient(135deg, #020617 0%, #0a1628 100%); }
     [data-theme="dark"] .filter-bar { background:#0f172a; border-color:#1e293b; }
     [data-theme="dark"] .tab-bar { background:#0f172a; border-color:#1e293b; }
     [data-theme="dark"] .tab-btn { color:#64748b; }
@@ -138,10 +138,20 @@
     .loading-msg   { font-size: 11px; color: rgba(255,255,255,.4); letter-spacing: .1em; text-transform: uppercase; }
 
     /* ── Header principal (posición sticky) ─────────────── */
+    /* Header con fondo degradado sutil navy + banda tricolor inferior */
     .header {
-      background: rgba(11,17,32,.97);
-      border-bottom: 2px solid var(--yellow);
+      background: linear-gradient(135deg, #0b1120 0%, #0f2236 100%);
       position: sticky; top: 0; z-index: 100;
+      position: relative;
+    }
+    /* Banda institucional El Salvador: azul → amarillo → azul */
+    .header::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+      height: 3px;
+      background: linear-gradient(90deg,
+        var(--flag-blue) 0%, var(--flag-blue) 38%,
+        #FFD100 50%,
+        var(--flag-blue) 62%, var(--flag-blue) 100%);
     }
     .header-inner {
       max-width: 1400px; margin: 0 auto; padding: 0 32px;
@@ -284,8 +294,13 @@
     .tab-btn:hover { color: var(--flag-blue); background: var(--flag-blue-soft); }
     .tab-btn.active { color: var(--flag-blue); border-bottom-color: var(--flag-blue); }
 
-    .tab-panel        { display: none; animation: slideUp .25s ease; }
-    .tab-panel.active { display: block; }
+    /* Transición de entrada al cambiar de pestaña */
+    @keyframes tabFade {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0);   }
+    }
+    .tab-panel        { display: none; }
+    .tab-panel.active { display: block; animation: tabFade .28s cubic-bezier(.4,0,.2,1); }
 
     /* ── Contenedor principal ───────────────────────────── */
     .main { max-width: 1400px; margin: 0 auto; padding: 26px 32px 52px; }
@@ -336,8 +351,10 @@
     .kpi-card.k-blue::before   { background: var(--blue); }
     .kpi-card.k-purple::before { background: var(--purple); }
     .kpi-card.k-orange::before { background: var(--orange); }
-    /* k-slate: color neutro para el total general de todos los registros */
-    .kpi-card.k-slate::before { background: linear-gradient(180deg, #475569, #64748b); }
+    /* k-slate → acento dorado institucional para Total General (card destacada) */
+    .kpi-card.k-slate::before { background: linear-gradient(180deg, #FFD100, #c98a10); }
+    .kpi-card.k-slate .kpi-num { color: #0f2236; }
+    [data-theme="dark"] .kpi-card.k-slate .kpi-num { color: #FFD100; }
 
     .kpi-card.k-intermitencia::before {
       background: linear-gradient(180deg,
@@ -940,10 +957,16 @@
     .kpi-card {
       transition: transform .2s ease, box-shadow .2s ease;
     }
-    .kpi-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0,0,0,.09);
-    }
+    /* Hover: elevación + sombra tintada con el color de cada categoría */
+    .kpi-card:hover { transform: translateY(-3px); }
+    .kpi-card.k-yellow:hover       { box-shadow: 0 8px 24px rgba(245,158,11,.22); }
+    .kpi-card.k-red:hover          { box-shadow: 0 8px 24px rgba(239,68,68,.22); }
+    .kpi-card.k-green:hover        { box-shadow: 0 8px 24px rgba(16,185,129,.22); }
+    .kpi-card.k-blue:hover         { box-shadow: 0 8px 24px rgba(59,130,246,.22); }
+    .kpi-card.k-purple:hover       { box-shadow: 0 8px 24px rgba(139,92,246,.22); }
+    .kpi-card.k-orange:hover       { box-shadow: 0 8px 24px rgba(249,115,22,.22); }
+    .kpi-card.k-intermitencia:hover{ box-shadow: 0 8px 24px rgba(220,38,38,.20); }
+    .kpi-card.k-slate:hover        { box-shadow: 0 8px 24px rgba(255,209,0,.25); }
 
     /* ── Stagger en filas de tabla ───────────────────────────────
        Cada fila entra con un retardo escalonado de 20ms.
@@ -1004,26 +1027,10 @@
     }
     @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
 
-    /* ══ 1. KPI count-up animation ════════════════════════════════
-       Los números cuentan desde 0 al valor real en ~600ms.
-       Se activa vía JS (animateKPI) después de renderKPIs.
-       La clase .kpi-num-counting desactiva la animación CSS simple
-       mientras el JS está ejecutando el conteo.
-    ═══════════════════════════════════════════════════════════════ */
+    /* KPI number — sin transición CSS (la anima el count-up por JS) */
     .kpi-num { transition: none; }
 
-    /* ══ 2. Línea de media en gráfica de barras ════════════════════
-       Plugin annotation de Chart.js no es necesario — se dibuja
-       como dataset secundario tipo 'line'.
-    ═══════════════════════════════════════════════════════════════ */
-
-    /* ══ 3. Pestaña TENDENCIA ══════════════════════════════════════
-       Mismos estilos que las pestañas existentes — sin cambios.
-    ═══════════════════════════════════════════════════════════════ */
-
-    /* ══ 4. Barra de resumen encima de la tabla ════════════════════
-       Línea fina de contexto: "Mostrando 15 de 1,281 · Más reciente: 31/5/2026"
-    ═══════════════════════════════════════════════════════════════ */
+    /* Barra de resumen encima de la tabla de eventos */
     .tabla-summary {
       display: flex; align-items: center; justify-content: space-between;
       padding: 6px 4px 8px;

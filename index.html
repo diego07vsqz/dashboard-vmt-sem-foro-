@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1044,83 +1045,6 @@
     /* ══ Gráfica de tendencia temporal ════════════════════════════ */
     .chart-box { position: relative; }
 
-    /* ══ Búsqueda rápida en tabla ════════════════════════════════ */
-    .tabla-search-wrap {
-      position: relative; display: flex; align-items: center;
-      margin-bottom: 8px;
-    }
-    .tabla-search-icon {
-      position: absolute; left: 10px; color: var(--text-light); flex-shrink: 0; pointer-events: none;
-    }
-    .tabla-search-input {
-      width: 100%; font-family: 'Inter', sans-serif; font-size: 12px;
-      color: var(--text-dark); background: var(--bg-page);
-      border: 1px solid var(--border-mid); border-radius: var(--r-sm);
-      padding: 7px 12px 7px 32px; outline: none;
-      transition: border-color .15s, box-shadow .15s;
-    }
-    .tabla-search-input:focus { border-color: var(--flag-blue); box-shadow: 0 0 0 3px rgba(0,51,160,.07); }
-    .tabla-search-input::placeholder { color: var(--text-light); }
-    [data-theme="dark"] .tabla-search-input { background: #0f172a; border-color: #334155; color: #f1f5f9; }
-
-    /* ══ Sparklines en KPI cards ═════════════════════════════════ */
-    .kpi-spark {
-      margin-top: 6px; display: block; overflow: visible;
-    }
-    /* badge variación % */
-    .kpi-delta {
-      display: inline-flex; align-items: center; gap: 2px;
-      font-size: 10px; font-weight: 700; padding: 1px 6px;
-      border-radius: 20px; margin-top: 4px; line-height: 1.6;
-    }
-    .kpi-delta.up   { background: #ecfdf5; color: #059669; }
-    .kpi-delta.down { background: #fef2f2; color: #dc2626; }
-    .kpi-delta.flat { background: var(--bg-page); color: var(--text-light); }
-    [data-theme="dark"] .kpi-delta.up   { background: #001c0f; color: #34d399; }
-    [data-theme="dark"] .kpi-delta.down { background: #1c0000; color: #f87171; }
-
-    /* ══ Card k-slate con fondo gradiente dorado institucional ═══ */
-    .kpi-card.k-slate {
-      background: linear-gradient(135deg, #fffdf0 0%, var(--bg-white) 60%);
-    }
-    [data-theme="dark"] .kpi-card.k-slate {
-      background: linear-gradient(135deg, #1a1500 0%, var(--bg-white) 70%);
-    }
-
-    /* ══ Banner hora pico en distribución numérica ═══════════════ */
-    .pico-banner {
-      display: flex; align-items: center; gap: 8px;
-      background: linear-gradient(135deg, #fffbeb, #fef9e7);
-      border: 1px solid rgba(245,158,11,.25); border-radius: var(--r-md);
-      padding: 8px 14px; margin-bottom: 10px;
-      font-size: 11px; color: var(--text-mid);
-    }
-    .pico-banner-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--yellow); flex-shrink: 0;
-      box-shadow: 0 0 0 3px rgba(245,158,11,.2);
-    }
-    .pico-banner strong { color: #92400e; font-weight: 700; }
-    [data-theme="dark"] .pico-banner { background: #1c1400; border-color: rgba(245,158,11,.2); }
-    [data-theme="dark"] .pico-banner strong { color: #fbbf24; }
-
-    /* ══ Tab Tendencia — estilos del panel ══════════════════════ */
-    .tendencia-pico-strip {
-      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-      margin-bottom: 16px; padding: 10px 14px;
-      background: var(--bg-page); border-radius: var(--r-md);
-      border: 1px solid var(--border);
-    }
-    .tendencia-stat {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 11px; color: var(--text-mid);
-    }
-    .tendencia-stat strong { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-dark); }
-    .tendencia-divider-v { width: 1px; height: 14px; background: var(--border-mid); }
-
-    /* ══ Gráfica de tendencia — dark mode ticks ════════════════ */
-    [data-theme="dark"] #chart-tendencia { filter: invert(0); }
-
   </style>
 </head>
 
@@ -1173,8 +1097,7 @@
     <div class="header-right">
       <div class="live-pill">
         <div class="live-dot"></div>
-        <span id="live-clock" style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.04em"></span>
-        <span id="live-label" style="opacity:.6;font-size:10px">EN LÍNEA</span>
+        <span id="live-label">EN LÍNEA</span>
       </div>
       <button class="btn-fullscreen" onclick="toggleFullscreen()" id="btn-fullscreen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
@@ -1351,12 +1274,6 @@
       </svg>
       GRÁFICAS
     </button>
-    <button class="tab-btn" id="tab-tendencia" onclick="switchTab('tendencia')">
-      <svg viewBox="0 0 24 24" stroke-width="2">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-      </svg>
-      TENDENCIA
-    </button>
   </div>
 </div>
 
@@ -1413,13 +1330,6 @@
       </div>
       <div class="card">
         <div class="card-title">ÚLTIMOS EVENTOS</div>
-        <!-- Búsqueda rápida en tabla -->
-        <div class="tabla-search-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" class="tabla-search-icon">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input type="text" id="tabla-search" class="tabla-search-input" placeholder="Buscar código o dirección…" oninput="filterTabla(this.value)">
-        </div>
         <!-- Barra de contexto: registros mostrados + fecha más reciente -->
         <div class="tabla-summary" id="tabla-summary">
           <span>Mostrando <strong id="tbl-showing">—</strong> de <strong id="tbl-total">—</strong> registros</span>
@@ -1462,19 +1372,6 @@
         <div class="card-title">INCIDENCIAS POR TIPO</div>
         <div class="chart-box" style="height:340px"><canvas id="chart-bar"></canvas></div>
       </div>
-    </div>
-    <div class="footer">
-      Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte
-    </div>
-  </main>
-</div>
-
-<div class="tab-panel" id="panel-tendencia">
-  <main class="main">
-    <div class="card full-width" style="margin-bottom:20px">
-      <div class="card-title" id="tendencia-title">EVOLUCIÓN MENSUAL DE INCIDENCIAS</div>
-      <div id="tendencia-pico-banner"></div>
-      <div style="position:relative;height:360px"><canvas id="chart-tendencia"></canvas></div>
     </div>
     <div class="footer">
       Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte
@@ -1910,14 +1807,12 @@
     });
 
     lastFilteredRows = filtered;
-    renderKPIsEnhanced(filtered);
+    renderKPIs(filtered);
     renderNorEx(filtered);
     renderTable(filtered);
     renderChips();
     updateSelectStates();
-    animateUpdateCount(filtered.length);
     if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(filtered);
-    if (document.getElementById('panel-tendencia').classList.contains('active')) renderTrend(filtered);
   }
 
   /* Marca con .is-active los selects que tienen un valor distinto del default */
@@ -2111,8 +2006,7 @@
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-'   + name)?.classList.add('active');
     document.getElementById('panel-' + name)?.classList.add('active');
-    if (name === 'graficas'  && lastFilteredRows.length) renderCharts(lastFilteredRows);
-    if (name === 'tendencia' && lastFilteredRows.length) renderTrend(lastFilteredRows);
+    if (name === 'graficas'   && lastFilteredRows.length) renderCharts(lastFilteredRows);
   }
 
   /* ─── Gráficas ──────────────────────────────────────────────────
@@ -2145,12 +2039,9 @@
       return mid > 0 ? [l.slice(0, mid), l.slice(mid + 1)] : l;
     });
 
-    // Banner hora pico
-    var picoBannerHtml = buildPicoBanner(rows);
-
     // Lista numérica: dot + label + valor — muestra todos
     document.getElementById('dist-numerica').innerHTML = sorted.length
-      ? picoBannerHtml + sorted.map(([label, val]) => `
+      ? sorted.map(([label, val]) => `
           <div class="dist-item">
             <div class="dist-dot" style="background:${CHART_COLORS[label]?.border || '#94a3b8'}"></div>
             <div class="dist-label">${label}</div>
@@ -2382,314 +2273,6 @@
   // renderChips — no-op: chips-bar eliminado del diseño
   function renderChips() {}
 
-  /* ─── Reloj en tiempo real ──────────────────────────────────────
-     Actualiza #live-clock cada segundo. No toca estado de datos.
-  ─────────────────────────────────────────────────────────────────── */
-  function startClock() {
-    const el = document.getElementById('live-clock');
-    if (!el) return;
-    function tick() {
-      el.textContent = new Date().toLocaleTimeString('es-SV', {
-        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
-      }) + '\u00A0';
-    }
-    tick();
-    setInterval(tick, 1000);
-  }
-
-  /* ─── Contador animado en update-note ──────────────────────────
-     Anima el sufijo "N registros" al aplicar filtros.
-  ─────────────────────────────────────────────────────────────────── */
-  function animateUpdateCount(newCount) {
-    const el = document.getElementById('update-note');
-    if (!el) return;
-    const text     = el.textContent || '';
-    const horaPart = text.includes('\xB7') ? text.split('\xB7')[0].trim() : '';
-    const duration = 500;
-    const start    = performance.now();
-    function tick(now) {
-      if (!el.isConnected) return;
-      const t = Math.min((now - start) / duration, 1);
-      const v = Math.round(newCount * (1 - Math.pow(1 - t, 4)));
-      el.textContent = (horaPart ? horaPart + ' \xB7 ' : '') + v.toLocaleString('es-SV') + ' registros';
-      if (t < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  }
-
-  /* ─── Período anterior equivalente ─────────────────────────────
-     Devuelve los registros del dataset completo que caen en el
-     período de igual duración inmediatamente anterior al activo.
-  ─────────────────────────────────────────────────────────────────── */
-  function getPrevRows(currentRows) {
-    if (!currentRows.length) return [];
-    var fechas = currentRows.map(function(r){ return parseSheetDate(r.fecha); })
-      .filter(Boolean).map(function(d){ return d.getTime(); });
-    if (!fechas.length) return [];
-    var minMs = Math.min.apply(null, fechas);
-    var maxMs = Math.max.apply(null, fechas);
-    var span  = maxMs - minMs || 86400000;
-    var prevEnd   = new Date(minMs - 1);
-    var prevStart = new Date(minMs - span - 1);
-    return dataset.filter(function(r) {
-      var d = parseSheetDate(r.fecha);
-      return d && d >= prevStart && d <= prevEnd;
-    });
-  }
-
-  /* ─── Sparkline SVG inline ──────────────────────────────────────
-     Últimos 7 días para un keyword. Si kw === null cuenta todo.
-  ─────────────────────────────────────────────────────────────────── */
-  function buildSparkline(rows, kw, color) {
-    var today = new Date();
-    var dias  = [];
-    for (var i = 6; i >= 0; i--) {
-      var d = new Date(today);
-      d.setDate(d.getDate() - i);
-      dias.push(d);
-    }
-    var counts = dias.map(function(d) {
-      var iso = d.toISOString().slice(0, 10);
-      return rows.filter(function(r) {
-        var rd = parseSheetDate(r.fecha);
-        if (!rd) return false;
-        var match = rd.toISOString().slice(0, 10) === iso;
-        return kw ? (match && r.incidencia.toLowerCase().includes(kw)) : match;
-      }).length;
-    });
-    var W = 80, H = 22, pad = 2;
-    var maxV = Math.max.apply(null, counts.concat([1]));
-    var pts = counts.map(function(v, i) {
-      return [
-        pad + (i / (dias.length - 1)) * (W - pad * 2),
-        H - pad - ((v / maxV) * (H - pad * 2))
-      ];
-    });
-    var d = pts.map(function(p, i) {
-      return (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1);
-    }).join(' ');
-    var areaClose = ' L' + pts[pts.length-1][0].toFixed(1) + ',' + H +
-      ' L' + pts[0][0].toFixed(1) + ',' + H + ' Z';
-    return '<svg class="kpi-spark" width="' + W + '" height="' + H +
-      '" viewBox="0 0 ' + W + ' ' + H + '" aria-hidden="true">' +
-      '<path d="' + d + areaClose + '" fill="' + color + '" fill-opacity="0.12" stroke="none"/>' +
-      '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="1.8"' +
-      ' stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  }
-
-  /* ─── Badge variación % ─────────────────────────────────────────*/
-  function buildDeltaBadge(curr, prev) {
-    if (prev === 0 && curr === 0) return '<span class="kpi-delta flat">\u2014 Sin cambio</span>';
-    if (prev === 0) return '<span class="kpi-delta up">\u2191 Nuevo</span>';
-    var pct = Math.round(((curr - prev) / prev) * 100);
-    if (pct > 0)  return '<span class="kpi-delta up">\u2191 ' + pct + '%</span>';
-    if (pct < 0)  return '<span class="kpi-delta down">\u2193 ' + Math.abs(pct) + '%</span>';
-    return '<span class="kpi-delta flat">= Sin cambio</span>';
-  }
-
-  /* ─── renderKPIsEnhanced — reemplaza renderKPIs ─────────────────
-     Añade sparklines y badges sin tocar countKw ni la lógica de filtros.
-  ─────────────────────────────────────────────────────────────────── */
-  function renderKPIsEnhanced(rows) {
-    var prevRows = getPrevRows(rows);
-
-    var totalOperativo =
-      countKw(rows,'forzamiento') + countKw(rows,'apagado')      +
-      countKw(rows,'mejora')      + countKw(rows,'intermitencia') +
-      countKw(rows,'error')       + countKw(rows,'accidente')    + countKw(rows,'vdt');
-    var totalGeneral = rows.length;
-
-    var prevOp =
-      countKw(prevRows,'forzamiento') + countKw(prevRows,'apagado')      +
-      countKw(prevRows,'mejora')      + countKw(prevRows,'intermitencia') +
-      countKw(prevRows,'error')       + countKw(prevRows,'accidente')    + countKw(prevRows,'vdt');
-    var prevTotal = prevRows.length;
-
-    var SC = {
-      forzamiento:'#f59e0b', apagado:'#ef4444', mejora:'#10b981',
-      intermitencia:'#f59e0b', error:'#8b5cf6', accidente:'#ef4444', vdt:'#f97316'
-    };
-
-    var cards = [
-      { label:'FORZAMIENTO DE TIEMPOS', kw:'forzamiento',   cls:'k-yellow',        bg:'#fffbeb', icon:ICONS.forzamiento,   sc:SC.forzamiento },
-      { label:'SEМ\xC1FORO APAGADO',   kw:'apagado',       cls:'k-red',           bg:'#fef2f2', icon:ICONS.apagado,       sc:SC.apagado     },
-      { label:'MEJORA DE TIEMPOS',      kw:'mejora',        cls:'k-green',         bg:'#ecfdf5', icon:ICONS.mejora,        sc:SC.mejora      },
-      { label:'INTERMITENCIA',          kw:'intermitencia', cls:'k-intermitencia', bg:'#fff7ed', icon:ICONS.intermitencia, sc:SC.intermitencia },
-      { label:'ERROR DE COMUNICACI\xD3N', kw:'error',       cls:'k-purple',        bg:'#f5f3ff', icon:ICONS.error,         sc:SC.error       },
-      { label:'APOYO EN ACCIDENTES',    kw:'accidente',     cls:'k-red',           bg:'#fff1f2', icon:ICONS.accidente,     sc:SC.accidente   },
-      { label:'REVISI\xD3N VDT',        kw:'vdt',          cls:'k-orange',        bg:'#fff7ed', icon:ICONS.vdt,           sc:SC.vdt         },
-      { label:'TOTAL OPERATIVO',        kw:null, val:totalOperativo, prev:prevOp,    cls:'k-blue',  bg:'#eff6ff', icon:ICONS.total,       sc:'#3b82f6' },
-      { label:'TOTAL GENERAL',          kw:null, val:totalGeneral,  prev:prevTotal, cls:'k-slate', bg:'#f1f5f9', icon:ICONS.totalGeneral, sc:'#FFD100' },
-    ];
-
-    document.getElementById('kpi-grid').innerHTML = cards.map(function(c) {
-      var val   = c.val !== undefined ? c.val : countKw(rows, c.kw);
-      var prev  = c.prev !== undefined ? c.prev : countKw(prevRows, c.kw);
-      var spark = buildSparkline(rows, c.kw, c.sc);
-      var delta = buildDeltaBadge(val, prev);
-      return '<div class="kpi-card ' + c.cls + '" data-val="' + val + '">' +
-        '<div class="kpi-icon" style="background:' + c.bg + '">' + c.icon + '</div>' +
-        '<div class="kpi-content">' +
-        '<div class="kpi-num" data-target="' + val + '">0</div>' +
-        '<div class="kpi-label">' + c.label + '</div>' +
-        delta + spark +
-        '</div></div>';
-    }).join('');
-
-    document.querySelectorAll('.kpi-num[data-target]').forEach(function(el) {
-      var target = +el.dataset.target;
-      var duration = 550, start = performance.now(), rafId;
-      function tick(now) {
-        if (!el.isConnected) { cancelAnimationFrame(rafId); return; }
-        var t  = Math.min((now - start) / duration, 1);
-        var p  = 1 - Math.pow(1 - t, 4);
-        el.textContent = Math.round(target * p).toLocaleString('es-SV');
-        if (t < 1) rafId = requestAnimationFrame(tick);
-      }
-      rafId = requestAnimationFrame(tick);
-    });
-  }
-
-  /* ─── Búsqueda rápida en tabla ──────────────────────────────────
-     Filtra filas visibles; no toca lastFilteredRows.
-  ─────────────────────────────────────────────────────────────────── */
-  function filterTabla(q) {
-    var term = (q || '').toLowerCase().trim();
-    var rows = document.querySelectorAll('#tabla-body tr');
-    var visible = 0;
-    rows.forEach(function(tr) {
-      var cells  = tr.querySelectorAll('td');
-      if (!cells.length) { tr.style.display = ''; return; }
-      var codigo = (cells[2] ? cells[2].textContent : '').toLowerCase();
-      var dir    = (cells[5] ? cells[5].textContent : '').toLowerCase();
-      var show   = !term || codigo.includes(term) || dir.includes(term);
-      tr.style.display = show ? '' : 'none';
-      if (show) visible++;
-    });
-    var showEl = document.getElementById('tbl-showing');
-    if (showEl) showEl.textContent = (term ? visible : Math.min(rows.length, 15)).toLocaleString('es-SV');
-  }
-
-  /* ─── Banner hora pico para distribución numérica ───────────────*/
-  function buildPicoBanner(rows) {
-    if (!rows.length) return '';
-    var buckets = {};
-    rows.forEach(function(r) {
-      var h = parseInt((r.hora || '00:00').split(':')[0], 10);
-      if (isNaN(h)) return;
-      var franja = Math.floor(h / 2) * 2;
-      var key = ('0'+franja).slice(-2)+':00 \u2013 '+('0'+(franja+2)).slice(-2)+':00';
-      buckets[key] = (buckets[key] || 0) + 1;
-    });
-    var entries = Object.entries(buckets).sort(function(a,b){ return b[1]-a[1]; });
-    if (!entries.length) return '';
-    var hora = entries[0][0], cnt = entries[0][1];
-    var pct = ((cnt / rows.length) * 100).toFixed(0);
-    return '<div class="pico-banner"><div class="pico-banner-dot"></div>' +
-      '<span>Hora pico: <strong>' + hora + '</strong></span>' +
-      '<span style="color:var(--text-light)">\xB7</span>' +
-      '<span><strong>' + cnt + '</strong> incidencias (' + pct + '% del total)</span></div>';
-  }
-
-  /* ─── Tab Tendencia — línea mensual ─────────────────────────────*/
-  var chartTrend = null;
-
-  function renderTrend(rows) {
-    if (!rows.length) return;
-    var byMonth = {};
-    rows.forEach(function(r) {
-      var d = parseSheetDate(r.fecha);
-      if (!d) return;
-      var key = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2);
-      byMonth[key] = (byMonth[key] || 0) + 1;
-    });
-    var sorted = Object.entries(byMonth).sort(function(a,b){ return a[0].localeCompare(b[0]); });
-    var labels = sorted.map(function(e) {
-      var parts = e[0].split('-');
-      return new Date(+parts[0], +parts[1]-1, 1).toLocaleDateString('es-SV',{month:'short',year:'2-digit'});
-    });
-    var values  = sorted.map(function(e){ return e[1]; });
-    var maxVal  = Math.max.apply(null, values.concat([1]));
-    var maxIdx  = values.indexOf(maxVal);
-    var picoLabel = labels[maxIdx] || '\u2014';
-
-    var bannerEl = document.getElementById('tendencia-pico-banner');
-    if (bannerEl) {
-      var total = values.reduce(function(a,b){return a+b;},0);
-      bannerEl.innerHTML = '<div class="tendencia-pico-strip">' +
-        '<div class="tendencia-stat"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" width="14" height="14" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>' +
-        '<span>Mes pico: <strong>' + picoLabel + '</strong></span></div>' +
-        '<div class="tendencia-divider-v"></div>' +
-        '<div class="tendencia-stat"><span>M\xe1x. <strong>' + maxVal + '</strong> incidencias</span></div>' +
-        '<div class="tendencia-divider-v"></div>' +
-        '<div class="tendencia-stat"><span>Per\xedodo: <strong>' + (labels[0]||'\u2014') + '</strong> \u2192 <strong>' + (labels[labels.length-1]||'\u2014') + '</strong></span></div>' +
-        '<div class="tendencia-divider-v"></div>' +
-        '<div class="tendencia-stat"><span>Total: <strong>' + total.toLocaleString('es-SV') + '</strong></span></div>' +
-        '</div>';
-    }
-
-    var isDark   = document.documentElement.getAttribute('data-theme') === 'dark';
-    var gridCol  = isDark ? '#1e293b' : '#e5e7eb';
-    var textCol  = isDark ? '#94a3b8' : '#374151';
-    var fillCol  = isDark ? 'rgba(0,51,160,0.15)' : 'rgba(0,51,160,0.08)';
-    var dotColors = labels.map(function(_,i){ return i === maxIdx ? '#FFD100' : '#0033a0'; });
-
-    if (chartTrend) { chartTrend.destroy(); chartTrend = null; }
-    chartTrend = new Chart(document.getElementById('chart-tendencia'), {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: values,
-          borderColor: '#0033a0',
-          backgroundColor: fillCol,
-          borderWidth: 2.5,
-          fill: true,
-          tension: 0.35,
-          pointBackgroundColor: dotColors,
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          pointRadius: 5,
-          pointHoverRadius: 7,
-        }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#1e293b', titleColor: '#f1f5f9', bodyColor: '#94a3b8',
-            padding: 11, cornerRadius: 10,
-            titleFont: { family: 'Inter', weight: '700', size: 12 },
-            bodyFont: { family: 'Inter', size: 11 },
-            callbacks: {
-              title: function(items){ return items[0].label; },
-              label: function(ctx) {
-                var tot = values.reduce(function(a,b){return a+b;},0);
-                var pct = tot > 0 ? ((ctx.raw/tot)*100).toFixed(1) : '0';
-                return ' ' + ctx.raw + ' incidencias (' + pct + '% del per\xedodo)';
-              }
-            }
-          }
-        },
-        animation: { duration: 700, easing: 'easeOutQuart' },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: { color: gridCol },
-            ticks: { color: textCol, font: { size: 11 } },
-            title: { display: true, text: 'Incidencias', font: { size: 11, weight: '600' }, color: textCol },
-          },
-          x: {
-            grid: { display: false },
-            ticks: { color: textCol, font: { size: 11 }, maxRotation: 45, autoSkip: false },
-          }
-        }
-      }
-    });
-  }
-
-
   // Punto de entrada
   window.addEventListener('DOMContentLoaded', async () => {
     // Restaurar tema guardado
@@ -2699,7 +2282,6 @@
       document.getElementById('dark-label').textContent = 'CLARO';
     }
 
-    startClock();
     renderOperativo();
     try {
       await loadData();

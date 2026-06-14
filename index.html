@@ -1048,102 +1048,139 @@
        PESTAÑA ZONAS
     ══════════════════════════════════════════════════════════ */
 
-    /* Grid de tarjetas de ciudad */
+    /* Grid de tarjetas de ciudad — siempre 4 columnas */
     .zonas-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 0;
     }
 
-    /* Tarjeta de ciudad */
+    /* Tarjeta de ciudad — solo cabecera, sin cuerpo interno */
     .zona-card {
       border: 1.5px solid var(--border-mid);
       border-radius: var(--r-lg);
       overflow: hidden;
-      transition: box-shadow .2s, border-color .2s;
+      transition: box-shadow .2s, border-color .2s, transform .15s;
+      cursor: pointer;
     }
-    .zona-card:hover { box-shadow: 0 4px 20px rgba(0,51,160,.1); border-color: #c7d3f0; }
+    .zona-card:hover {
+      box-shadow: 0 4px 16px rgba(0,51,160,.12);
+      border-color: #c7d3f0;
+      transform: translateY(-1px);
+    }
+    .zona-card.active {
+      border-color: var(--flag-blue);
+      box-shadow: 0 0 0 2px rgba(0,51,160,.18);
+    }
 
     /* Cabecera de la tarjeta */
     .zona-card-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 16px; cursor: pointer;
-      background: var(--flag-blue-soft);
-      border-bottom: 1.5px solid transparent;
-      transition: background .15s;
+      padding: 13px 15px;
+      background: var(--bg-white);
       user-select: none;
     }
-    .zona-card-header:hover { background: #d0daf5; }
-    .zona-card.open .zona-card-header { border-bottom-color: var(--border-mid); }
+    .zona-card.active .zona-card-header { background: var(--flag-blue-soft); }
 
-    .zona-card-left  { display: flex; align-items: center; gap: 11px; }
+    .zona-card-left  { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .zona-city-icon  {
-      width: 36px; height: 36px; border-radius: var(--r-sm);
+      width: 34px; height: 34px; border-radius: var(--r-sm);
       background: var(--flag-blue); display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .zona-city-icon svg { width: 18px; height: 18px; stroke: #fff; fill: none; }
-    .zona-city-name  { font-size: 13px; font-weight: 700; color: var(--text-dark); }
-    .zona-city-sub   { font-size: 10px; color: var(--text-light); margin-top: 1px; }
+    .zona-city-icon svg { width: 16px; height: 16px; stroke: #fff; fill: none; }
+    .zona-city-name  { font-size: 12px; font-weight: 700; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .zona-city-sub   { font-size: 10px; color: var(--text-light); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .zona-card-right { display: flex; align-items: center; gap: 10px; }
+    .zona-card-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .zona-total-pill {
-      font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 800;
-      color: var(--flag-blue); background: rgba(0,51,160,.08);
-      padding: 4px 14px; border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800;
+      color: var(--flag-blue);
     }
     .zona-chevron {
       transition: transform .25s cubic-bezier(.68,-.55,.265,1.55);
-      color: var(--text-light);
+      color: var(--text-light); flex-shrink: 0;
     }
-    .zona-card.open .zona-chevron { transform: rotate(90deg); }
+    .zona-card.active .zona-chevron { transform: rotate(90deg); color: var(--flag-blue); }
 
-    /* Cuerpo expandible */
-    .zona-card-body {
-      display: none; padding: 0;
+    /* Panel de detalle a ancho completo — aparece debajo del grid */
+    #zonas-detalle {
+      margin-top: 16px;
+      border: 1.5px solid var(--flag-blue);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      animation: tabFade .22s ease;
+    }
+    .zonas-detalle-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      background: var(--flag-blue);
+      color: #fff;
+    }
+    .zonas-detalle-title {
+      font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .zonas-detalle-close {
+      cursor: pointer; opacity: .7; transition: opacity .15s;
+      background: none; border: none; color: #fff; font-size: 18px; line-height: 1;
+      padding: 2px 6px; border-radius: 4px;
+    }
+    .zonas-detalle-close:hover { opacity: 1; background: rgba(255,255,255,.15); }
+
+    /* Sub-tabla de desglose a ancho completo */
+    .zona-sub-table {
+      width: 100%; border-collapse: collapse; font-size: 12.5px;
       background: var(--bg-white);
     }
-    .zona-card.open .zona-card-body { display: block; }
-
-    /* Sub-tabla de desglose */
-    .zona-sub-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
-    .zona-sub-table colgroup col:nth-child(1) { width: 200px; }
-    .zona-sub-table colgroup col:nth-child(2) { width: auto; }
-    .zona-sub-table colgroup col:nth-child(3) { width: 140px; }
     .zona-sub-table thead th {
-      background: var(--bg-page); padding: 9px 16px;
+      background: var(--bg-page); padding: 10px 20px;
       font-size: 9px; font-weight: 800; color: var(--text-light);
       text-transform: uppercase; letter-spacing: .1em;
       border-bottom: 1.5px solid var(--border);
-      text-align: left;
+      text-align: left; white-space: nowrap;
     }
-    .zona-sub-table thead th:last-child { text-align: right; }
+    .zona-sub-table thead th:nth-child(3) { text-align: right; width: 90px; }
     .zona-sub-table tbody td {
-      padding: 10px 16px; border-bottom: 1px solid var(--border);
-      color: var(--text-mid); vertical-align: top;
+      padding: 11px 20px; border-bottom: 1px solid var(--border);
+      color: var(--text-mid); vertical-align: middle;
     }
     .zona-sub-table tbody tr:last-child td { border-bottom: none; }
     .zona-sub-table tbody tr:hover td { background: var(--bg-page); }
 
-    /* Celda de chips de códigos */
-    .zona-chips-cell { line-height: 1.8; }
+    /* Columna tipo: ancho fijo */
+    .zona-sub-table tbody td:first-child { width: 200px; white-space: nowrap; }
+    /* Columna semáforos: chips, fluye */
+    .zona-sub-table tbody td:nth-child(2) { line-height: 2; }
+    /* Columna cantidad: alineada derecha */
+    .zona-sub-table tbody td:nth-child(3) { text-align: right; white-space: nowrap; }
 
-    /* Badge de cantidad + barra */
-    .zona-count-badge {
-      font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
-      background: var(--flag-blue-soft); color: var(--flag-blue);
-      padding: 2px 10px; border-radius: 20px; display: inline-block;
+    /* Chips de semáforos */
+    .zona-chip {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+      color: var(--blue); background: var(--blue-soft);
+      padding: 2px 7px; border-radius: 5px;
+      display: inline-block; margin: 1px 3px 1px 0;
     }
+
+    /* Badge de cantidad */
+    .zona-count-badge {
+      font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800;
+      color: var(--flag-blue);
+    }
+
+    /* Barra proporcional debajo del número */
     .zona-bar-wrap {
-      height: 4px; background: var(--border-mid); border-radius: 3px;
-      margin-top: 6px; overflow: hidden;
+      height: 3px; background: var(--border-mid); border-radius: 3px;
+      margin-top: 4px; width: 60px; margin-left: auto; overflow: hidden;
     }
     .zona-bar-fill {
-      height: 100%; background: var(--flag-blue); border-radius: 3px;
-      opacity: .55; transition: width .4s ease;
+      height: 100%; background: var(--flag-blue);
+      border-radius: 3px; opacity: .5;
     }
 
-    /* Top semáforos críticos - fila con color según total */
+    /* Top semáforos críticos */
     .top-crit-row-high td { background: rgba(239,68,68,.04); }
     .top-crit-row-mid  td { background: rgba(245,158,11,.03); }
     .top-total-cell {
@@ -1159,11 +1196,13 @@
     th .sort-arrow.asc  { opacity: 1; }
     th .sort-arrow.desc { opacity: 1; }
 
-    [data-theme="dark"] .zona-card-header        { background: #0b1628; }
-    [data-theme="dark"] .zona-card-header:hover  { background: #0d1f38; }
-    [data-theme="dark"] .zona-city-name          { color: var(--text-dark); }
-    [data-theme="dark"] .zona-sub-table thead th { background: #0f172a; }
+    [data-theme="dark"] .zona-card-header           { background: #0f172a; }
+    [data-theme="dark"] .zona-card.active .zona-card-header { background: #00081c; }
+    [data-theme="dark"] .zona-city-name             { color: var(--text-dark); }
+    [data-theme="dark"] #zonas-detalle              { border-color: #3b82f6; }
+    [data-theme="dark"] .zona-sub-table thead th    { background: #0f172a; }
     [data-theme="dark"] .zona-sub-table tbody tr:hover td { background: #0f172a; }
+    [data-theme="dark"] .zona-chip { background: #172554; color: #93c5fd; }
 
   </style>
 </head>
@@ -1514,6 +1553,8 @@
     <div class="card" style="margin-bottom:20px">
       <div class="card-title">MOVIMIENTOS POR CIUDAD</div>
       <div id="zonas-ciudades"></div>
+      <!-- Panel de detalle a ancho completo -->
+      <div id="zonas-detalle" style="display:none"></div>
     </div>
 
     <!-- Top semáforos críticos -->
@@ -2335,9 +2376,17 @@
   }
 
   // ── Bloque 1: tarjetas por ciudad ────────────────────────────────
+
+  // Datos agrupados por ciudad — se guarda para mostrar detalle sin recalcular
+  let _byCiudad = {};
+
   function _renderZonasCiudades(rows) {
     const container = document.getElementById('zonas-ciudades');
-    if (!rows.length) { container.innerHTML = '<div class="empty">Sin registros para el período seleccionado</div>'; return; }
+    if (!rows.length) {
+      container.innerHTML = '<div class="empty">Sin registros para el período seleccionado</div>';
+      document.getElementById('zonas-detalle').style.display = 'none';
+      return;
+    }
 
     // Normalización de aliases de ciudad
     const CIUDAD_ALIAS = {
@@ -2346,59 +2395,37 @@
       'blvd. del ejercito/soyapango': 'Soyapango',
     };
 
-    // Agrupar por ciudad → { ciudad: [ ...rows ] }
-    const byCiudad = {};
+    // Agrupar por ciudad
+    _byCiudad = {};
     rows.forEach(r => {
       const raw = (r.ciudad || 'Sin ciudad').trim();
       const c   = CIUDAD_ALIAS[raw.toLowerCase()] || raw;
-      if (!byCiudad[c]) byCiudad[c] = [];
-      byCiudad[c].push(r);
+      if (!_byCiudad[c]) _byCiudad[c] = [];
+      _byCiudad[c].push(r);
     });
 
     // Ordenar por total descendente
-    const ciudades = Object.keys(byCiudad).sort((a, b) => byCiudad[b].length - byCiudad[a].length);
-    const maxTotal = byCiudad[ciudades[0]].length;
+    const ciudades = Object.keys(_byCiudad).sort((a, b) => _byCiudad[b].length - _byCiudad[a].length);
 
+    // Renderizar solo tarjetas compactas (sin sub-tabla interna)
     container.innerHTML = `<div class="zonas-grid">${ciudades.map(ciudad => {
-      const cityRows = byCiudad[ciudad];
+      const cityRows = _byCiudad[ciudad];
       const total    = cityRows.length;
 
-      // Desglose por tipo de incidencia → { tipo: { count, codigos: Set } }
-      const byTipo = {};
+      // Tipo más frecuente
+      const conteoTipos = {};
       cityRows.forEach(r => {
-        const t = getTipo(r.incidencia).label;
-        if (!byTipo[t]) byTipo[t] = { count: 0, codigos: new Set() };
-        byTipo[t].count++;
-        if (r.codigo) byTipo[t].codigos.add(r.codigo);
+        const lbl = getTipo(r.incidencia).label;
+        conteoTipos[lbl] = (conteoTipos[lbl] || 0) + 1;
       });
-
-      const tiposSorted = Object.entries(byTipo).sort((a, b) => b[1].count - a[1].count);
-      const maxTipo     = tiposSorted[0]?.[1]?.count || 1;
+      const tiposSorted      = Object.entries(conteoTipos).sort((a, b) => b[1] - a[1]);
       const tipoMasFrecuente = tiposSorted[0]?.[0] || '—';
-      const tipos2     = tiposSorted.length;
+      const numTipos         = tiposSorted.length;
+      const cardId           = 'zona-' + ciudad.replace(/[^a-zA-Z0-9]/g,'_');
 
-      const subRows = tiposSorted.map(([label, { count, codigos }]) => {
-        const barW   = Math.round((count / maxTipo) * 100);
-        const t      = getTipo(label);
-        const chips  = [...codigos].sort().map(cod =>
-          `<span class="code-tag" style="margin:2px 2px 2px 0;display:inline-block">${cod}</span>`
-        ).join('') || '<span style="color:var(--text-light);font-size:11px">—</span>';
-        return `<tr>
-          <td style="white-space:nowrap">
-            <span class="badge ${t.badge}">${label}</span>
-          </td>
-          <td class="zona-chips-cell">${chips}</td>
-          <td style="white-space:nowrap;text-align:right">
-            <span class="zona-count-badge">${count}</span>
-            <div class="zona-bar-wrap"><div class="zona-bar-fill" style="width:${barW}%"></div></div>
-          </td>
-        </tr>`;
-      }).join('');
-
-      const cardId = 'zona-' + ciudad.replace(/\s+/g,'_');
       return `
-        <div class="zona-card" id="${cardId}">
-          <div class="zona-card-header" onclick="toggleZonaCard('${cardId}')">
+        <div class="zona-card" id="${cardId}" onclick="toggleZonaCard('${cardId}','${ciudad.replace(/'/g,"\'")}')">
+          <div class="zona-card-header">
             <div class="zona-card-left">
               <div class="zona-city-icon">
                 <svg viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none">
@@ -2406,45 +2433,100 @@
                   <circle cx="12" cy="10" r="3"/>
                 </svg>
               </div>
-              <div>
+              <div style="min-width:0">
                 <div class="zona-city-name">${ciudad}</div>
-                <div class="zona-city-sub">${tipos2} tipo${tipos2 !== 1 ? 's' : ''} · más frecuente: <strong>${tipoMasFrecuente}</strong></div>
+                <div class="zona-city-sub">${numTipos} tipo${numTipos !== 1 ? 's' : ''} · <strong>${tipoMasFrecuente}</strong></div>
               </div>
             </div>
             <div class="zona-card-right">
               <div class="zona-total-pill">${total}</div>
-              <svg class="zona-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+              <svg class="zona-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
             </div>
           </div>
-          <div class="zona-card-body">
-            <table class="zona-sub-table">
-              <colgroup>
-                <col><col><col>
-              </colgroup>
-              <thead>
-                <tr>
-                  <th>TIPO DE INCIDENCIA</th>
-                  <th>SEMÁFOROS (CÓDIGO)</th>
-                  <th style="text-align:right">CANT.</th>
-                </tr>
-              </thead>
-              <tbody>${subRows}</tbody>
-            </table>
-          </div>
         </div>`;
     }).join('')}</div>`;
+
+    // Cerrar detalle al re-renderizar
+    document.getElementById('zonas-detalle').style.display = 'none';
   }
 
-  function toggleZonaCard(id) {
-    const card = document.getElementById(id);
-    if (!card) return;
-    const isOpen = card.classList.contains('open');
-    // Cerrar todas primero
-    document.querySelectorAll('.zona-card.open').forEach(c => c.classList.remove('open'));
-    // Abrir solo si estaba cerrada
-    if (!isOpen) card.classList.add('open');
+  function toggleZonaCard(cardId, ciudad) {
+    const card    = document.getElementById(cardId);
+    const detalle = document.getElementById('zonas-detalle');
+    const isActive = card.classList.contains('active');
+
+    // Desactivar todas
+    document.querySelectorAll('.zona-card.active').forEach(c => c.classList.remove('active'));
+
+    if (isActive) {
+      // Ya estaba abierta → cerrar panel
+      detalle.style.display = 'none';
+      return;
+    }
+
+    // Activar tarjeta seleccionada
+    card.classList.add('active');
+
+    // Construir detalle de la ciudad
+    const cityRows   = _byCiudad[ciudad] || [];
+    const byTipo     = {};
+    cityRows.forEach(r => {
+      const lbl = getTipo(r.incidencia).label;
+      if (!byTipo[lbl]) byTipo[lbl] = { count: 0, codigos: new Set(), badge: getTipo(r.incidencia).badge };
+      byTipo[lbl].count++;
+      if (r.codigo) byTipo[lbl].codigos.add(r.codigo);
+    });
+
+    const tiposSorted = Object.entries(byTipo).sort((a, b) => b[1].count - a[1].count);
+    const maxCnt      = tiposSorted[0]?.[1]?.count || 1;
+
+    const subRows = tiposSorted.map(([label, { count, codigos, badge }]) => {
+      const pct   = Math.round((count / maxCnt) * 100);
+      const chips = [...codigos].sort().map(cod =>
+        `<span class="zona-chip">${cod}</span>`
+      ).join('') || '<span style="color:var(--text-light);font-size:11px">—</span>';
+      return `<tr>
+        <td><span class="badge ${badge}">${label}</span></td>
+        <td>${chips}</td>
+        <td>
+          <span class="zona-count-badge">${count}</span>
+          <div class="zona-bar-wrap"><div class="zona-bar-fill" style="width:${pct}%"></div></div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    detalle.innerHTML = `
+      <div class="zonas-detalle-header">
+        <div class="zonas-detalle-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          ${ciudad} — ${cityRows.length} movimiento${cityRows.length !== 1 ? 's' : ''}
+        </div>
+        <button class="zonas-detalle-close" onclick="cerrarZonaDetalle()" title="Cerrar">✕</button>
+      </div>
+      <table class="zona-sub-table">
+        <thead>
+          <tr>
+            <th>TIPO DE INCIDENCIA</th>
+            <th>SEMÁFOROS (CÓDIGO)</th>
+            <th>CANT.</th>
+          </tr>
+        </thead>
+        <tbody>${subRows}</tbody>
+      </table>`;
+
+    detalle.style.display = 'block';
+    // Scroll suave al panel de detalle
+    detalle.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function cerrarZonaDetalle() {
+    document.querySelectorAll('.zona-card.active').forEach(c => c.classList.remove('active'));
+    document.getElementById('zonas-detalle').style.display = 'none';
   }
 
   // ── Bloque 2: Top semáforos críticos ─────────────────────────────

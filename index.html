@@ -1180,58 +1180,52 @@
       border-radius: 3px; opacity: .5;
     }
 
-    /* ── Top semáforos críticos ─────────────────────────────── */
+    /* ── Flechas de ordenación ──────────────────────── */
+    .sort-arrow      { font-size: 9px; opacity: .4; }
+    .sort-arrow.asc,
+    .sort-arrow.desc { opacity: 1; }
 
-    /* Filas clickeables — misma lógica que zona-card */
+    /* ── Top semáforos — tabla limpia ───────────── */
     #zonas-top-table tbody tr {
       cursor: pointer; transition: background .12s;
     }
     #zonas-top-table tbody tr:hover td { background: var(--flag-blue-soft); }
-    #zonas-top-table tbody tr.top-active td {
-      background: rgba(0,51,160,.07);
-      border-left: 3px solid var(--flag-blue);
-    }
+    #zonas-top-table tbody tr.top-active td { background: rgba(0,51,160,.07); }
     #zonas-top-table tbody tr.top-active td:first-child {
-      padding-left: 9px; /* compensa el border-left de 3px */
+      border-left: 3px solid var(--flag-blue); padding-left: 9px;
     }
 
-    /* Colores de riesgo por fila */
-    .top-crit-row-high td { background: rgba(239,68,68,.04); }
-    .top-crit-row-mid  td { background: rgba(245,158,11,.03); }
-
-    /* Celda numérica de incidencias críticas */
-    .top-num-cell {
-      font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
-      text-align: center; color: var(--text-dark);
+    /* Pill "Ver detalle" — llamada a la atención */
+    .top-ver-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+      color: var(--flag-blue); background: var(--flag-blue-soft);
+      border: 1.5px solid rgba(0,51,160,.2); border-radius: 20px;
+      padding: 4px 12px; transition: all .2s ease; white-space: nowrap;
+      pointer-events: none; /* hereda el clic de la fila */
     }
-    .top-zero { color: var(--text-light); }
-
-    /* Celda de total crítico */
-    .top-total-cell {
-      font-family: 'JetBrains Mono', monospace; font-weight: 800;
-      color: var(--flag-blue); font-size: 13px; text-align: center;
+    #zonas-top-table tbody tr:hover .top-ver-btn {
+      background: var(--flag-blue); color: #fff; border-color: var(--flag-blue);
+      box-shadow: 0 2px 10px rgba(0,51,160,.3);
     }
+    #zonas-top-table tbody tr.top-active .top-ver-btn {
+      background: var(--flag-blue); color: #fff; border-color: var(--flag-blue);
+    }
+    .top-ver-btn svg { transition: transform .2s ease; }
+    #zonas-top-table tbody tr.top-active .top-ver-btn svg { transform: rotate(90deg); }
 
-    /* Flechas de ordenación */
-    .sort-arrow       { font-size: 9px; opacity: .4; }
-    .sort-arrow.asc,
-    .sort-arrow.desc  { opacity: 1; }
-
-    /* Panel de detalle del semáforo — mismo estilo que zonas-detalle */
+    /* ── Panel de detalle del semáforo ──────────── */
     #top-detalle {
-      border: 1.5px solid var(--flag-blue);
-      border-radius: var(--r-lg);
-      overflow: hidden;
-      animation: tabFade .22s ease;
+      border: 1.5px solid var(--flag-blue); border-radius: var(--r-lg);
+      overflow: hidden; animation: tabFade .22s ease;
     }
     .top-detalle-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 20px;
-      background: var(--flag-blue); color: #fff;
+      padding: 12px 20px; background: var(--flag-blue); color: #fff;
     }
     .top-detalle-title {
-      font-size: 12px; font-weight: 700; letter-spacing: .06em;
-      text-transform: uppercase; display: flex; align-items: center; gap: 10px;
+      font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      display: flex; align-items: center; gap: 10px;
     }
     .top-detalle-close {
       cursor: pointer; opacity: .7; transition: opacity .15s;
@@ -1240,39 +1234,32 @@
     }
     .top-detalle-close:hover { opacity: 1; background: rgba(255,255,255,.15); }
 
-    /* Grid de KPIs del semáforo */
+    /* Grid de KPIs de incidencias */
     .top-detalle-kpis {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 12px; padding: 16px 20px;
-      background: var(--bg-white);
-      border-bottom: 1px solid var(--border);
+      background: var(--bg-white); border-bottom: 1px solid var(--border);
     }
     .top-kpi-item {
       display: flex; flex-direction: column; align-items: center;
-      padding: 12px 10px; border-radius: var(--r-md);
-      border: 1.5px solid var(--border-mid);
-      transition: border-color .15s, box-shadow .15s;
+      padding: 14px 10px; border-radius: var(--r-md);
+      border: 1.5px solid var(--border-mid); transition: border-color .15s, box-shadow .15s;
     }
     .top-kpi-item:hover { border-color: #c7d3f0; box-shadow: 0 2px 10px rgba(0,51,160,.08); }
     .top-kpi-label {
       font-size: 9px; font-weight: 800; color: var(--text-light);
-      text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; text-align: center;
     }
     .top-kpi-val {
-      font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 800;
+      font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 800; line-height: 1;
     }
-    .top-kpi-zero { color: var(--text-light); }
+    .top-kpi-zero { color: var(--border-mid); }
 
-    /* Historial de eventos del semáforo */
-    .top-detalle-hist {
-      background: var(--bg-white);
-    }
+    /* Historial de eventos */
     .top-detalle-hist-title {
-      padding: 10px 20px 8px;
-      font-size: 9px; font-weight: 800; color: var(--text-light);
-      text-transform: uppercase; letter-spacing: .1em;
-      border-bottom: 1px solid var(--border);
+      padding: 10px 20px 8px; font-size: 9px; font-weight: 800;
+      color: var(--text-light); text-transform: uppercase; letter-spacing: .1em;
+      border-bottom: 1px solid var(--border); background: var(--bg-white);
     }
     .top-hist-table { width: 100%; border-collapse: collapse; font-size: 12px; }
     .top-hist-table thead th {
@@ -1282,25 +1269,28 @@
       border-bottom: 1.5px solid var(--border); text-align: left;
     }
     .top-hist-table tbody td {
-      padding: 9px 16px; border-bottom: 1px solid var(--border);
-      color: var(--text-mid);
+      padding: 9px 16px; border-bottom: 1px solid var(--border); color: var(--text-mid);
     }
     .top-hist-table tbody tr:last-child td { border-bottom: none; }
     .top-hist-table tbody tr:hover td     { background: var(--bg-page); }
 
-    [data-theme="dark"] #top-detalle       { border-color: #3b82f6; }
-    [data-theme="dark"] .top-kpi-item      { border-color: #334155; }
-    [data-theme="dark"] .top-hist-table thead th { background: #0f172a; }
+    /* ── Dark mode ───────────────────────────────── */
+    [data-theme="dark"] .zona-card-header              { background: #0f172a; }
+    [data-theme="dark"] .zona-card.active .zona-card-header { background: #00081c; }
+    [data-theme="dark"] .zona-city-name                { color: var(--text-dark); }
+    [data-theme="dark"] #zonas-detalle                 { border-color: #3b82f6; }
+    [data-theme="dark"] .zona-sub-table thead th       { background: #0f172a; }
+    [data-theme="dark"] .zona-sub-table tbody tr:hover td { background: #0f172a; }
+    [data-theme="dark"] .zona-chip                     { background: #172554; color: #93c5fd; }
+    [data-theme="dark"] #top-detalle                   { border-color: #3b82f6; }
+    [data-theme="dark"] .top-kpi-item                  { border-color: #334155; }
+    [data-theme="dark"] .top-hist-table thead th       { background: #0f172a; }
     [data-theme="dark"] .top-hist-table tbody tr:hover td { background: #0f172a; }
     [data-theme="dark"] #zonas-top-table tbody tr.top-active td { background: rgba(0,51,160,.2); }
-
-    [data-theme="dark"] .zona-card-header           { background: #0f172a; }
-    [data-theme="dark"] .zona-card.active .zona-card-header { background: #00081c; }
-    [data-theme="dark"] .zona-city-name             { color: var(--text-dark); }
-    [data-theme="dark"] #zonas-detalle              { border-color: #3b82f6; }
-    [data-theme="dark"] .zona-sub-table thead th    { background: #0f172a; }
-    [data-theme="dark"] .zona-sub-table tbody tr:hover td { background: #0f172a; }
-    [data-theme="dark"] .zona-chip { background: #172554; color: #93c5fd; }
+    [data-theme="dark"] .top-ver-btn { background:#00081c; border-color:#1e3a8a; }
+    [data-theme="dark"] #zonas-top-table tbody tr:hover .top-ver-btn,
+    [data-theme="dark"] #zonas-top-table tbody tr.top-active .top-ver-btn
+      { background:#1e3a8a; border-color:#3b82f6; color:#fff; }
 
   </style>
 </head>
@@ -1658,7 +1648,7 @@
     <!-- Top semáforos críticos -->
     <div class="card">
       <div class="card-title">TOP SEMÁFOROS CRÍTICOS</div>
-      <!-- Tabla de semáforos — filas clickeables -->
+      <!-- Tabla limpia: solo Código · Ciudad · Fecha · Hora + indicador de detalle -->
       <div class="table-scroll">
         <table id="zonas-top-table">
           <thead>
@@ -1667,12 +1657,7 @@
               <th style="cursor:pointer" onclick="sortTopTable(1)">CIUDAD <span class="sort-arrow" id="sort-1">↕</span></th>
               <th style="cursor:pointer;white-space:nowrap" onclick="sortTopTable(2)">ÚLTIMA FECHA <span class="sort-arrow" id="sort-2">↕</span></th>
               <th style="cursor:pointer;white-space:nowrap" onclick="sortTopTable(3)">HORA <span class="sort-arrow" id="sort-3">↕</span></th>
-              <th style="cursor:pointer;text-align:center" onclick="sortTopTable(4)">APAGADO <span class="sort-arrow" id="sort-4">↕</span></th>
-              <th style="cursor:pointer;text-align:center" onclick="sortTopTable(5)">INTERMITENCIA <span class="sort-arrow" id="sort-5">↕</span></th>
-              <th style="cursor:pointer;text-align:center" onclick="sortTopTable(6)">ERROR COMUNIC. <span class="sort-arrow" id="sort-6">↕</span></th>
-              <th style="cursor:pointer;text-align:center" onclick="sortTopTable(7)">APOYO ACCID. <span class="sort-arrow" id="sort-7">↕</span></th>
-              <th style="cursor:pointer;text-align:center" onclick="sortTopTable(8)">FALTA SUMINIT. <span class="sort-arrow" id="sort-8">↕</span></th>
-              <th style="cursor:pointer;text-align:center;font-weight:900;color:var(--flag-blue)" onclick="sortTopTable(9)">TOTAL CRÍTICO <span class="sort-arrow" id="sort-9">↕</span></th>
+              <th style="text-align:center;color:var(--text-light);font-size:9px;letter-spacing:.08em">VER DETALLE</th>
             </tr>
           </thead>
           <tbody id="zonas-top-body"></tbody>
@@ -2469,9 +2454,9 @@
                error de comunicación, apoyo en accidentes), ordenable.
   ─────────────────────────────────────────────────────────────────── */
 
-  let _topData     = [];  // filas calculadas por _calcTopTable
-  let _topSortCol  = 9;   // columna activa por defecto: 9 = total crítico
-  let _topSortDir  = -1;  // -1 = descendente, 1 = ascendente
+  let _topData    = [];   // calculado por _calcTopTable
+  let _topSortCol = 2;   // columna por defecto: 2 = última fecha (desc)
+  let _topSortDir = -1;  // -1 = descendente, 1 = ascendente
 
   function renderZonas(rows) {
     _renderZonasCiudades(rows);
@@ -2635,12 +2620,13 @@
 
   // ── Bloque 2: Top semáforos críticos ─────────────────────────────
   //
-  // Estructura de cada entrada en _topData:
+  // _topData: array de objetos con estructura:
   //   { codigo, ciudad, ultimaFecha, ultimaHora,
   //     apagado, intermitencia, error, accidente, suministro,
-  //     total, eventos: [ ...rows del semáforo ] }
+  //     total, eventos[] }
+  //
+  // _topActiveCod: código del semáforo con detalle abierto (null = cerrado)
 
-  // Estado activo del panel de detalle (código seleccionado o null)
   let _topActiveCod = null;
 
   function _calcTopTable(rows) {
@@ -2650,48 +2636,44 @@
       const cod = (r.codigo || '').trim();
       if (!cod) return;
 
-      // Inicializar entrada si no existe
+      // Inicializar acumulador por código
       if (!byCodigo[cod]) {
         byCodigo[cod] = {
-          codigo: cod,
-          ciudad: r.ciudad || '—',
-          ultimaFecha: '',
-          ultimaHora:  '',
-          apagado:     0,
+          codigo:        cod,
+          ciudad:        r.ciudad || '—',
+          ultimaFecha:   '',
+          ultimaHora:    '',
+          apagado:       0,
           intermitencia: 0,
-          error:       0,
-          accidente:   0,
-          suministro:  0,
-          eventos:     [],
+          error:         0,
+          accidente:     0,
+          suministro:    0,
+          eventos:       [],
         };
       }
+      const e = byCodigo[cod];
+      e.eventos.push(r);
 
-      const entry = byCodigo[cod];
-      entry.eventos.push(r);
-
-      // Rastrear la fecha/hora más reciente usando parseSheetDate
-      const d = parseSheetDate(r.fecha);
-      const entryD = parseSheetDate(entry.ultimaFecha);
-      if (d && (!entryD || d >= entryD)) {
-        entry.ultimaFecha = r.fecha;
-        entry.ultimaHora  = r.hora;
+      // Rastrear fecha/hora más reciente con parseSheetDate
+      const d  = parseSheetDate(r.fecha);
+      const dp = parseSheetDate(e.ultimaFecha);
+      if (d && (!dp || d >= dp)) {
+        e.ultimaFecha = r.fecha;
+        e.ultimaHora  = r.hora;
       }
 
       // Conteo de incidencias críticas
       const inc = (r.incidencia || '').toLowerCase();
-      if (inc.includes('apagado'))       entry.apagado++;
-      if (inc.includes('intermitencia')) entry.intermitencia++;
-      if (inc.includes('error'))         entry.error++;
-      if (inc.includes('accidente'))     entry.accidente++;
-      if (inc.includes('suministro') || inc.includes('falta')) entry.suministro++;
+      if (inc.includes('apagado'))                        e.apagado++;
+      if (inc.includes('intermitencia'))                  e.intermitencia++;
+      if (inc.includes('error'))                          e.error++;
+      if (inc.includes('accidente'))                      e.accidente++;
+      if (inc.includes('suministro') || inc.includes('falta')) e.suministro++;
     });
 
-    // Total crítico = suma de las 5 categorías; filtrar solo con al menos 1
+    // Total de las 5 categorías; solo semáforos con al menos 1 incidencia crítica
     _topData = Object.values(byCodigo)
-      .map(d => ({
-        ...d,
-        total: d.apagado + d.intermitencia + d.error + d.accidente + d.suministro,
-      }))
+      .map(d => ({ ...d, total: d.apagado + d.intermitencia + d.error + d.accidente + d.suministro }))
       .filter(d => d.total > 0);
   }
 
@@ -2700,19 +2682,18 @@
     const detalle = document.getElementById('top-detalle');
 
     if (!_topData.length) {
-      body.innerHTML = `<tr><td colspan="10"><div class="empty">Sin semáforos críticos en el período</div></td></tr>`;
-      detalle.style.display = 'none';
+      body.innerHTML = `<tr><td colspan="5"><div class="empty">Sin semáforos críticos en el período</div></td></tr>`;
+      if (detalle) detalle.style.display = 'none';
       return;
     }
 
-    // Columnas mapeadas para ordenación (índice → clave del objeto)
-    const colKeys = ['codigo','ciudad','ultimaFecha','ultimaHora',
-                     'apagado','intermitencia','error','accidente','suministro','total'];
+    // Mapa de columna → clave del objeto (solo 4 columnas visibles + acción)
+    const colKeys = ['codigo', 'ciudad', 'ultimaFecha', 'ultimaHora'];
 
     const sorted = [..._topData].sort((a, b) => {
-      const av = a[colKeys[_topSortCol]];
-      const bv = b[colKeys[_topSortCol]];
-      // Ordenar fechas como objetos Date para correcta comparación
+      const av = a[colKeys[_topSortCol]] ?? '';
+      const bv = b[colKeys[_topSortCol]] ?? '';
+      // Ordenar fechas correctamente con parseSheetDate
       if (_topSortCol === 2) {
         const da = parseSheetDate(av) || new Date(0);
         const db = parseSheetDate(bv) || new Date(0);
@@ -2722,47 +2703,42 @@
       return (av - bv) * _topSortDir;
     });
 
-    // Umbral de colores de riesgo
-    const maxT = sorted[0]?.total || 1;
-
     body.innerHTML = sorted.map(d => {
-      const rowCls  = d.total >= maxT * .7 ? 'top-crit-row-high'
-                    : d.total >= maxT * .4 ? 'top-crit-row-mid' : '';
-      const isAct   = d.codigo === _topActiveCod ? 'top-active' : '';
-      const cell    = v => `<td class="top-num-cell${v === 0 ? ' top-zero' : ''}">${v === 0 ? '—' : v}</td>`;
-      // Escapar código para uso en onclick inline
-      const codEsc  = d.codigo.replace(/'/g, "\'");
-      return `<tr class="${rowCls} ${isAct}" onclick="toggleTopDetalle('${codEsc}')">
+      const isAct  = d.codigo === _topActiveCod ? 'top-active' : '';
+      const codEsc = d.codigo.replace(/'/g, "\'");
+      // Pill "Ver detalle" con chevron animado
+      const pill   = `<span class="top-ver-btn">
+        VER
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </span>`;
+      return `<tr class="${isAct}" onclick="toggleTopDetalle('${codEsc}')">
         <td><span class="code-tag">${d.codigo}</span></td>
         <td style="font-size:12px;color:var(--text-mid)">${d.ciudad}</td>
         <td style="font-size:11px;color:var(--text-mid);white-space:nowrap">${d.ultimaFecha || '—'}</td>
         <td style="font-size:11px;color:var(--text-mid);white-space:nowrap">${d.ultimaHora  || '—'}</td>
-        ${cell(d.apagado)}${cell(d.intermitencia)}${cell(d.error)}${cell(d.accidente)}${cell(d.suministro)}
-        <td class="top-total-cell">${d.total}</td>
+        <td style="text-align:center">${pill}</td>
       </tr>`;
     }).join('');
 
-    // Actualizar flechas de ordenación (ahora 10 columnas: 0–9)
-    for (let i = 0; i <= 9; i++) {
+    // Actualizar flechas (solo col 0–3 son ordenables)
+    for (let i = 0; i <= 3; i++) {
       const el = document.getElementById('sort-' + i);
       if (!el) continue;
-      el.className    = 'sort-arrow';
-      el.textContent  = i === _topSortCol ? (_topSortDir === -1 ? '↓' : '↑') : '↕';
+      el.className   = 'sort-arrow';
+      el.textContent = i === _topSortCol ? (_topSortDir === -1 ? '↓' : '↑') : '↕';
       if (i === _topSortCol) el.classList.add(_topSortDir === -1 ? 'desc' : 'asc');
     }
 
-    // Si había un detalle abierto, re-renderizarlo para mantener consistencia
+    // Mantener detalle abierto si había uno al re-ordenar
     if (_topActiveCod) _mostrarTopDetalle(_topActiveCod);
   }
 
   function sortTopTable(col) {
-    // Mismo sentido → invertir dirección; nueva columna → descendente para números, ascendente para texto
-    if (_topSortCol === col) {
-      _topSortDir *= -1;
-    } else {
-      _topSortCol = col;
-      _topSortDir = col >= 4 ? -1 : 1; // numérico desc, texto asc
-    }
+    // Mismo sentido → invertir; nueva columna → desc para col 2-3 (fechas), asc para texto
+    _topSortDir = (_topSortCol === col) ? _topSortDir * -1 : (col >= 2 ? -1 : 1);
+    _topSortCol = col;
     _renderTopTable();
   }
 
@@ -2771,10 +2747,9 @@
     const detalle = document.getElementById('top-detalle');
 
     if (_topActiveCod === codigo) {
-      // Ya estaba abierto → cerrar
+      // Misma fila → cerrar
       _topActiveCod = null;
       detalle.style.display = 'none';
-      // Quitar clase activa de todas las filas
       document.querySelectorAll('#zonas-top-body tr.top-active')
         .forEach(tr => tr.classList.remove('top-active'));
       return;
@@ -2782,11 +2757,10 @@
 
     _topActiveCod = codigo;
 
-    // Marcar fila activa visualmente
-    document.querySelectorAll('#zonas-top-body tr').forEach(tr => tr.classList.remove('top-active'));
+    // Marcar solo la fila activa
     document.querySelectorAll('#zonas-top-body tr').forEach(tr => {
       const tag = tr.querySelector('.code-tag');
-      if (tag && tag.textContent.trim() === codigo) tr.classList.add('top-active');
+      tr.classList.toggle('top-active', !!(tag && tag.textContent.trim() === codigo));
     });
 
     _mostrarTopDetalle(codigo);
@@ -2799,22 +2773,26 @@
     const entry   = _topData.find(d => d.codigo === codigo);
     if (!entry) { detalle.style.display = 'none'; return; }
 
-    // KPIs de incidencias críticas
-    const kpis = [
-      { label: 'Apagado',          val: entry.apagado,      color: 'var(--red)',    bg: 'var(--red-soft)'    },
-      { label: 'Intermitencia',    val: entry.intermitencia, color: 'var(--blue)',   bg: 'var(--blue-soft)'   },
-      { label: 'Error Comunic.',   val: entry.error,         color: 'var(--purple)', bg: 'var(--purple-soft)' },
-      { label: 'Apoyo Accidentes', val: entry.accidente,     color: 'var(--orange)', bg: 'var(--orange-soft)' },
-      { label: 'Falta Suministro', val: entry.suministro,    color: 'var(--yellow)', bg: 'var(--yellow-soft)' },
+    // 5 KPIs de incidencias críticas con color propio
+    const KPIS = [
+      { label: 'Apagado',          key: 'apagado',       color: 'var(--red)',    bg: 'var(--red-soft)'    },
+      { label: 'Intermitencia',    key: 'intermitencia',  color: 'var(--blue)',   bg: 'var(--blue-soft)'   },
+      { label: 'Error Comunic.',   key: 'error',          color: 'var(--purple)', bg: 'var(--purple-soft)' },
+      { label: 'Apoyo Accidentes', key: 'accidente',      color: 'var(--orange)', bg: 'var(--orange-soft)' },
+      { label: 'Falta Suministro', key: 'suministro',     color: 'var(--yellow)', bg: 'var(--yellow-soft)' },
     ];
 
-    const kpisHtml = kpis.map(k => `
-      <div class="top-kpi-item" style="border-color:${k.val > 0 ? k.color+'44' : ''}; background:${k.val > 0 ? k.bg : ''}">
+    const kpisHtml = KPIS.map(k => {
+      const v = entry[k.key];
+      return `<div class="top-kpi-item"
+        style="${v > 0 ? `border-color:${k.color}44;background:${k.bg}` : ''}">
         <div class="top-kpi-label">${k.label}</div>
-        <div class="top-kpi-val${k.val === 0 ? ' top-kpi-zero' : ''}" style="color:${k.val > 0 ? k.color : ''}">${k.val}</div>
-      </div>`).join('');
+        <div class="top-kpi-val${v === 0 ? ' top-kpi-zero' : ''}"
+          style="${v > 0 ? `color:${k.color}` : ''}">${v}</div>
+      </div>`;
+    }).join('');
 
-    // Historial de los últimos 20 eventos del semáforo, más reciente primero
+    // Historial: los últimos 20 eventos más recientes del semáforo
     const histRows = [...entry.eventos]
       .sort((a, b) => {
         const da = parseSheetDate(a.fecha) || new Date(0);
@@ -2828,7 +2806,7 @@
           <td style="white-space:nowrap">${r.fecha}</td>
           <td style="white-space:nowrap">${r.hora}</td>
           <td><span class="badge ${t.badge}">${t.label}</span></td>
-          <td style="font-size:11px;color:var(--text-light)">${r.reporte || '—'}</td>
+          <td style="font-size:11px">${r.reporte || '—'}</td>
           <td style="font-size:11px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
               title="${r.dir}">${r.dir || '—'}</td>
         </tr>`;
@@ -2848,25 +2826,23 @@
         <button class="top-detalle-close" onclick="cerrarTopDetalle()" title="Cerrar">✕</button>
       </div>
       <div class="top-detalle-kpis">${kpisHtml}</div>
-      <div class="top-detalle-hist">
-        <div class="top-detalle-hist-title">Historial de eventos (últimos 20)</div>
-        <div class="table-scroll">
-          <table class="top-hist-table">
-            <thead>
-              <tr>
-                <th>FECHA</th><th>HORA</th><th>INCIDENCIA</th>
-                <th>REPORTÓ</th><th>DIRECCIÓN</th>
-              </tr>
-            </thead>
-            <tbody>${histRows}</tbody>
-          </table>
-        </div>
+      <div class="top-detalle-hist-title">Historial de eventos (últimos 20)</div>
+      <div class="table-scroll">
+        <table class="top-hist-table">
+          <thead>
+            <tr>
+              <th>FECHA</th><th>HORA</th><th>INCIDENCIA</th>
+              <th>REPORTÓ</th><th>DIRECCIÓN</th>
+            </tr>
+          </thead>
+          <tbody>${histRows}</tbody>
+        </table>
       </div>`;
 
     detalle.style.display = 'block';
   }
 
-  /* Cierra el panel de detalle del semáforo */
+  /* Cierra el panel de detalle y desactiva la fila */
   function cerrarTopDetalle() {
     _topActiveCod = null;
     document.getElementById('top-detalle').style.display = 'none';

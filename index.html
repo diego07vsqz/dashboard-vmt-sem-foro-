@@ -1141,7 +1141,7 @@
       border-bottom: 1.5px solid var(--border);
       text-align: left; white-space: nowrap;
     }
-    .zona-sub-table thead th:nth-child(3) { text-align: right; width: 90px; }
+    .zona-sub-table thead th:nth-child(5) { text-align: right; width: 70px; }
     .zona-sub-table tbody td {
       padding: 11px 20px; border-bottom: 1px solid var(--border);
       color: var(--text-mid); vertical-align: middle;
@@ -1150,11 +1150,14 @@
     .zona-sub-table tbody tr:hover td { background: var(--bg-page); }
 
     /* Columna tipo: ancho fijo */
-    .zona-sub-table tbody td:first-child { width: 200px; white-space: nowrap; }
+    .zona-sub-table tbody td:first-child  { width: 190px; white-space: nowrap; }
     /* Columna semáforos: chips, fluye */
     .zona-sub-table tbody td:nth-child(2) { line-height: 2; }
+    /* Columnas fecha y hora: compactas */
+    .zona-sub-table tbody td:nth-child(3),
+    .zona-sub-table tbody td:nth-child(4) { white-space: nowrap; }
     /* Columna cantidad: alineada derecha */
-    .zona-sub-table tbody td:nth-child(3) { text-align: right; white-space: nowrap; }
+    .zona-sub-table tbody td:nth-child(5) { text-align: right; white-space: nowrap; }
 
     /* Chips de semáforos */
     .zona-chip {
@@ -2502,19 +2505,11 @@
       const cityRows = _byCiudad[ciudad];
       const total    = cityRows.length;
 
-      // Tipo más frecuente + fecha más reciente
+      // Tipo más frecuente
       const conteoTipos = {};
-      let   ultimaFechaD = null;
-      let   ultimaFechaTxt = '';
       cityRows.forEach(r => {
         const lbl = getTipo(r.incidencia).label;
         conteoTipos[lbl] = (conteoTipos[lbl] || 0) + 1;
-        // Rastrear la fecha más reciente usando parseSheetDate
-        const d = parseSheetDate(r.fecha);
-        if (d && (!ultimaFechaD || d > ultimaFechaD)) {
-          ultimaFechaD   = d;
-          ultimaFechaTxt = r.fecha;
-        }
       });
       const tiposSorted      = Object.entries(conteoTipos).sort((a, b) => b[1] - a[1]);
       const tipoMasFrecuente = tiposSorted[0]?.[0] || '—';
@@ -2534,15 +2529,6 @@
               <div style="min-width:0">
                 <div class="zona-city-name">${ciudad}</div>
                 <div class="zona-city-sub">${numTipos} tipo${numTipos !== 1 ? 's' : ''} · <strong>${tipoMasFrecuente}</strong></div>
-                ${ultimaFechaTxt ? `<div style="font-size:9px;color:var(--text-light);margin-top:2px;display:flex;align-items:center;gap:3px">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="9" height="9" style="flex-shrink:0">
-                    <rect x="3" y="4" width="18" height="18" rx="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                  </svg>
-                  Último: <strong style="color:var(--text-mid)">${ultimaFechaTxt}</strong>
-                </div>` : ''}
               </div>
             </div>
             <div class="zona-card-right">
@@ -2577,19 +2563,31 @@
     card.classList.add('active');
 
     // Construir detalle de la ciudad
-    const cityRows   = _byCiudad[ciudad] || [];
-    const byTipo     = {};
+    const cityRows = _byCiudad[ciudad] || [];
+    const byTipo   = {};
+
     cityRows.forEach(r => {
-      const lbl = getTipo(r.incidencia).label;
-      if (!byTipo[lbl]) byTipo[lbl] = { count: 0, codigos: new Set(), badge: getTipo(r.incidencia).badge };
-      byTipo[lbl].count++;
-      if (r.codigo) byTipo[lbl].codigos.add(r.codigo);
+      const t   = getTipo(r.incidencia);
+      const lbl = t.label;
+      if (!byTipo[lbl]) {
+        byTipo[lbl] = { count: 0, codigos: new Set(), badge: t.badge, ultimaFechaD: null, ultimaFecha: '', ultimaHora: '' };
+      }
+      const e = byTipo[lbl];
+      e.count++;
+      if (r.codigo) e.codigos.add(r.codigo);
+      // Rastrear la fecha/hora más reciente por tipo de incidencia
+      const d = parseSheetDate(r.fecha);
+      if (d && (!e.ultimaFechaD || d >= e.ultimaFechaD)) {
+        e.ultimaFechaD = d;
+        e.ultimaFecha  = r.fecha;
+        e.ultimaHora   = r.hora;
+      }
     });
 
     const tiposSorted = Object.entries(byTipo).sort((a, b) => b[1].count - a[1].count);
     const maxCnt      = tiposSorted[0]?.[1]?.count || 1;
 
-    const subRows = tiposSorted.map(([label, { count, codigos, badge }]) => {
+    const subRows = tiposSorted.map(([label, { count, codigos, badge, ultimaFecha, ultimaHora }]) => {
       const pct   = Math.round((count / maxCnt) * 100);
       const chips = [...codigos].sort().map(cod =>
         `<span class="zona-chip">${cod}</span>`
@@ -2597,6 +2595,8 @@
       return `<tr>
         <td><span class="badge ${badge}">${label}</span></td>
         <td>${chips}</td>
+        <td style="white-space:nowrap;font-size:11px;color:var(--text-mid)">${ultimaFecha || '—'}</td>
+        <td style="white-space:nowrap;font-size:11px;color:var(--text-light)">${ultimaHora  || '—'}</td>
         <td>
           <span class="zona-count-badge">${count}</span>
           <div class="zona-bar-wrap"><div class="zona-bar-fill" style="width:${pct}%"></div></div>
@@ -2620,7 +2620,9 @@
           <tr>
             <th>TIPO DE INCIDENCIA</th>
             <th>SEMÁFOROS (CÓDIGO)</th>
-            <th>CANT.</th>
+            <th style="white-space:nowrap">ÚLTIMA FECHA</th>
+            <th style="white-space:nowrap">HORA</th>
+            <th style="text-align:right">CANT.</th>
           </tr>
         </thead>
         <tbody>${subRows}</tbody>

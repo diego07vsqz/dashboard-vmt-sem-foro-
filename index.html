@@ -2846,8 +2846,12 @@
   function cerrarTopDetalle() {
     _topActiveCod = null;
     document.getElementById('top-detalle').style.display = 'none';
+    // Quitar clase activa de la fila
     document.querySelectorAll('#zonas-top-body tr.top-active')
       .forEach(tr => tr.classList.remove('top-active'));
+    // Scroll suave de vuelta a la tabla
+    document.getElementById('zonas-top-table')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function clearAll() {

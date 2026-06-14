@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1045,6 +1044,119 @@
     /* ══ Gráfica de tendencia temporal ════════════════════════════ */
     .chart-box { position: relative; }
 
+    /* ══════════════════════════════════════════════════════════
+       PESTAÑA ZONAS
+    ══════════════════════════════════════════════════════════ */
+
+    /* Grid de tarjetas de ciudad */
+    .zonas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    /* Tarjeta de ciudad */
+    .zona-card {
+      border: 1.5px solid var(--border-mid);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .zona-card:hover { box-shadow: 0 4px 20px rgba(0,51,160,.1); border-color: #c7d3f0; }
+
+    /* Cabecera de la tarjeta */
+    .zona-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; cursor: pointer;
+      background: var(--flag-blue-soft);
+      border-bottom: 1.5px solid transparent;
+      transition: background .15s;
+      user-select: none;
+    }
+    .zona-card-header:hover { background: #d0daf5; }
+    .zona-card.open .zona-card-header { border-bottom-color: var(--border-mid); }
+
+    .zona-card-left  { display: flex; align-items: center; gap: 11px; }
+    .zona-city-icon  {
+      width: 36px; height: 36px; border-radius: var(--r-sm);
+      background: var(--flag-blue); display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .zona-city-icon svg { width: 18px; height: 18px; stroke: #fff; fill: none; }
+    .zona-city-name  { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+    .zona-city-sub   { font-size: 10px; color: var(--text-light); margin-top: 1px; }
+
+    .zona-card-right { display: flex; align-items: center; gap: 10px; }
+    .zona-total-pill {
+      font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 800;
+      color: var(--flag-blue); background: rgba(0,51,160,.08);
+      padding: 4px 14px; border-radius: 20px;
+    }
+    .zona-chevron {
+      transition: transform .25s cubic-bezier(.68,-.55,.265,1.55);
+      color: var(--text-light);
+    }
+    .zona-card.open .zona-chevron { transform: rotate(90deg); }
+
+    /* Cuerpo expandible */
+    .zona-card-body {
+      display: none; padding: 0;
+      background: var(--bg-white);
+    }
+    .zona-card.open .zona-card-body { display: block; }
+
+    /* Sub-tabla de desglose */
+    .zona-sub-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .zona-sub-table thead th {
+      background: var(--bg-page); padding: 8px 14px;
+      font-size: 9px; font-weight: 800; color: var(--text-light);
+      text-transform: uppercase; letter-spacing: .1em;
+      border-bottom: 1.5px solid var(--border);
+      text-align: left;
+    }
+    .zona-sub-table thead th:last-child,
+    .zona-sub-table thead th:nth-child(3) { text-align: center; }
+    .zona-sub-table tbody td {
+      padding: 9px 14px; border-bottom: 1px solid var(--border);
+      color: var(--text-mid);
+    }
+    .zona-sub-table tbody tr:last-child td { border-bottom: none; }
+    .zona-sub-table tbody tr:hover td { background: var(--bg-page); }
+    .zona-sub-table tbody td:last-child { text-align: center; }
+    .zona-sub-table tbody td:nth-child(3) { text-align: center; }
+    .zona-count-badge {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+      background: var(--bg-page); color: var(--text-dark);
+      padding: 2px 10px; border-radius: 20px; display: inline-block;
+    }
+    .zona-bar-mini {
+      display: inline-block; height: 5px; border-radius: 3px;
+      background: var(--flag-blue); opacity: .5; vertical-align: middle; margin-left: 6px;
+      max-width: 80px;
+    }
+
+    /* Top semáforos críticos - fila con color según total */
+    .top-crit-row-high td { background: rgba(239,68,68,.04); }
+    .top-crit-row-mid  td { background: rgba(245,158,11,.03); }
+    .top-total-cell {
+      font-family: 'JetBrains Mono', monospace; font-weight: 800;
+      color: var(--flag-blue); font-size: 13px;
+    }
+    .top-num-cell {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+      text-align: center; color: var(--text-dark);
+    }
+    .top-zero { color: var(--text-light); }
+    .sort-arrow { font-size: 9px; opacity: .4; }
+    th .sort-arrow.asc  { opacity: 1; }
+    th .sort-arrow.desc { opacity: 1; }
+
+    [data-theme="dark"] .zona-card-header        { background: #0b1628; }
+    [data-theme="dark"] .zona-card-header:hover  { background: #0d1f38; }
+    [data-theme="dark"] .zona-city-name          { color: var(--text-dark); }
+    [data-theme="dark"] .zona-sub-table thead th { background: #0f172a; }
+    [data-theme="dark"] .zona-sub-table tbody tr:hover td { background: #0f172a; }
+
   </style>
 </head>
 
@@ -1274,6 +1386,13 @@
       </svg>
       GRÁFICAS
     </button>
+    <button class="tab-btn" id="tab-zonas" onclick="switchTab('zonas')">
+      <svg viewBox="0 0 24 24" stroke-width="2">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+      ZONAS
+    </button>
   </div>
 </div>
 
@@ -1373,6 +1492,43 @@
         <div class="chart-box" style="height:340px"><canvas id="chart-bar"></canvas></div>
       </div>
     </div>
+    <div class="footer">
+      Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte
+    </div>
+  </main>
+</div>
+
+<!-- ── Pestaña: Zonas (resumen por ciudad + top semáforos críticos) -->
+<div class="tab-panel" id="panel-zonas">
+  <main class="main">
+
+    <!-- Tarjetas por ciudad -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">MOVIMIENTOS POR CIUDAD</div>
+      <div id="zonas-ciudades"></div>
+    </div>
+
+    <!-- Top semáforos críticos -->
+    <div class="card">
+      <div class="card-title">TOP SEMÁFOROS CRÍTICOS</div>
+      <div class="table-scroll">
+        <table id="zonas-top-table">
+          <thead>
+            <tr>
+              <th style="cursor:pointer" onclick="sortTopTable(0)">CÓDIGO <span class="sort-arrow" id="sort-0">↕</span></th>
+              <th style="cursor:pointer" onclick="sortTopTable(1)">CIUDAD <span class="sort-arrow" id="sort-1">↕</span></th>
+              <th style="cursor:pointer;text-align:center" onclick="sortTopTable(2)">APAGADO <span class="sort-arrow" id="sort-2">↕</span></th>
+              <th style="cursor:pointer;text-align:center" onclick="sortTopTable(3)">INTERMITENCIA <span class="sort-arrow" id="sort-3">↕</span></th>
+              <th style="cursor:pointer;text-align:center" onclick="sortTopTable(4)">ERROR COMUNIC. <span class="sort-arrow" id="sort-4">↕</span></th>
+              <th style="cursor:pointer;text-align:center" onclick="sortTopTable(5)">APOYO ACCID. <span class="sort-arrow" id="sort-5">↕</span></th>
+              <th style="cursor:pointer;text-align:center;font-weight:900;color:var(--flag-blue)" onclick="sortTopTable(6)">TOTAL CRÍTICO <span class="sort-arrow" id="sort-6">↕</span></th>
+            </tr>
+          </thead>
+          <tbody id="zonas-top-body"></tbody>
+        </table>
+      </div>
+    </div>
+
     <div class="footer">
       Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte
     </div>
@@ -1813,6 +1969,7 @@
     renderChips();
     updateSelectStates();
     if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(filtered);
+    if (document.getElementById('panel-zonas').classList.contains('active'))    renderZonas(filtered);
   }
 
   /* Marca con .is-active los selects que tienen un valor distinto del default */
@@ -2006,7 +2163,8 @@
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-'   + name)?.classList.add('active');
     document.getElementById('panel-' + name)?.classList.add('active');
-    if (name === 'graficas'   && lastFilteredRows.length) renderCharts(lastFilteredRows);
+    if (name === 'graficas' && lastFilteredRows.length) renderCharts(lastFilteredRows);
+    if (name === 'zonas'    && lastFilteredRows.length) renderZonas(lastFilteredRows);
   }
 
   /* ─── Gráficas ──────────────────────────────────────────────────
@@ -2151,6 +2309,178 @@
       },
     });
   }
+  /* ─── Pestaña Zonas ──────────────────────────────────────────────
+     Bloque 1: tarjetas por ciudad, expandibles, con sub-tabla de
+               desglose por tipo de incidencia + código de semáforo.
+     Bloque 2: ranking de semáforos críticos (apagado, intermitencia,
+               error de comunicación, apoyo en accidentes), ordenable.
+  ─────────────────────────────────────────────────────────────────── */
+
+  let _topData     = [];  // guarda los datos para re-ordenar sin recalcular
+  let _topSortCol  = 6;   // columna activa (6 = total crítico)
+  let _topSortDir  = -1;  // -1 = desc, 1 = asc
+
+  function renderZonas(rows) {
+    _renderZonasCiudades(rows);
+    _calcTopTable(rows);
+    _renderTopTable();
+  }
+
+  // ── Bloque 1: tarjetas por ciudad ────────────────────────────────
+  function _renderZonasCiudades(rows) {
+    const container = document.getElementById('zonas-ciudades');
+    if (!rows.length) { container.innerHTML = '<div class="empty">Sin registros para el período seleccionado</div>'; return; }
+
+    // Agrupar por ciudad → { ciudad: [ ...rows ] }
+    const byCiudad = {};
+    rows.forEach(r => {
+      const c = (r.ciudad || 'Sin ciudad').trim();
+      if (!byCiudad[c]) byCiudad[c] = [];
+      byCiudad[c].push(r);
+    });
+
+    // Ordenar por total descendente
+    const ciudades = Object.keys(byCiudad).sort((a, b) => byCiudad[b].length - byCiudad[a].length);
+    const maxTotal = byCiudad[ciudades[0]].length;
+
+    container.innerHTML = `<div class="zonas-grid">${ciudades.map(ciudad => {
+      const cityRows = byCiudad[ciudad];
+      const total    = cityRows.length;
+
+      // Desglose por tipo de incidencia → { tipo: { count, codigos: Set } }
+      const byTipo = {};
+      cityRows.forEach(r => {
+        const t = getTipo(r.incidencia).label;
+        if (!byTipo[t]) byTipo[t] = { count: 0, codigos: new Set() };
+        byTipo[t].count++;
+        if (r.codigo) byTipo[t].codigos.add(r.codigo);
+      });
+
+      const tiposSorted = Object.entries(byTipo).sort((a, b) => b[1].count - a[1].count);
+      const maxTipo     = tiposSorted[0]?.[1]?.count || 1;
+      const tipoMasFrecuente = tiposSorted[0]?.[0] || '—';
+      const tipos2     = tiposSorted.length;
+
+      const subRows = tiposSorted.map(([label, { count, codigos }]) => {
+        const barW = Math.round((count / maxTipo) * 80);
+        const codigosList = [...codigos].sort().join(', ') || '—';
+        return `<tr>
+          <td><span class="badge b-gray">${label}</span></td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:var(--text-light)" title="${codigosList}">${codigosList}</td>
+          <td><span class="zona-count-badge">${count}</span><span class="zona-bar-mini" style="width:${barW}px"></span></td>
+        </tr>`;
+      }).join('');
+
+      const cardId = 'zona-' + ciudad.replace(/\s+/g,'_');
+      return `
+        <div class="zona-card" id="${cardId}">
+          <div class="zona-card-header" onclick="toggleZonaCard('${cardId}')">
+            <div class="zona-card-left">
+              <div class="zona-city-icon">
+                <svg viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+              </div>
+              <div>
+                <div class="zona-city-name">${ciudad}</div>
+                <div class="zona-city-sub">${tipos2} tipo${tipos2 !== 1 ? 's' : ''} · más frecuente: <strong>${tipoMasFrecuente}</strong></div>
+              </div>
+            </div>
+            <div class="zona-card-right">
+              <div class="zona-total-pill">${total}</div>
+              <svg class="zona-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          </div>
+          <div class="zona-card-body">
+            <table class="zona-sub-table">
+              <thead>
+                <tr>
+                  <th>TIPO DE INCIDENCIA</th>
+                  <th>SEMÁFOROS (CÓDIGO)</th>
+                  <th>CANTIDAD</th>
+                </tr>
+              </thead>
+              <tbody>${subRows}</tbody>
+            </table>
+          </div>
+        </div>`;
+    }).join('')}</div>`;
+  }
+
+  function toggleZonaCard(id) {
+    document.getElementById(id)?.classList.toggle('open');
+  }
+
+  // ── Bloque 2: Top semáforos críticos ─────────────────────────────
+  function _calcTopTable(rows) {
+    // Solo semáforos con código definido
+    const byCodigo = {};
+    rows.forEach(r => {
+      const cod = (r.codigo || '').trim();
+      if (!cod) return;
+      if (!byCodigo[cod]) byCodigo[cod] = { codigo: cod, ciudad: r.ciudad || '—', apagado: 0, intermitencia: 0, error: 0, accidente: 0 };
+      const inc = r.incidencia.toLowerCase();
+      if (inc.includes('apagado'))          byCodigo[cod].apagado++;
+      if (inc.includes('intermitencia'))    byCodigo[cod].intermitencia++;
+      if (inc.includes('error'))            byCodigo[cod].error++;
+      if (inc.includes('accidente'))        byCodigo[cod].accidente++;
+    });
+
+    // Calcular total crítico y filtrar los que tengan al menos 1
+    _topData = Object.values(byCodigo)
+      .map(d => ({ ...d, total: d.apagado + d.intermitencia + d.error + d.accidente }))
+      .filter(d => d.total > 0);
+  }
+
+  function _renderTopTable() {
+    const body = document.getElementById('zonas-top-body');
+    if (!_topData.length) {
+      body.innerHTML = `<tr><td colspan="7"><div class="empty">Sin semáforos críticos en el período</div></td></tr>`;
+      return;
+    }
+
+    // Ordenar
+    const colKeys = ['codigo','ciudad','apagado','intermitencia','error','accidente','total'];
+    const sorted  = [..._topData].sort((a, b) => {
+      const av = a[colKeys[_topSortCol]];
+      const bv = b[colKeys[_topSortCol]];
+      if (typeof av === 'string') return av.localeCompare(bv) * _topSortDir;
+      return (av - bv) * _topSortDir;
+    });
+
+    // Umbral para color de fila
+    const maxT = sorted[0]?.total || 1;
+
+    body.innerHTML = sorted.map(d => {
+      const rowCls = d.total >= maxT * .7 ? 'top-crit-row-high' : d.total >= maxT * .4 ? 'top-crit-row-mid' : '';
+      const cell   = v => `<td class="top-num-cell${v === 0 ? ' top-zero' : ''}">${v === 0 ? '—' : v}</td>`;
+      return `<tr class="${rowCls}">
+        <td><span class="code-tag">${d.codigo}</span></td>
+        <td style="font-size:12px;color:var(--text-mid)">${d.ciudad}</td>
+        ${cell(d.apagado)}${cell(d.intermitencia)}${cell(d.error)}${cell(d.accidente)}
+        <td class="top-total-cell" style="text-align:center">${d.total}</td>
+      </tr>`;
+    }).join('');
+
+    // Actualizar flechas de ordenación
+    for (let i = 0; i <= 6; i++) {
+      const el = document.getElementById('sort-' + i);
+      if (!el) continue;
+      el.className = 'sort-arrow';
+      if (i === _topSortCol) el.classList.add(_topSortDir === -1 ? 'desc' : 'asc');
+      el.textContent = i === _topSortCol ? (_topSortDir === -1 ? '↓' : '↑') : '↕';
+    }
+  }
+
+  function sortTopTable(col) {
+    if (_topSortCol === col) { _topSortDir *= -1; }
+    else { _topSortCol = col; _topSortDir = col >= 2 ? -1 : 1; }
+    _renderTopTable();
+  }
+
   function clearAll() {
     // Limpiar selects del panel
     document.getElementById('f-incidencia').value = '';

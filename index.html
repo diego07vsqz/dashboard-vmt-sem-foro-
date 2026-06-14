@@ -1657,6 +1657,7 @@
               <th style="cursor:pointer" onclick="sortTopTable(1)">CIUDAD <span class="sort-arrow" id="sort-1">↕</span></th>
               <th style="cursor:pointer;white-space:nowrap" onclick="sortTopTable(2)">ÚLTIMA FECHA <span class="sort-arrow" id="sort-2">↕</span></th>
               <th style="cursor:pointer;white-space:nowrap" onclick="sortTopTable(3)">HORA <span class="sort-arrow" id="sort-3">↕</span></th>
+              <th style="cursor:pointer;text-align:center;font-weight:900;color:var(--flag-blue);white-space:nowrap" onclick="sortTopTable(4)">TOTAL CRÍTICO <span class="sort-arrow" id="sort-4">↕</span></th>
               <th style="text-align:center;color:var(--text-light);font-size:9px;letter-spacing:.08em">VER DETALLE</th>
             </tr>
           </thead>
@@ -2455,7 +2456,7 @@
   ─────────────────────────────────────────────────────────────────── */
 
   let _topData    = [];   // calculado por _calcTopTable
-  let _topSortCol = 2;   // columna por defecto: 2 = última fecha (desc)
+  let _topSortCol = 4;   // columna por defecto: 4 = total crítico (desc)
   let _topSortDir = -1;  // -1 = descendente, 1 = ascendente
 
   function renderZonas(rows) {
@@ -2682,18 +2683,18 @@
     const detalle = document.getElementById('top-detalle');
 
     if (!_topData.length) {
-      body.innerHTML = `<tr><td colspan="5"><div class="empty">Sin semáforos críticos en el período</div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="6"><div class="empty">Sin semáforos críticos en el período</div></td></tr>`;
       if (detalle) detalle.style.display = 'none';
       return;
     }
 
-    // Mapa de columna → clave del objeto (solo 4 columnas visibles + acción)
-    const colKeys = ['codigo', 'ciudad', 'ultimaFecha', 'ultimaHora'];
+    // col 0=codigo, 1=ciudad, 2=ultimaFecha, 3=ultimaHora, 4=total, 5=VER(no ordenable)
+    const colKeys = ['codigo', 'ciudad', 'ultimaFecha', 'ultimaHora', 'total'];
 
     const sorted = [..._topData].sort((a, b) => {
       const av = a[colKeys[_topSortCol]] ?? '';
       const bv = b[colKeys[_topSortCol]] ?? '';
-      // Ordenar fechas correctamente con parseSheetDate
+      // Comparar fechas con parseSheetDate para orden correcto
       if (_topSortCol === 2) {
         const da = parseSheetDate(av) || new Date(0);
         const db = parseSheetDate(bv) || new Date(0);
@@ -2703,27 +2704,38 @@
       return (av - bv) * _topSortDir;
     });
 
-    body.innerHTML = sorted.map(d => {
+    // Valor máximo para calcular la barra proporcional
+    const maxTotal = sorted[0]?.total || 1;
+
+    body.innerHTML = sorted.map((d, idx) => {
       const isAct  = d.codigo === _topActiveCod ? 'top-active' : '';
       const codEsc = d.codigo.replace(/'/g, "\'");
-      // Pill "Ver detalle" con chevron animado
       const pill   = `<span class="top-ver-btn">
         VER
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10">
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </span>`;
+      // Color del número según posición: 🥇rojo 🥈naranja 🥉ámbar, resto azul
+      const rankColor = idx === 0 ? '#dc2626' : idx === 1 ? '#ea580c' : idx === 2 ? '#ca8a04' : 'var(--flag-blue)';
+      const barPct    = Math.round((d.total / maxTotal) * 100);
       return `<tr class="${isAct}" onclick="toggleTopDetalle('${codEsc}')">
         <td><span class="code-tag">${d.codigo}</span></td>
         <td style="font-size:12px;color:var(--text-mid)">${d.ciudad}</td>
         <td style="font-size:11px;color:var(--text-mid);white-space:nowrap">${d.ultimaFecha || '—'}</td>
         <td style="font-size:11px;color:var(--text-mid);white-space:nowrap">${d.ultimaHora  || '—'}</td>
+        <td style="text-align:center;min-width:90px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;color:${rankColor}">${d.total}</span>
+          <div style="height:3px;background:var(--border-mid);border-radius:3px;margin:4px 8px 0;overflow:hidden">
+            <div style="height:100%;width:${barPct}%;background:${rankColor};border-radius:3px;opacity:.6"></div>
+          </div>
+        </td>
         <td style="text-align:center">${pill}</td>
       </tr>`;
     }).join('');
 
-    // Actualizar flechas (solo col 0–3 son ordenables)
-    for (let i = 0; i <= 3; i++) {
+    // Actualizar flechas — col 0–4 ordenables (col 5 = VER, no ordenable)
+    for (let i = 0; i <= 4; i++) {
       const el = document.getElementById('sort-' + i);
       if (!el) continue;
       el.className   = 'sort-arrow';
@@ -2736,7 +2748,7 @@
   }
 
   function sortTopTable(col) {
-    // Mismo sentido → invertir; nueva columna → desc para col 2-3 (fechas), asc para texto
+    // Mismo sentido → invertir; nueva col → desc para numéricos/fechas, asc para texto
     _topSortDir = (_topSortCol === col) ? _topSortDir * -1 : (col >= 2 ? -1 : 1);
     _topSortCol = col;
     _renderTopTable();

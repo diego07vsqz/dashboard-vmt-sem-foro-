@@ -2385,23 +2385,36 @@
 
   /* ─── ResizeObserver — redimensiona gráficas al cambiar el tamaño
      de ventana o entrar/salir de pantalla completa sin recargar datos.
+     FIX: observa el <body> (no el panel ni el canvas) para evitar que
+     los tooltips de Chart.js disparen el observer en bucle al hacer hover.
+     Compara dimensiones reales antes de re-renderizar para descartar
+     cambios de altura provocados por el propio Chart.js.
   ─────────────────────────────────────────────────────────────────── */
   (function initResizeObserver() {
-    const panelGraficas = document.getElementById('panel-graficas');
-    if (!panelGraficas || typeof ResizeObserver === 'undefined') return;
+    if (typeof ResizeObserver === 'undefined') return;
 
+    // Guardar el ancho de ventana anterior para detectar resize real
+    let _lastW = window.innerWidth;
     let _resizeTimer = null;
+
     const ro = new ResizeObserver(() => {
-      // Debounce de 120ms para no disparar en cada pixel del resize
+      const currentW = window.innerWidth;
+      // Solo actuar si el ANCHO cambió — ignora cambios de alto
+      // provocados por tooltips, scrollbars o animaciones internas de Chart.js
+      if (currentW === _lastW) return;
+      _lastW = currentW;
+
       clearTimeout(_resizeTimer);
       _resizeTimer = setTimeout(() => {
-        if (panelGraficas.classList.contains('active') && lastFilteredRows.length) {
+        const panel = document.getElementById('panel-graficas');
+        if (panel && panel.classList.contains('active') && lastFilteredRows.length) {
           renderCharts(lastFilteredRows);
         }
-      }, 120);
+      }, 200);
     });
-    // Observar el contenedor de gráficas
-    ro.observe(panelGraficas);
+
+    // Observar document.body — no el panel ni el canvas
+    ro.observe(document.body);
   })();
 
   /* ─── Gráficas ──────────────────────────────────────────────────

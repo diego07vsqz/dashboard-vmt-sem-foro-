@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unidad de Planeamiento Semafórico | CCM</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 52'%3E%3Crect x='10' y='2' width='24' height='48' rx='5' fill='%230f2236'/%3E%3Ccircle cx='22' cy='13' r='7' fill='%23e03535'/%3E%3Ccircle cx='22' cy='26' r='7' fill='%23c98a10'/%3E%3Ccircle cx='22' cy='39' r='7' fill='%231e8a4a'/%3E%3C/svg%3E">
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     /* ── Variables globales (design tokens) ─────────────────
@@ -88,9 +89,7 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Figtree', sans-serif;
-      -webkit-font-smoothing: antialiased;   /* más nitidez en macOS/iOS */
-      -moz-osx-font-smoothing: grayscale;
+      font-family: 'Inter', sans-serif;
       background: var(--bg-page);
       color: var(--text-dark);
       line-height: 1.5;
@@ -202,7 +201,7 @@
     }
     .filter-select,
     .date-input {
-      font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600;
+      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
       color: var(--text-dark); background: var(--bg-white);
       border: 1.5px solid var(--border-mid); border-radius: var(--r-sm);
       padding: 6px 32px 6px 13px; cursor: pointer; outline: none;
@@ -247,7 +246,7 @@
     .date-sep         { font-size: 13px; color: var(--text-light); }
 
     .btn-clear {
-      font-family: 'Figtree', sans-serif; font-size: 10px;
+      font-family: 'Inter', sans-serif; font-size: 10px;
       color: #fff; background: var(--red);
       border: 1px solid var(--red); border-radius: var(--r-sm);
       padding: 5px 11px; cursor: pointer;
@@ -258,7 +257,7 @@
 
     .range-btns { display: flex; gap: 6px; }
     .range-btn {
-      font-family: 'Figtree', sans-serif; font-size: 10px; font-weight: 600;
+      font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600;
       color: var(--text-mid); background: var(--bg-page);
       border: 1px solid var(--border-mid); border-radius: 20px;
       padding: 5px 15px; cursor: pointer;
@@ -289,7 +288,7 @@
       color: var(--text-mid); background: transparent;
       border: none; border-bottom: 2px solid transparent;
       cursor: pointer; transition: all .15s;
-      font-family: 'Figtree', sans-serif; text-transform: uppercase; letter-spacing: .04em;
+      font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: .04em;
     }
     .tab-btn svg   { width: 15px; height: 15px; stroke: currentColor; fill: none; }
     .tab-btn:hover { color: var(--flag-blue); background: var(--flag-blue-soft); }
@@ -690,7 +689,7 @@
     /* Botones de rango */
     .range-btns { display: flex; gap: 3px; }
     .range-btn {
-      font-family: 'Figtree', sans-serif; font-size: 11px; font-weight: 600;
+      font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
       color: var(--text-mid); background: transparent;
       border: 1px solid transparent; border-radius: 20px;
       padding: 4px 12px; cursor: pointer; transition: all .15s; white-space: nowrap;
@@ -710,7 +709,7 @@
     .date-range-group { display: flex; align-items: center; gap: 5px; }
     .date-sep { color: var(--text-light); font-size: 12px; }
     .date-input {
-      font-family: 'Figtree', sans-serif; font-size: 11px;
+      font-family: 'Inter', sans-serif; font-size: 11px;
       color: var(--text-dark); background: var(--bg-white);
       border: 1px solid var(--border-mid); border-radius: var(--r-sm);
       padding: 4px 9px; outline: none; transition: border-color .15s; width: 126px;
@@ -719,7 +718,7 @@
 
     /* Botón LIMPIAR */
     .btn-clear {
-      font-family: 'Figtree', sans-serif; font-size: 10px; font-weight: 700;
+      font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700;
       color: #fff; background: var(--red); border: 1px solid var(--red);
       border-radius: var(--r-sm); padding: 4px 11px; cursor: pointer;
       transition: all .15s; text-transform: uppercase; letter-spacing: .04em;
@@ -748,7 +747,7 @@
     /* Botón activador */
     .fdd-btn {
       display: flex; align-items: center; gap: 7px;
-      font-family: 'Figtree', sans-serif; font-size: 11px; font-weight: 600;
+      font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
       color: var(--text-mid); background: var(--bg-white);
       border: 1px solid var(--border-mid); border-radius: var(--r-sm);
       padding: 5px 13px; cursor: pointer; transition: all .2s;
@@ -837,7 +836,7 @@
     }
     .filter-main-btn {
       display: flex; align-items: center; gap: 8px;
-      font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 700;
+      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
       color: #fff;
       background: linear-gradient(135deg, var(--flag-blue) 0%, #3b82f6 100%);
       border: none;
@@ -913,7 +912,7 @@
       text-transform:uppercase; letter-spacing:.1em; margin-bottom:7px;
     }
     .fp-select {
-      width:100%; font-family:'Figtree',sans-serif; font-size:12px;
+      width:100%; font-family:'Inter',sans-serif; font-size:12px;
       color:var(--text-dark); background:var(--bg-white);
       border:1.5px solid var(--border-mid); border-radius:var(--r-md);
       padding:9px 14px; outline:none; cursor:pointer; transition:border-color .15s;
@@ -925,7 +924,7 @@
 
     .fp-dates { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
     .fp-date-input {
-      flex:1; font-family:'Figtree',sans-serif; font-size:12px;
+      flex:1; font-family:'Inter',sans-serif; font-size:12px;
       color:var(--text-dark); background:var(--bg-white);
       border:1.5px solid var(--border-mid); border-radius:var(--r-md);
       padding:9px 12px; outline:none; transition:border-color .15s;
@@ -934,7 +933,7 @@
 
     .fp-footer { padding:12px 20px 16px; border-top:1px solid var(--border); display:flex; gap:8px; }
     .fp-apply {
-      flex:1; font-family:'Figtree',sans-serif; font-size:12px; font-weight:700;
+      flex:1; font-family:'Inter',sans-serif; font-size:12px; font-weight:700;
       color:#fff; background:var(--flag-blue); border:none; border-radius:var(--r-md);
       padding:10px; cursor:pointer; transition:background .15s;
       text-transform:uppercase; letter-spacing:.05em;
@@ -2088,4 +2087,949 @@
   /* Aplica todos los filtros activos y actualiza KPIs, tabla y gráficas */
   function applyFilters() {
     const fechaIni = document.getElementById('f-fecha-ini').value;
-  
+    const fechaFin = document.getElementById('f-fecha-fin').value;
+    const inc      = document.getElementById('f-incidencia').value.toLowerCase().trim();
+    const ciudad   = document.getElementById('f-ciudad').value.toLowerCase().trim();
+    const rep      = document.getElementById('f-reporte').value.toLowerCase().trim();
+    const dateIni  = fechaIni ? new Date(fechaIni + 'T00:00:00') : null;
+    const dateFin  = fechaFin ? new Date(fechaFin + 'T23:59:59') : null;
+
+    const filtered = dataset.filter(r => {
+      if (dateIni || dateFin) {
+        const d = parseSheetDate(r.fecha);
+        if (!d || (dateIni && d < dateIni) || (dateFin && d > dateFin)) return false;
+      }
+      if (inc    && !r.incidencia.toLowerCase().includes(inc)) return false;
+      if (ciudad && (r.ciudad||'').toLowerCase() !== ciudad)   return false;
+      if (rep    && !r.reporte.toLowerCase().includes(rep))    return false;
+      return true;
+    });
+
+    lastFilteredRows = filtered;
+    renderKPIs(filtered);
+    renderNorEx(filtered);
+    renderTable(filtered);
+    renderChips();
+    updateSelectStates();
+    if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(filtered);
+    if (document.getElementById('panel-zonas').classList.contains('active'))    renderZonas(filtered);
+  }
+
+  /* Marca con .is-active los selects que tienen un valor distinto del default */
+  function updateSelectStates() {
+    ['f-incidencia','f-ciudad','f-reporte'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.toggle('is-active', el.value !== '');
+    });
+  }
+
+  /* ─── Render ────────────────────────────────────────────────── */
+
+  // Construye y renderiza las 9 tarjetas KPI en #kpi-grid
+  function renderKPIs(rows) {
+    // Total operativo = suma de las 7 categorías principales del dashboard
+    const totalOperativo =
+      countKw(rows, 'forzamiento')  +
+      countKw(rows, 'apagado')      +
+      countKw(rows, 'mejora')       +
+      countKw(rows, 'intermitencia') +
+      countKw(rows, 'error')        +
+      countKw(rows, 'accidente')    +
+      countKw(rows, 'vdt');
+
+    // Total general = todos los registros del período (incluyendo categorías secundarias)
+    const totalGeneral = rows.length;
+
+    const cards = [
+      { label: 'FORZAMIENTO DE TIEMPOS', val: countKw(rows, 'forzamiento'),  cls: 'k-yellow',        bg: '#fffbeb', icon: ICONS.forzamiento  },
+      { label: 'SEMÁFORO APAGADO',       val: countKw(rows, 'apagado'),       cls: 'k-red',           bg: '#fef2f2', icon: ICONS.apagado      },
+      { label: 'MEJORA DE TIEMPOS',      val: countKw(rows, 'mejora'),        cls: 'k-green',         bg: '#ecfdf5', icon: ICONS.mejora       },
+      { label: 'INTERMITENCIA',          val: countKw(rows, 'intermitencia'), cls: 'k-intermitencia', bg: '#fff7ed', icon: ICONS.intermitencia },
+      { label: 'ERROR DE COMUNICACIÓN',  val: countKw(rows, 'error'),         cls: 'k-purple',        bg: '#f5f3ff', icon: ICONS.error        },
+      { label: 'APOYO EN ACCIDENTES',    val: countKw(rows, 'accidente'),     cls: 'k-red',           bg: '#fff1f2', icon: ICONS.accidente    },
+      { label: 'REVISIÓN VDT',           val: countKw(rows, 'vdt'),           cls: 'k-orange',        bg: '#fff7ed', icon: ICONS.vdt          },
+      { label: 'TOTAL OPERATIVO',        val: totalOperativo,                 cls: 'k-blue',          bg: '#eff6ff', icon: ICONS.total        },
+      { label: 'TOTAL GENERAL',          val: totalGeneral,                   cls: 'k-slate',         bg: '#f1f5f9', icon: ICONS.totalGeneral },
+    ];
+    // Renderizar cards con valor 0 primero; count-up animará después
+    document.getElementById('kpi-grid').innerHTML = cards.map(c => `
+      <div class="kpi-card ${c.cls}" data-val="${c.val}">
+        <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
+        <div class="kpi-content">
+          <div class="kpi-num" data-target="${c.val}">0</div>
+          <div class="kpi-label">${c.label}</div>
+        </div>
+      </div>`).join('');
+
+    // ── Count-up con rAF — evita acumulación de timers al filtrar rápido
+    document.querySelectorAll('.kpi-num[data-target]').forEach(el => {
+      const target   = +el.dataset.target;
+      const duration = 550; // ms totales de la animación
+      const start    = performance.now();
+      let   rafId;
+      function tick(now) {
+        // Cancelar si el elemento fue removido del DOM (filtro rápido)
+        if (!el.isConnected) { cancelAnimationFrame(rafId); return; }
+        const t        = Math.min((now - start) / duration, 1);
+        const progress = 1 - Math.pow(1 - t, 4); // easeOutQuart
+        el.textContent = Math.round(target * progress).toLocaleString('es-SV');
+        if (t < 1) rafId = requestAnimationFrame(tick);
+      }
+      rafId = requestAnimationFrame(tick);
+    });
+
+  }
+
+  // Renderiza el contenido del desplegable de composición del Total Operativo.
+  // Los colores de los dots coinciden con los de las barras laterales de cada KPI card.
+  function renderOperativo() {
+    const categorias = [
+      { nombre: 'Forzamiento de Tiempos', color: '#f59e0b' }, // k-yellow — var(--yellow)
+      { nombre: 'Semáforo Apagado',       color: '#ef4444' }, // k-red    — var(--red)
+      { nombre: 'Mejora de Tiempos',      color: '#10b981' }, // k-green  — var(--green)
+      { nombre: 'Intermitencia',          color: '#dc2626' }, // k-intermitencia (franja roja superior)
+      { nombre: 'Error de Comunicación',  color: '#8b5cf6' }, // k-purple — var(--purple)
+      { nombre: 'Apoyo en Accidentes',    color: '#ef4444' }, // k-red    — var(--red)
+      { nombre: 'Revisión VDT',           color: '#f97316' }, // k-orange — var(--orange)
+    ];
+
+    document.getElementById('operativo-panel').innerHTML = categorias
+      .map(cat => `
+        <div class="operativo-row">
+          <div class="operativo-dot" style="background:${cat.color}"></div>
+          <div class="operativo-name">${cat.nombre}</div>
+        </div>`)
+      .join('');
+  }
+
+  // Renderiza la clasificación Normal vs Extraordinario con desglose por operador
+  function renderNorEx(rows) {
+    const normal = rows.filter(isNormal);
+    const extra  = rows.filter(r => !isNormal(r));
+    const map = {};
+    extra.forEach(r => { const k = r.operador || 'SIN OPERADOR'; map[k] = (map[k] || 0) + 1; });
+
+    const desglose = Object.keys(map).length
+      ? '<div class="norex-desglose-title">OPERADORES EXTRAORDINARIOS</div>' +
+        Object.entries(map).sort((a, b) => b[1] - a[1]).map(([n, v]) =>
+          `<div class="norex-desglose-row"><span>${n}</span><span class="norex-desglose-val">${v}</span></div>`
+        ).join('')
+      : '';
+
+    document.getElementById('norex-panel').innerHTML = `
+      <div class="norex-item">
+        <div class="norex-label">
+          <div class="norex-icon" style="background:#eff6ff">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+              <path d="M9 11l3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+          </div>
+          <div>NORMAL</div>
+        </div>
+        <div class="norex-val" style="color:#3b82f6">${normal.length}</div>
+      </div>
+      <div class="norex-item">
+        <div class="norex-label">
+          <div class="norex-icon" style="background:#fff7ed">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <div>EXTRAORDINARIO</div>
+        </div>
+        <div class="norex-val" style="color:#f97316">${extra.length}</div>
+      </div>
+      ${desglose}
+    `;
+  }
+
+  /* Muestra los últimos 15 registros del período — orden fijo, sin ordenación.
+     Actualiza la barra de resumen (tbl-showing, tbl-total, tbl-latest).
+     Incluye franja de color izquierda y estado vacío ilustrado. */
+  function renderTable(rows) {
+    const items = [...rows].slice(-30).reverse().slice(0, 15);
+
+    // ── Actualizar barra de resumen
+    const showEl  = document.getElementById('tbl-showing');
+    const totalEl = document.getElementById('tbl-total');
+    const latEl   = document.getElementById('tbl-latest');
+    if (showEl)  showEl.textContent  = items.length.toLocaleString('es-SV');
+    if (totalEl) totalEl.textContent = rows.length.toLocaleString('es-SV');
+    if (latEl)   latEl.textContent   = items.length > 0 ? items[0].fecha : '—';
+    if (items.length === 0) {
+      document.getElementById('tabla-body').innerHTML = `
+        <tr><td colspan='6'>
+          <div class='tabla-empty'>
+            <div class='tabla-empty-icon'>🔍</div>
+            <div class='tabla-empty-msg'>Sin registros para este filtro</div>
+            <div class='tabla-empty-sub'>Intenta ampliar el rango de fechas<br>o cambiar los criterios de filtro</div>
+          </div>
+        </td></tr>`;
+      return;
+    }
+    document.getElementById('tabla-body').innerHTML = items.map(r => {
+      const t        = getTipo(r.incidencia);
+      const rowColor = t.color || '#e2e8f0'; // color del tipo para la franja izquierda
+      return `<tr style='border-left-color:${rowColor}'>
+        <td style='white-space:nowrap'>${r.fecha}</td>
+        <td style='white-space:nowrap'>${r.hora}</td>
+        <td><span class='code-tag'>${r.codigo}</span></td>
+        <td>${r.reporte}</td>
+        <td><span class='badge ${t.badge}'>${t.label}</span></td>
+        <td style='max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'
+            title='${r.dir}'>${r.dir}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  /* ─── Modo oscuro ─────────────────────────────────────────── */
+  function toggleDarkMode() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    const lbl = document.getElementById('dark-label');
+    const btn = document.getElementById('dark-toggle');
+    if (!isDark) {
+      lbl.textContent = 'CLARO';
+      btn.querySelector('svg').innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    } else {
+      lbl.textContent = 'OSCURO';
+      btn.querySelector('svg').innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>';
+    }
+    localStorage.setItem('ccm_theme', isDark ? 'light' : 'dark');
+  }
+
+  // Activa la pestaña seleccionada y renderiza la visualización correspondiente
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b   => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-'   + name)?.classList.add('active');
+    document.getElementById('panel-' + name)?.classList.add('active');
+    if (name === 'graficas' && lastFilteredRows.length) renderCharts(lastFilteredRows);
+    if (name === 'zonas'    && lastFilteredRows.length) renderZonas(lastFilteredRows);
+  }
+
+  /* ─── Gráficas ──────────────────────────────────────────────────
+     Cada instancia Chart.js debe destruirse antes de recrearse
+     para evitar el bug de canvas reutilizado.
+     Se muestran TODOS los tipos presentes en el período filtrado,
+     ordenados de mayor a menor. Las etiquetas largas se parten en
+     dos líneas para evitar solapamiento en el eje X.
+  ─────────────────────────────────────────────────────────────── */
+  function renderCharts(rows) {
+    // Contar ocurrencias por tipo de incidencia normalizado
+    const counts = {};
+    rows.forEach(r => {
+      const t = getTipo(r.incidencia);
+      counts[t.label] = (counts[t.label] || 0) + 1;
+    });
+
+    // Todos los tipos presentes, ordenados de mayor a menor
+    const sorted  = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const labels  = sorted.map(([l]) => l);
+    const values  = sorted.map(([, v]) => v);
+    const bgs     = labels.map(l => CHART_COLORS[l]?.bg     || 'rgba(148,163,184,0.75)');
+    const borders = labels.map(l => CHART_COLORS[l]?.border || '#94a3b8');
+
+    // Parte etiquetas largas en dos líneas para el eje X de barras
+    // Chart.js acepta arrays de strings como etiqueta multilínea
+    const labelsMultiline = labels.map(l => {
+      if (l.length <= 14) return l;
+      const mid = l.lastIndexOf(' ', Math.floor(l.length / 2) + 4);
+      return mid > 0 ? [l.slice(0, mid), l.slice(mid + 1)] : l;
+    });
+
+    // Lista numérica: dot + label + valor — muestra todos
+    document.getElementById('dist-numerica').innerHTML = sorted.length
+      ? sorted.map(([label, val]) => `
+          <div class="dist-item">
+            <div class="dist-dot" style="background:${CHART_COLORS[label]?.border || '#94a3b8'}"></div>
+            <div class="dist-label">${label}</div>
+            <div class="dist-val">${val}</div>
+          </div>`
+        ).join('')
+      : '<div class="empty">Sin datos</div>';
+
+    // Gráfica de barras
+    if (chartBar) chartBar.destroy();
+    chartBar = new Chart(document.getElementById('chart-bar'), {
+      type: 'bar',
+      data: {
+        labels: labelsMultiline,
+        datasets: [{
+          data: values,
+          backgroundColor: bgs,
+          borderColor: borders,
+          borderWidth: 1.5,
+          borderRadius: 5,
+          barPercentage: 0.65,
+          categoryPercentage: 0.75,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            // Fondo oscuro con porcentaje del total
+            backgroundColor: '#1e293b',
+            titleColor: '#f1f5f9',
+            bodyColor:  '#94a3b8',
+            padding: 11, cornerRadius: 10,
+            titleFont: { family: 'Inter', weight: '700', size: 12 },
+            bodyFont:  { family: 'Inter', size: 11 },
+            callbacks: {
+              title: items => labels[items[0].dataIndex],
+              label: ctx => {
+                const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                const pct   = total > 0 ? Math.round((ctx.raw/total)*100) : 0;
+                return ` ${ctx.raw} incidencias (${pct}%)`;
+              },
+            },
+          },
+        },
+        animation: { duration: 700, easing: 'easeOutQuart' },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: '#e5e7eb' },
+            title: { display: true, text: 'Cantidad', font: { size: 11, weight: '600' }, color: '#6b7280' },
+          },
+          x: {
+            // maxRotation: 0 evita que Chart.js rote las etiquetas
+            // la partición en 2 líneas las mantiene legibles en vertical
+            ticks: { font: { size: 10, weight: '500' }, color: '#374151', maxRotation: 0, autoSkip: false },
+            grid: { display: false },
+          },
+        },
+      },
+    });
+
+    // Gráfica de dona: distribución porcentual con leyenda en la parte inferior
+    if (chartDonut) chartDonut.destroy();
+    chartDonut = new Chart(document.getElementById('chart-donut'), {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          backgroundColor: borders.map(c => c + 'dd'),
+          borderColor: '#fff',
+          borderWidth: 2,
+          hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '55%',
+        layout: { padding: { bottom: 8 } },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              boxWidth: 9,
+              font: { size: 10 },
+              color: '#374151',
+              usePointStyle: true,
+              pointStyle: 'circle',
+              padding: 10,
+            },
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+              const pct = rows.length > 0
+                ? ((ctx.raw / rows.length) * 100).toFixed(1)
+                : '0.0';
+              return ` ${ctx.label}: ${ctx.raw} (${pct}%)`;
+            },
+            },
+          },
+        },
+      },
+    });
+  }
+  /* ─── Pestaña Zonas ──────────────────────────────────────────────
+     Bloque 1: tarjetas por ciudad, expandibles, con sub-tabla de
+               desglose por tipo de incidencia + código de semáforo.
+     Bloque 2: ranking de semáforos críticos (apagado, intermitencia,
+               error de comunicación, apoyo en accidentes), ordenable.
+  ─────────────────────────────────────────────────────────────────── */
+
+  let _topData    = [];   // calculado por _calcTopTable
+  let _topSortCol = 4;   // columna por defecto: 4 = total crítico (desc)
+  let _topSortDir = -1;  // -1 = descendente, 1 = ascendente
+
+  function renderZonas(rows) {
+    _renderZonasCiudades(rows);
+    _calcTopTable(rows);
+    _renderTopTable();
+  }
+
+  // ── Bloque 1: tarjetas por ciudad ────────────────────────────────
+
+  // Datos agrupados por ciudad — se guarda para mostrar detalle sin recalcular
+  let _byCiudad = {};
+
+  function _renderZonasCiudades(rows) {
+    const container = document.getElementById('zonas-ciudades');
+    if (!rows.length) {
+      container.innerHTML = '<div class="empty">Sin registros para el período seleccionado</div>';
+      document.getElementById('zonas-detalle').style.display = 'none';
+      return;
+    }
+
+    // Normalización de aliases de ciudad
+    const CIUDAD_ALIAS = {
+      'blvd. del ejército/soyapango': 'Soyapango',
+      'blvd del ejercito/soyapango':  'Soyapango',
+      'blvd. del ejercito/soyapango': 'Soyapango',
+    };
+
+    // Agrupar por ciudad
+    _byCiudad = {};
+    rows.forEach(r => {
+      const raw = (r.ciudad || 'Sin ciudad').trim();
+      const c   = CIUDAD_ALIAS[raw.toLowerCase()] || raw;
+      if (!_byCiudad[c]) _byCiudad[c] = [];
+      _byCiudad[c].push(r);
+    });
+
+    // Ordenar por total descendente
+    const ciudades = Object.keys(_byCiudad).sort((a, b) => _byCiudad[b].length - _byCiudad[a].length);
+
+    // Renderizar solo tarjetas compactas (sin sub-tabla interna)
+    container.innerHTML = `<div class="zonas-grid">${ciudades.map(ciudad => {
+      const cityRows = _byCiudad[ciudad];
+      const total    = cityRows.length;
+
+      // Tipo más frecuente
+      const conteoTipos = {};
+      cityRows.forEach(r => {
+        const lbl = getTipo(r.incidencia).label;
+        conteoTipos[lbl] = (conteoTipos[lbl] || 0) + 1;
+      });
+      const tiposSorted      = Object.entries(conteoTipos).sort((a, b) => b[1] - a[1]);
+      const tipoMasFrecuente = tiposSorted[0]?.[0] || '—';
+      const numTipos         = tiposSorted.length;
+      const cardId           = 'zona-' + ciudad.replace(/[^a-zA-Z0-9]/g,'_');
+
+      return `
+        <div class="zona-card" id="${cardId}" onclick="toggleZonaCard('${cardId}','${ciudad.replace(/'/g,"\'")}')">
+          <div class="zona-card-header">
+            <div class="zona-card-left">
+              <div class="zona-city-icon">
+                <svg viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+              </div>
+              <div style="min-width:0">
+                <div class="zona-city-name">${ciudad}</div>
+                <div class="zona-city-sub">${numTipos} tipo${numTipos !== 1 ? 's' : ''} · <strong>${tipoMasFrecuente}</strong></div>
+              </div>
+            </div>
+            <div class="zona-card-right">
+              <div class="zona-total-pill">${total}</div>
+              <svg class="zona-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+          </div>
+        </div>`;
+    }).join('')}</div>`;
+
+    // Cerrar detalle al re-renderizar
+    document.getElementById('zonas-detalle').style.display = 'none';
+  }
+
+  function toggleZonaCard(cardId, ciudad) {
+    const card    = document.getElementById(cardId);
+    const detalle = document.getElementById('zonas-detalle');
+    const isActive = card.classList.contains('active');
+
+    // Desactivar todas
+    document.querySelectorAll('.zona-card.active').forEach(c => c.classList.remove('active'));
+
+    if (isActive) {
+      // Ya estaba abierta → cerrar panel
+      detalle.style.display = 'none';
+      return;
+    }
+
+    // Activar tarjeta seleccionada
+    card.classList.add('active');
+
+    // Construir detalle de la ciudad
+    const cityRows = _byCiudad[ciudad] || [];
+    const byTipo   = {};
+
+    cityRows.forEach(r => {
+      const t   = getTipo(r.incidencia);
+      const lbl = t.label;
+      if (!byTipo[lbl]) {
+        byTipo[lbl] = { count: 0, codigos: new Set(), badge: t.badge, ultimaFechaD: null, ultimaFecha: '', ultimaHora: '' };
+      }
+      const e = byTipo[lbl];
+      e.count++;
+      if (r.codigo) e.codigos.add(r.codigo);
+      // Rastrear la fecha/hora más reciente por tipo de incidencia
+      const d = parseSheetDate(r.fecha);
+      if (d && (!e.ultimaFechaD || d >= e.ultimaFechaD)) {
+        e.ultimaFechaD = d;
+        e.ultimaFecha  = r.fecha;
+        e.ultimaHora   = r.hora;
+      }
+    });
+
+    const tiposSorted = Object.entries(byTipo).sort((a, b) => b[1].count - a[1].count);
+    const maxCnt      = tiposSorted[0]?.[1]?.count || 1;
+
+    const subRows = tiposSorted.map(([label, { count, codigos, badge, ultimaFecha, ultimaHora }]) => {
+      const pct   = Math.round((count / maxCnt) * 100);
+      const chips = [...codigos].sort().map(cod =>
+        `<span class="zona-chip">${cod}</span>`
+      ).join('') || '<span style="color:var(--text-light);font-size:11px">—</span>';
+      return `<tr>
+        <td><span class="badge ${badge}">${label}</span></td>
+        <td>${chips}</td>
+        <td style="white-space:nowrap;font-size:11px;color:var(--text-mid)">${ultimaFecha || '—'}</td>
+        <td style="white-space:nowrap;font-size:11px;color:var(--text-light)">${ultimaHora  || '—'}</td>
+        <td>
+          <span class="zona-count-badge">${count}</span>
+          <div class="zona-bar-wrap"><div class="zona-bar-fill" style="width:${pct}%"></div></div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    detalle.innerHTML = `
+      <div class="zonas-detalle-header">
+        <div class="zonas-detalle-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          ${ciudad} — ${cityRows.length} movimiento${cityRows.length !== 1 ? 's' : ''}
+        </div>
+        <button class="zonas-detalle-close" onclick="cerrarZonaDetalle()" title="Cerrar">✕</button>
+      </div>
+      <table class="zona-sub-table">
+        <thead>
+          <tr>
+            <th>TIPO DE INCIDENCIA</th>
+            <th>SEMÁFOROS (CÓDIGO)</th>
+            <th style="white-space:nowrap">ÚLTIMA FECHA</th>
+            <th style="white-space:nowrap">HORA</th>
+            <th style="text-align:right">CANT.</th>
+          </tr>
+        </thead>
+        <tbody>${subRows}</tbody>
+      </table>`;
+
+    detalle.style.display = 'block';
+    // Scroll suave al panel de detalle
+    detalle.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function cerrarZonaDetalle() {
+    document.querySelectorAll('.zona-card.active').forEach(c => c.classList.remove('active'));
+    document.getElementById('zonas-detalle').style.display = 'none';
+  }
+
+  // ── Bloque 2: Top semáforos críticos ─────────────────────────────
+  //
+  // _topData: array de objetos con estructura:
+  //   { codigo, ciudad, ultimaFecha, ultimaHora,
+  //     apagado, intermitencia, error, accidente, suministro,
+  //     total, eventos[] }
+  //
+  // _topActiveCod: código del semáforo con detalle abierto (null = cerrado)
+
+  let _topActiveCod = null;
+
+  function _calcTopTable(rows) {
+    const byCodigo = {};
+
+    rows.forEach(r => {
+      const cod = (r.codigo || '').trim();
+      if (!cod) return;
+
+      // Inicializar acumulador por código
+      if (!byCodigo[cod]) {
+        byCodigo[cod] = {
+          codigo:        cod,
+          ciudad:        r.ciudad || '—',
+          ultimaFecha:   '',
+          ultimaHora:    '',
+          apagado:       0,
+          intermitencia: 0,
+          error:         0,
+          accidente:     0,
+          suministro:    0,
+          eventos:       [],
+        };
+      }
+      const e = byCodigo[cod];
+      e.eventos.push(r);
+
+      // Rastrear fecha/hora más reciente con parseSheetDate
+      const d  = parseSheetDate(r.fecha);
+      const dp = parseSheetDate(e.ultimaFecha);
+      if (d && (!dp || d >= dp)) {
+        e.ultimaFecha = r.fecha;
+        e.ultimaHora  = r.hora;
+      }
+
+      // Conteo de incidencias críticas
+      const inc = (r.incidencia || '').toLowerCase();
+      if (inc.includes('apagado'))                        e.apagado++;
+      if (inc.includes('intermitencia'))                  e.intermitencia++;
+      if (inc.includes('error'))                          e.error++;
+      if (inc.includes('accidente'))                      e.accidente++;
+      if (inc.includes('suministro') || inc.includes('falta')) e.suministro++;
+    });
+
+    // Total de las 5 categorías; solo semáforos con al menos 1 incidencia crítica
+    _topData = Object.values(byCodigo)
+      .map(d => ({ ...d, total: d.apagado + d.intermitencia + d.error + d.accidente + d.suministro }))
+      .filter(d => d.total > 0);
+  }
+
+  function _renderTopTable() {
+    const body    = document.getElementById('zonas-top-body');
+    const detalle = document.getElementById('top-detalle');
+
+    if (!_topData.length) {
+      body.innerHTML = `<tr><td colspan="6"><div class="empty">Sin semáforos críticos en el período</div></td></tr>`;
+      if (detalle) detalle.style.display = 'none';
+      return;
+    }
+
+    // col 0=codigo, 1=ciudad, 2=ultimaFecha, 3=ultimaHora, 4=total, 5=VER(no ordenable)
+    const colKeys = ['codigo', 'ciudad', 'ultimaFecha', 'ultimaHora', 'total'];
+
+    const sorted = [..._topData].sort((a, b) => {
+      const av = a[colKeys[_topSortCol]] ?? '';
+      const bv = b[colKeys[_topSortCol]] ?? '';
+      // Comparar fechas con parseSheetDate para orden correcto
+      if (_topSortCol === 2) {
+        const da = parseSheetDate(av) || new Date(0);
+        const db = parseSheetDate(bv) || new Date(0);
+        return (da - db) * _topSortDir;
+      }
+      if (typeof av === 'string') return av.localeCompare(bv) * _topSortDir;
+      return (av - bv) * _topSortDir;
+    });
+
+    // Valor máximo para calcular la barra proporcional
+    const maxTotal = sorted[0]?.total || 1;
+
+    body.innerHTML = sorted.map((d, idx) => {
+      const isAct  = d.codigo === _topActiveCod ? 'top-active' : '';
+      const codEsc = d.codigo.replace(/'/g, "\'");
+      const pill   = `<span class="top-ver-btn">
+        VER
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </span>`;
+      // Color del número según posición: 🥇rojo 🥈naranja 🥉ámbar, resto azul
+      const rankColor = idx === 0 ? '#dc2626' : idx === 1 ? '#ea580c' : idx === 2 ? '#ca8a04' : 'var(--flag-blue)';
+      const barPct    = Math.round((d.total / maxTotal) * 100);
+      return `<tr class="${isAct}" onclick="toggleTopDetalle('${codEsc}')">
+        <td><span class="code-tag">${d.codigo}</span></td>
+        <td style="font-size:12px;color:var(--text-mid)">${d.ciudad}</td>
+        <td style="font-size:11px;color:var(--text-mid);white-space:nowrap">${d.ultimaFecha || '—'}</td>
+        <td style="font-size:11px;color:var(--text-mid);white-space:nowrap">${d.ultimaHora  || '—'}</td>
+        <td style="text-align:center;min-width:90px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;color:${rankColor}">${d.total}</span>
+          <div style="height:3px;background:var(--border-mid);border-radius:3px;margin:4px 8px 0;overflow:hidden">
+            <div style="height:100%;width:${barPct}%;background:${rankColor};border-radius:3px;opacity:.6"></div>
+          </div>
+        </td>
+        <td style="text-align:center">${pill}</td>
+      </tr>`;
+    }).join('');
+
+    // Actualizar flechas — col 0–4 ordenables (col 5 = VER, no ordenable)
+    for (let i = 0; i <= 4; i++) {
+      const el = document.getElementById('sort-' + i);
+      if (!el) continue;
+      el.className   = 'sort-arrow';
+      el.textContent = i === _topSortCol ? (_topSortDir === -1 ? '↓' : '↑') : '↕';
+      if (i === _topSortCol) el.classList.add(_topSortDir === -1 ? 'desc' : 'asc');
+    }
+
+    // Mantener detalle abierto si había uno al re-ordenar
+    if (_topActiveCod) _mostrarTopDetalle(_topActiveCod);
+  }
+
+  function sortTopTable(col) {
+    // Mismo sentido → invertir; nueva col → desc para numéricos/fechas, asc para texto
+    _topSortDir = (_topSortCol === col) ? _topSortDir * -1 : (col >= 2 ? -1 : 1);
+    _topSortCol = col;
+    _renderTopTable();
+  }
+
+  /* Alterna el panel de detalle al hacer clic en una fila */
+  function toggleTopDetalle(codigo) {
+    const detalle = document.getElementById('top-detalle');
+
+    if (_topActiveCod === codigo) {
+      // Misma fila → cerrar
+      _topActiveCod = null;
+      detalle.style.display = 'none';
+      document.querySelectorAll('#zonas-top-body tr.top-active')
+        .forEach(tr => tr.classList.remove('top-active'));
+      return;
+    }
+
+    _topActiveCod = codigo;
+
+    // Marcar solo la fila activa
+    document.querySelectorAll('#zonas-top-body tr').forEach(tr => {
+      const tag = tr.querySelector('.code-tag');
+      tr.classList.toggle('top-active', !!(tag && tag.textContent.trim() === codigo));
+    });
+
+    _mostrarTopDetalle(codigo);
+    detalle.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  /* Construye y muestra el panel de detalle de un semáforo */
+  function _mostrarTopDetalle(codigo) {
+    const detalle = document.getElementById('top-detalle');
+    const entry   = _topData.find(d => d.codigo === codigo);
+    if (!entry) { detalle.style.display = 'none'; return; }
+
+    // 5 KPIs de incidencias críticas con color propio
+    const KPIS = [
+      { label: 'Apagado',          key: 'apagado',       color: 'var(--red)',    bg: 'var(--red-soft)'    },
+      { label: 'Intermitencia',    key: 'intermitencia',  color: 'var(--blue)',   bg: 'var(--blue-soft)'   },
+      { label: 'Error Comunic.',   key: 'error',          color: 'var(--purple)', bg: 'var(--purple-soft)' },
+      { label: 'Apoyo Accidentes', key: 'accidente',      color: 'var(--orange)', bg: 'var(--orange-soft)' },
+      { label: 'Falta Suministro', key: 'suministro',     color: 'var(--yellow)', bg: 'var(--yellow-soft)' },
+    ];
+
+    const kpisHtml = KPIS.map(k => {
+      const v = entry[k.key];
+      return `<div class="top-kpi-item"
+        style="${v > 0 ? `border-color:${k.color}44;background:${k.bg}` : ''}">
+        <div class="top-kpi-label">${k.label}</div>
+        <div class="top-kpi-val${v === 0 ? ' top-kpi-zero' : ''}"
+          style="${v > 0 ? `color:${k.color}` : ''}">${v}</div>
+      </div>`;
+    }).join('');
+
+    // Historial: los últimos 20 eventos más recientes del semáforo
+    const histRows = [...entry.eventos]
+      .sort((a, b) => {
+        const da = parseSheetDate(a.fecha) || new Date(0);
+        const db = parseSheetDate(b.fecha) || new Date(0);
+        return db - da;
+      })
+      .slice(0, 20)
+      .map(r => {
+        const t = getTipo(r.incidencia);
+        return `<tr>
+          <td style="white-space:nowrap">${r.fecha}</td>
+          <td style="white-space:nowrap">${r.hora}</td>
+          <td><span class="badge ${t.badge}">${t.label}</span></td>
+          <td style="font-size:11px">${r.reporte || '—'}</td>
+          <td style="font-size:11px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
+              title="${r.dir}">${r.dir || '—'}</td>
+        </tr>`;
+      }).join('');
+
+    detalle.innerHTML = `
+      <div class="top-detalle-header">
+        <div class="top-detalle-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8"  y1="2" x2="8"  y2="6"/>
+            <line x1="3"  y1="10" x2="21" y2="10"/>
+          </svg>
+          Semáforo ${codigo} — ${entry.ciudad} — ${entry.eventos.length} evento${entry.eventos.length !== 1 ? 's' : ''}
+        </div>
+        <button class="top-detalle-close" onclick="cerrarTopDetalle()" title="Cerrar">✕</button>
+      </div>
+      <div class="top-detalle-kpis">${kpisHtml}</div>
+      <div class="top-detalle-hist-title">Historial de eventos (últimos 20)</div>
+      <div class="table-scroll">
+        <table class="top-hist-table">
+          <thead>
+            <tr>
+              <th>FECHA</th><th>HORA</th><th>INCIDENCIA</th>
+              <th>REPORTÓ</th><th>DIRECCIÓN</th>
+            </tr>
+          </thead>
+          <tbody>${histRows}</tbody>
+        </table>
+      </div>`;
+
+    detalle.style.display = 'block';
+  }
+
+  /* Cierra el panel de detalle y desactiva la fila */
+  function cerrarTopDetalle() {
+    _topActiveCod = null;
+    document.getElementById('top-detalle').style.display = 'none';
+    // Quitar clase activa de la fila
+    document.querySelectorAll('#zonas-top-body tr.top-active')
+      .forEach(tr => tr.classList.remove('top-active'));
+    // Scroll suave de vuelta a la tabla
+    document.getElementById('zonas-top-table')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function clearAll() {
+    // Limpiar selects del panel
+    document.getElementById('f-incidencia').value = '';
+    document.getElementById('f-ciudad').value     = '';
+    document.getElementById('f-reporte').value    = '';
+    // Limpiar fechas
+    document.getElementById('f-fecha-ini').value  = '';
+    document.getElementById('f-fecha-fin').value  = '';
+    // Quitar warning de todo
+    document.getElementById('range-warning').classList.remove('visible');
+    // Desmarcar todos los botones de rango
+    setActiveRangeBtn(null);
+    syncRangeBtns(null);
+    // Quitar punto azul del botón FILTROS
+    document.getElementById('filter-main-btn').classList.remove('has-filters');
+    // Cerrar el panel si estaba abierto
+    closeFiltroPanel();
+    // Volver a 'Este mes' como estado neutro al limpiar
+    setRange('mes');
+    showToast('🧹 Filtros limpiados');
+  }
+
+  /* ─── Panel de filtros unificado ─────────────────────────────── */
+  function toggleFiltroPanel() {
+    const panel = document.getElementById('filter-panel');
+    const btn   = document.getElementById('filter-main-btn');
+    const over  = document.getElementById('fp-overlay');
+    const isOpen = panel.classList.contains('open');
+    if (isOpen) {
+      panel.classList.remove('open');
+      btn.classList.remove('open');
+      over.classList.remove('active');
+    } else {
+      panel.classList.add('open');
+      btn.classList.add('open');
+      over.classList.add('active');
+    }
+  }
+
+  function closeFiltroPanel() {
+    document.getElementById('filter-panel')?.classList.remove('open');
+    document.getElementById('filter-main-btn')?.classList.remove('open');
+    document.getElementById('fp-overlay')?.classList.remove('active');
+  }
+
+  // Aplicar filtros y cerrar el panel
+  function aplicarFiltros() {
+    applyFilters();
+    updateFiltroBtn();
+    closeFiltroPanel();
+    showToast('✅ Filtros aplicados');
+  }
+
+  // Actualiza el punto azul del botón principal si hay filtros activos
+  function updateFiltroBtn() {
+    const inc    = document.getElementById('f-incidencia').value;
+    const ciudad = document.getElementById('f-ciudad').value;
+    const ini    = document.getElementById('f-fecha-ini').value;
+    const fin    = document.getElementById('f-fecha-fin').value;
+    const hasFilters = !!(inc || ciudad || ini || fin);
+    document.getElementById('filter-main-btn').classList.toggle('has-filters', hasFilters);
+  }
+
+  // Sincronizar botones de rango de la barra con los del panel
+  function syncRangeBtns(id) {
+    const barMap = { mes:'rbtn-mes-bar', ant:'rbtn-ant-bar', '3m':'rbtn-3m-bar', todo:'rbtn-todo-bar' };
+    ['mes','ant','3m','todo'].forEach(k => {
+      document.getElementById(barMap[k])?.classList.toggle('active-range', k === id);
+    });
+  }
+
+  /* ─── Toast ─────────────────────────────────────────────────── */
+  function showToast(msg, dur = 2800) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), dur);
+  }
+
+  /* ─── Pantalla completa ──────────────────────────────────────── */
+  function toggleFullscreen() {
+    const lbl = document.getElementById('fs-label');
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => {
+        lbl.textContent = 'SALIR PANTALLA';
+        showToast('📺 Modo pantalla completa — presiona ESC para salir');
+      }).catch(() => showToast('❌ El navegador bloqueó la pantalla completa'));
+    } else {
+      document.exitFullscreen();
+      lbl.textContent = 'PANTALLA COMPLETA';
+    }
+  }
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      const lbl = document.getElementById('fs-label');
+      if (lbl) lbl.textContent = 'PANTALLA COMPLETA';
+    }
+  });
+
+  /* ─── Efecto ripple — delegado en document ────────────────────
+     Al hacer clic en cualquier .ripple-btn, crea una onda que sale
+     del punto exacto de contacto y desaparece al terminar la animación.
+  ─────────────────────────────────────────────────────────────────── */
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.ripple-btn');
+    if (!btn) return;
+    const wave = document.createElement('span');
+    wave.className = 'ripple-wave';
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    wave.style.cssText =
+      `width:${size}px;height:${size}px;` +
+      `left:${e.clientX - rect.left - size/2}px;` +
+      `top:${e.clientY  - rect.top  - size/2}px`;
+    btn.appendChild(wave);
+    wave.addEventListener('animationend', () => wave.remove(), { once: true });
+  });
+
+  /* ─── Chips de filtros activos ───────────────────────────────── */
+  // renderChips — no-op: chips-bar eliminado del diseño
+  function renderChips() {}
+
+  // Punto de entrada
+  window.addEventListener('DOMContentLoaded', async () => {
+    // Restaurar tema guardado
+    const savedTheme = localStorage.getItem('ccm_theme');
+    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+    if (savedTheme === 'dark') {
+      document.getElementById('dark-label').textContent = 'CLARO';
+    }
+
+    renderOperativo();
+    try {
+      await loadData();
+    } finally {
+      // El overlay se quita SIEMPRE, incluso si loadData falla
+      const overlayEl = document.getElementById('loading-overlay');
+      if (overlayEl) {
+        overlayEl.classList.add('fade-out');
+        setTimeout(() => overlayEl.remove(), 400);
+      }
+    }
+  });
+</script>
+  <div class="toast" id="toast"></div>
+</body>
+</html>

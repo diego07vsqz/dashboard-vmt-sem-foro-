@@ -1253,7 +1253,8 @@
     .half-gen .kpi-total-num { color: #0f2236; }
     [data-theme="dark"] .half-gen .kpi-total-num { color: #FFD100; }
     .kpi-total-sub {
-      font-size: 9px; color: var(--text-light); margin-top: 4px; line-height: 1.4;
+      font-size: 11px; font-weight: 700; color: var(--text-mid);
+      margin-top: 5px; line-height: 1.4;
     }
 
     /* Barra de proporción operativo/general */
@@ -1300,20 +1301,39 @@
       border-top: 1px solid var(--border);
     }
     .totales-desglose-sum {
-      display: flex; align-items: center; gap: 7px;
-      padding: 10px 22px;
-      font-size: 10px; font-weight: 700; color: var(--text-mid);
+      display: flex; align-items: center; gap: 8px;
+      padding: 11px 22px;
+      font-size: 11px; font-weight: 700; color: var(--flag-blue);
       text-transform: uppercase; letter-spacing: .07em;
       cursor: pointer; list-style: none; user-select: none;
-      transition: background .12s, color .12s;
+      transition: background .15s, color .15s, box-shadow .15s;
+      /* Efecto de llamada a la atención: borde punteado animado */
+      border-top: 1.5px dashed rgba(0,51,160,.25);
+      background: linear-gradient(90deg, rgba(0,51,160,.04) 0%, transparent 100%);
     }
     .totales-desglose-sum::-webkit-details-marker { display: none; }
-    .totales-desglose-sum:hover { background: var(--bg-page); color: var(--flag-blue); }
+    .totales-desglose-sum:hover {
+      background: var(--flag-blue-soft);
+      color: var(--flag-blue);
+      border-top-color: var(--flag-blue);
+    }
     .totales-desglose[open] .totales-desglose-sum {
       color: var(--flag-blue); background: var(--flag-blue-soft);
+      border-top-color: var(--flag-blue);
     }
     .totales-desglose[open] .totales-desglose-sum svg { transform: rotate(180deg); }
     .totales-desglose-sum svg { transition: transform .25s ease; }
+    /* Badge visual que invita al clic */
+    .totales-desglose-sum::after {
+      content: 'CLIC PARA VER';
+      font-size: 8px; font-weight: 800; letter-spacing: .1em;
+      color: var(--flag-blue); background: rgba(0,51,160,.08);
+      border: 1px solid rgba(0,51,160,.2); border-radius: 20px;
+      padding: 2px 8px; margin-left: auto;
+      transition: background .15s;
+    }
+    .totales-desglose[open] .totales-desglose-sum::after { display: none; }
+    .totales-desglose-sum:hover::after { background: rgba(0,51,160,.14); }
     .totales-desglose-body {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -2317,7 +2337,7 @@
             <div class="kpi-total-meta">
               <div class="kpi-total-lbl">Registros Comunes</div>
               <div class="kpi-total-num" data-target="${totalOperativo}">0</div>
-              <div class="kpi-total-sub">Incidencias reportadas en las categorías principales de monitoreo</div>
+              <div class="kpi-total-sub">Incidencias reportadas más comunes</div>
             </div>
           </div>
           <div class="kpi-total-half half-gen">

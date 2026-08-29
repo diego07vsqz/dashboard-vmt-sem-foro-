@@ -1836,48 +1836,6 @@
      Fuente única de verdad para etiquetas, badges y colores.
      Las claves van en minúsculas para que toLowerCase() funcione.
   ─────────────────────────────────────────────────────────────── */
-  const TIPOS = {
-    'forzamiento de tiempos': { label: 'Forzamiento de Tiempos', badge: 'b-amber', color: '#ca8a04' },
-    'forzamiento de tiempo':  { label: 'Forzamiento de Tiempos', badge: 'b-amber', color: '#ca8a04' },
-    'apagado':                { label: 'Apagado',                badge: 'b-red',    color: '#dc2626' },
-    'mejora de tiempo':       { label: 'Mejora de Tiempos',      badge: 'b-green',  color: '#65a30d' },
-    'mejora de tiempos':      { label: 'Mejora de Tiempos',      badge: 'b-green',  color: '#65a30d' },
-    'intermitencia':          { label: 'Intermitencia',          badge: 'b-blue',   color: '#2563eb' },
-    'error de comunicación':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#9333ea' },
-    'error de comunicacion':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#9333ea' },
-    'funcionamiento':         { label: 'Funcionamiento',         badge: 'b-teal',   color: '#0891b2', icon: ICONS.funcionamiento },
-    'programa':               { label: 'Programa',               badge: 'b-purple', color: '#db2777' },
-    'accidente':              { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#ea580c' },
-    'vdt volumen':            { label: 'Revisión VDT',           badge: 'b-orange', color: '#0d9488' },
-    'vdt':                    { label: 'Revisión VDT',           badge: 'b-orange', color: '#0d9488' },
-    'falla':                  { label: 'Falla',                  badge: 'b-red',    color: '#ec4899' },
-    'tiempos':                { label: 'Ajuste de Tiempos',      badge: 'b-blue',   color: '#06b6d4' },
-    'mantenimiento':          { label: 'Mantenimiento',          badge: 'b-gray',   color: '#f43f5e' },
-    'vandalismo':             { label: 'Vandalismo',             badge: 'b-red',    color: '#f59e0b' },
-    'visita tecnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
-    'visita técnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
-    'chorros':                { label: 'Chorros',                 badge: 'b-purple', color: '#c026d3' },
-    'ramas':                  { label: 'Ramas / Vegetación',      badge: 'b-green',  color: '#84cc16', icon: ICONS.ramas },
-    'apoyo en accidente':     { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#c2400a' },
-    'evento':                 { label: 'Evento',                 badge: 'b-blue',   color: '#0ea5e9' },
-    'reorientacion':          { label: 'Reorientación',          badge: 'b-green',  color: '#10b981', icon: ICONS.reorientacion },
-    'reorientación':          { label: 'Reorientación',          badge: 'b-green',  color: '#10b981' },
-    'comunicacion':           { label: 'Comunicación',           badge: 'b-teal',   color: '#14b8a6' },
-    'comunicación':           { label: 'Comunicación',           badge: 'b-teal',   color: '#14b8a6' },
-    'otros':                  { label: 'Otros',                  badge: 'b-gray',   color: '#8b5e3c' },
-    'otro':                   { label: 'Otro',                   badge: 'b-gray',   color: '#92400e' },
-    'error spinnaker':        { label: 'Error Spinnaker',        badge: 'b-red',    color: '#be123c' },
-  };
-
-  // Helpers — derivados del catálogo TIPOS
-  const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw || 'Otro', badge: 'b-gray', color: '#94a3b8' };
-  const isNormal = r     => (r.anomalia || '').toLowerCase().trim() === 'normal';
-  const countKw  = (rows, kw) => rows.filter(r => (r.incidencia || '').toLowerCase().includes(kw)).length;
-
-  /* ─── Íconos SVG de las KPI cards ─────────────────────────────
-     Cada ícono es SVG inline (48×48 px) con paleta oscura (#1e293b)
-     y el color de acento de su categoría.
-  ─────────────────────────────────────────────────────────────── */
   const ICONS = {
     forzamiento: `<svg viewBox="0 0 48 48" fill="none">
       <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
@@ -2080,6 +2038,49 @@
       <polyline points="37,10 39.5,12.5 44,7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`,
   };
+
+  const TIPOS = {
+    'forzamiento de tiempos': { label: 'Forzamiento de Tiempos', badge: 'b-amber', color: '#ca8a04' },
+    'forzamiento de tiempo':  { label: 'Forzamiento de Tiempos', badge: 'b-amber', color: '#ca8a04' },
+    'apagado':                { label: 'Apagado',                badge: 'b-red',    color: '#dc2626' },
+    'mejora de tiempo':       { label: 'Mejora de Tiempos',      badge: 'b-green',  color: '#65a30d' },
+    'mejora de tiempos':      { label: 'Mejora de Tiempos',      badge: 'b-green',  color: '#65a30d' },
+    'intermitencia':          { label: 'Intermitencia',          badge: 'b-blue',   color: '#2563eb' },
+    'error de comunicación':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#9333ea' },
+    'error de comunicacion':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#9333ea' },
+    'funcionamiento':         { label: 'Funcionamiento',         badge: 'b-teal',   color: '#0891b2', icon: ICONS.funcionamiento },
+    'programa':               { label: 'Programa',               badge: 'b-purple', color: '#db2777' },
+    'accidente':              { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#ea580c' },
+    'vdt volumen':            { label: 'Revisión VDT',           badge: 'b-orange', color: '#0d9488' },
+    'vdt':                    { label: 'Revisión VDT',           badge: 'b-orange', color: '#0d9488' },
+    'falla':                  { label: 'Falla',                  badge: 'b-red',    color: '#ec4899' },
+    'tiempos':                { label: 'Ajuste de Tiempos',      badge: 'b-blue',   color: '#06b6d4' },
+    'mantenimiento':          { label: 'Mantenimiento',          badge: 'b-gray',   color: '#f43f5e' },
+    'vandalismo':             { label: 'Vandalismo',             badge: 'b-red',    color: '#f59e0b' },
+    'visita tecnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
+    'visita técnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
+    'chorros':                { label: 'Chorros',                 badge: 'b-purple', color: '#c026d3' },
+    'ramas':                  { label: 'Ramas / Vegetación',      badge: 'b-green',  color: '#84cc16', icon: ICONS.ramas },
+    'apoyo en accidente':     { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#c2400a' },
+    'evento':                 { label: 'Evento',                 badge: 'b-blue',   color: '#0ea5e9' },
+    'reorientacion':          { label: 'Reorientación',          badge: 'b-green',  color: '#10b981', icon: ICONS.reorientacion },
+    'reorientación':          { label: 'Reorientación',          badge: 'b-green',  color: '#10b981' },
+    'comunicacion':           { label: 'Comunicación',           badge: 'b-teal',   color: '#14b8a6' },
+    'comunicación':           { label: 'Comunicación',           badge: 'b-teal',   color: '#14b8a6' },
+    'otros':                  { label: 'Otros',                  badge: 'b-gray',   color: '#8b5e3c' },
+    'otro':                   { label: 'Otro',                   badge: 'b-gray',   color: '#92400e' },
+    'error spinnaker':        { label: 'Error Spinnaker',        badge: 'b-red',    color: '#be123c' },
+  };
+
+  // Helpers — derivados del catálogo TIPOS
+  const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw || 'Otro', badge: 'b-gray', color: '#94a3b8' };
+  const isNormal = r     => (r.anomalia || '').toLowerCase().trim() === 'normal';
+  const countKw  = (rows, kw) => rows.filter(r => (r.incidencia || '').toLowerCase().includes(kw)).length;
+
+  /* ─── Íconos SVG de las KPI cards ─────────────────────────────
+     Cada ícono es SVG inline (48×48 px) con paleta oscura (#1e293b)
+     y el color de acento de su categoría.
+  ─────────────────────────────────────────────────────────────── */
 
   // Paleta de Chart.js — 16 colores vivos, sin grises ni colores apagados.
   // Cada categoría tiene un hue distinto para máxima diferenciación visual.

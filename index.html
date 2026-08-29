@@ -1246,7 +1246,7 @@
     }
     .kpi-total-num {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 32px; font-weight: 800; line-height: 1;
+      font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -2px;
       color: var(--text-dark);
     }
     .half-op .kpi-total-num { color: var(--flag-blue); }
@@ -1294,6 +1294,44 @@
       border-radius: var(--r-lg); padding: 16px 20px;
       margin-bottom: 16px;
     }
+
+    /* ── Submenú desplegable de totales ───────────────────────────── */
+    .totales-desglose {
+      border-top: 1px solid var(--border);
+    }
+    .totales-desglose-sum {
+      display: flex; align-items: center; gap: 7px;
+      padding: 10px 22px;
+      font-size: 10px; font-weight: 700; color: var(--text-mid);
+      text-transform: uppercase; letter-spacing: .07em;
+      cursor: pointer; list-style: none; user-select: none;
+      transition: background .12s, color .12s;
+    }
+    .totales-desglose-sum::-webkit-details-marker { display: none; }
+    .totales-desglose-sum:hover { background: var(--bg-page); color: var(--flag-blue); }
+    .totales-desglose[open] .totales-desglose-sum {
+      color: var(--flag-blue); background: var(--flag-blue-soft);
+    }
+    .totales-desglose[open] .totales-desglose-sum svg { transform: rotate(180deg); }
+    .totales-desglose-sum svg { transition: transform .25s ease; }
+    .totales-desglose-body {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 6px; padding: 10px 22px 14px;
+      background: var(--bg-page); border-top: 1px solid var(--border);
+      animation: tabFade .18s ease;
+    }
+    .totales-desglose-row {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; color: var(--text-mid);
+    }
+    .totales-desglose-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .totales-desglose-name { flex: 1; }
+    .totales-desglose-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700; color: var(--text-dark);
+    }
+    [data-theme="dark"] .totales-desglose-body { background: #0f172a; }
 
   </style>
 </head>
@@ -1795,90 +1833,87 @@
 
     /* Semáforo inclinado/mal colocado — flecha de rotación indica reubicación */
     reorientacion: `<svg viewBox="0 0 48 48" fill="none">
-      <!-- Semáforo principal RECTO (correcto) -->
-      <rect x="26" y="4" width="14" height="26" rx="4" fill="#1e293b"/>
-      <rect x="28" y="6" width="10" height="22" rx="3" fill="#0f172a"/>
-      <circle cx="33" cy="12" r="3.5" fill="#065f46"/>
-      <circle cx="33" cy="12" r="2.5" fill="#10b981"/>
-      <circle cx="33" cy="20" r="3.5" fill="#92400e"/>
-      <circle cx="33" cy="20" r="2.5" fill="#f59e0b"/>
-      <circle cx="33" cy="28" r="3.5" fill="#1e293b" stroke="#374151" stroke-width="1"/>
-      <!-- Poste recto -->
-      <rect x="31" y="30" width="4" height="12" rx="1.5" fill="#475569"/>
-      <!-- Semáforo TORCIDO (mal colocado) — izquierda -->
-      <g transform="rotate(25,14,20)">
-        <rect x="6" y="6" width="14" height="24" rx="4" fill="#334155"/>
-        <rect x="8" y="8" width="10" height="20" rx="3" fill="#1e293b"/>
-        <circle cx="13" cy="14" r="3" fill="#374151"/>
-        <circle cx="13" cy="21" r="3" fill="#374151"/>
-        <circle cx="13" cy="28" r="3" fill="#374151"/>
-        <rect x="11" y="30" width="4" height="8" rx="1.5" fill="#475569"/>
+      <!-- Semáforo TORCIDO (mal colocado) — izquierda, oscuro -->
+      <g transform="rotate(30,14,22)">
+        <rect x="5" y="6" width="16" height="26" rx="4" fill="#334155"/>
+        <rect x="7" y="8" width="12" height="22" rx="3" fill="#1e293b"/>
+        <circle cx="13" cy="14" r="3.5" fill="#374151"/>
+        <circle cx="13" cy="21" r="3.5" fill="#374151"/>
+        <circle cx="13" cy="28" r="3.5" fill="#374151"/>
+        <rect x="11" y="32" width="4" height="6" rx="1.5" fill="#475569"/>
       </g>
-      <!-- Flecha curva naranja: del torcido al recto -->
-      <path d="M18 18 Q22 10 26 14" stroke="#f97316" stroke-width="2.5"
+      <!-- Semáforo RECTO (correcto) — derecha, iluminado -->
+      <rect x="27" y="4" width="16" height="28" rx="4" fill="#1e293b"/>
+      <rect x="29" y="6" width="12" height="24" rx="3" fill="#0f172a"/>
+      <circle cx="35" cy="13" r="4" fill="#991b1b"/>
+      <circle cx="35" cy="13" r="2.8" fill="#ef4444"/>
+      <circle cx="35" cy="22" r="4" fill="#92400e"/>
+      <circle cx="35" cy="22" r="2.8" fill="#f59e0b"/>
+      <circle cx="35" cy="31" r="4" fill="#065f46"/>
+      <circle cx="35" cy="31" r="2.8" fill="#10b981"/>
+      <circle cx="33.5" cy="29.5" r="0.8" fill="rgba(255,255,255,.4)"/>
+      <rect x="33" y="32" width="4" height="8"  rx="1.5" fill="#475569"/>
+      <!-- Flecha curva naranja de torcido → recto -->
+      <path d="M20 20 Q24 12 28 16" stroke="#f97316" stroke-width="3"
             fill="none" stroke-linecap="round"/>
-      <polygon points="26,14 23,10 29,11" fill="#f97316"/>
+      <polygon points="28,16 24,11 31,12" fill="#f97316"/>
     </svg>`,
 
     /* Ramas tapando el semáforo — hojas delante del cuerpo */
     ramas: `<svg viewBox="0 0 48 48" fill="none">
-      <!-- Semáforo reconocible — centrado -->
-      <rect x="16" y="8" width="16" height="28" rx="4" fill="#1e293b"/>
-      <rect x="18" y="10" width="12" height="24" rx="3" fill="#0f172a"/>
-      <circle cx="24" cy="16" r="4" fill="#991b1b"/>
-      <circle cx="24" cy="16" r="2.8" fill="#ef4444"/>
-      <circle cx="24" cy="24" r="4" fill="#374151"/>
-      <circle cx="24" cy="32" r="4" fill="#374151"/>
-      <!-- Poste -->
-      <rect x="22" y="36" width="4" height="8" rx="1.5" fill="#475569"/>
-      <!-- Rama gruesa desde la izquierda cruzando por delante -->
-      <path d="M0 38 Q6 28 14 20 Q20 14 28 8"
-            stroke="#6b3a1f" stroke-width="4" fill="none" stroke-linecap="round"/>
-      <!-- Rama secundaria diagonal -->
-      <path d="M10 24 Q16 16 22 10"
-            stroke="#7c4a25" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <!-- Hoja grande tapando luz roja -->
-      <ellipse cx="20" cy="14" rx="9" ry="6" fill="#16a34a" opacity="0.92"
-               transform="rotate(-15,20,14)"/>
-      <!-- Hoja tapando parte del cuerpo -->
-      <ellipse cx="12" cy="22" rx="8" ry="5" fill="#15803d" opacity="0.88"
-               transform="rotate(20,12,22)"/>
-      <!-- Hoja pequeña esquina superior -->
-      <ellipse cx="30" cy="10" rx="6" ry="4" fill="#22c55e" opacity="0.85"
-               transform="rotate(-25,30,10)"/>
-      <!-- Hoja derecha cubriendo luz ámbar -->
-      <ellipse cx="32" cy="22" rx="7" ry="4.5" fill="#16a34a" opacity="0.8"
-               transform="rotate(10,32,22)"/>
+      <!-- Semáforo — visible pero parcialmente tapado -->
+      <rect x="17" y="6" width="15" height="26" rx="4" fill="#1e293b"/>
+      <rect x="19" y="8" width="11" height="22" rx="3" fill="#0f172a"/>
+      <circle cx="24" cy="14" r="3.8" fill="#991b1b"/>
+      <circle cx="24" cy="14" r="2.6" fill="#ef4444"/>
+      <circle cx="24" cy="22" r="3.8" fill="#374151"/>
+      <circle cx="24" cy="30" r="3.8" fill="#374151"/>
+      <rect x="22" y="32" width="4" height="10" rx="1.5" fill="#475569"/>
+      <!-- Tronco grueso diagonal — desde abajo izquierda -->
+      <path d="M2 46 Q10 32 20 20 Q26 13 34 8"
+            stroke="#5c3317" stroke-width="5" fill="none"
+            stroke-linecap="round"/>
+      <!-- Rama secundaria -->
+      <path d="M16 28 Q10 20 16 12"
+            stroke="#6b3a1f" stroke-width="3" fill="none"
+            stroke-linecap="round"/>
+      <!-- Hoja grande verde sobre luz roja -->
+      <ellipse cx="19" cy="13" rx="10" ry="6.5"
+               fill="#16a34a" transform="rotate(-20,19,13)"/>
+      <!-- Segunda hoja sobre zona ámbar -->
+      <ellipse cx="11" cy="23" rx="9" ry="5.5"
+               fill="#15803d" transform="rotate(15,11,23)"/>
+      <!-- Hoja lateral derecha -->
+      <ellipse cx="34" cy="10" rx="8" ry="5"
+               fill="#22c55e" transform="rotate(-30,34,10)"/>
     </svg>`,
 
     /* Semáforo funcionando + llave inglesa — mantenimiento/revisión */
     funcionamiento: `<svg viewBox="0 0 48 48" fill="none">
-      <!-- Semáforo compacto izquierda -->
-      <rect x="4" y="6" width="16" height="30" rx="4" fill="#1e293b"/>
-      <rect x="6" y="8" width="12" height="26" rx="3" fill="#0f172a"/>
-      <circle cx="12" cy="14" r="4" fill="#991b1b"/>
-      <circle cx="12" cy="14" r="2.8" fill="#ef4444"/>
-      <circle cx="10.8" cy="12.8" r="0.9" fill="rgba(255,255,255,0.4)"/>
-      <circle cx="12" cy="22" r="4" fill="#92400e"/>
-      <circle cx="12" cy="22" r="2.8" fill="#f59e0b"/>
-      <circle cx="12" cy="30" r="4" fill="#065f46"/>
-      <circle cx="12" cy="30" r="2.8" fill="#10b981"/>
-      <circle cx="10.8" cy="28.8" r="0.9" fill="rgba(255,255,255,0.4)"/>
+      <!-- Semáforo izquierda — reconocible con las 3 luces -->
+      <rect x="5" y="5" width="17" height="30" rx="4" fill="#1e293b"/>
+      <rect x="7" y="7" width="13" height="26" rx="3" fill="#0f172a"/>
+      <circle cx="13" cy="13" r="4.2" fill="#991b1b"/>
+      <circle cx="13" cy="13" r="3" fill="#ef4444"/>
+      <circle cx="11.8" cy="11.8" r="0.9" fill="rgba(255,255,255,.45)"/>
+      <circle cx="13" cy="22" r="4.2" fill="#92400e"/>
+      <circle cx="13" cy="22" r="3" fill="#f59e0b"/>
+      <circle cx="13" cy="31" r="4.2" fill="#065f46"/>
+      <circle cx="13" cy="31" r="3" fill="#10b981"/>
+      <circle cx="11.8" cy="29.8" r="0.9" fill="rgba(255,255,255,.45)"/>
       <!-- Poste -->
-      <rect x="10" y="36" width="4" height="8" rx="1.5" fill="#475569"/>
-      <!-- Base poste -->
-      <rect x="6" y="43" width="12" height="3" rx="1.5" fill="#334155"/>
-      <!-- Llave fija (ajustable) — derecha, prominente -->
-      <g transform="translate(34,24) rotate(-40)">
-        <!-- Mango largo -->
-        <rect x="-2.5" y="2" width="5" height="20" rx="2" fill="#f97316"/>
-        <!-- Cabeza de llave — mordaza fija -->
-        <path d="M-6,-2 L-6,-10 Q-6,-14 -2,-14 L2,-14 Q6,-14 6,-10 L6,-2 Z"
-              fill="#f97316"/>
-        <!-- Abertura de la mordaza -->
-        <rect x="-3" y="-10" width="6" height="6" rx="1" fill="#0f172a"/>
+      <rect x="11" y="35" width="4" height="10" rx="1.5" fill="#475569"/>
+      <rect x="7"  y="43" width="12" height="3"  rx="1.5" fill="#334155"/>
+      <!-- Llave fija derecha — grande y clara -->
+      <g transform="translate(36,26) rotate(-45)">
+        <!-- Mango -->
+        <rect x="-3" y="1" width="6" height="19" rx="2.5" fill="#f97316"/>
+        <rect x="-3" y="1" width="6" height="4"  rx="0"   fill="#ea6c00"/>
+        <!-- Cabeza — mordaza fija en U -->
+        <path d="M-6,-2 L-6,-12 Q-6,-16 0,-16 Q6,-16 6,-12 L6,-2 Z" fill="#f97316"/>
+        <rect x="-3.5" y="-13" width="7" height="9" rx="1" fill="#0f172a"/>
         <!-- Mordaza inferior -->
-        <rect x="-6" y="-3" width="12" height="4" rx="1.5" fill="#ea6c00"/>
+        <rect x="-6" y="-3" width="12" height="4" rx="2" fill="#ea6c00"/>
       </g>
     </svg>`,
   };
@@ -2235,10 +2270,15 @@
        toma los top-3 con más registros.
     ──────────────────────────────────────────────────────────────────── */
     const kwFijas = new Set(FIJAS.map(c => c.kw));
+    // Normalizar: quita tildes para que 'reorientación' → 'reorientacion'
+    const normInc = s => (s || '').toLowerCase().trim()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '');
+
     const conteo  = {};
     rows.forEach(r => {
-      const inc  = (r.incidencia || '').toLowerCase().trim();
-      const tipo = TIPOS[inc] || TIPOS['otros'] || { label: inc || 'Otros', badge: 'b-gray', color: '#64748b' };
+      const raw  = (r.incidencia || '').toLowerCase().trim();
+      const inc  = normInc(r.incidencia);
+      const tipo = TIPOS[raw] || TIPOS[inc] || TIPOS['otros'] || { label: raw || 'Otros', badge: 'b-gray', color: '#64748b' };
       const yaFija = [...kwFijas].some(kw => inc.includes(kw));
       if (yaFija) return;
       const key = tipo.label;
@@ -2295,6 +2335,25 @@
             </div>
           </div>
         </div>
+
+        <!-- Submenú desplegable: qué incluye el Total Operativo -->
+        <details class="totales-desglose" id="totales-desglose">
+          <summary class="totales-desglose-sum">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" width="11" height="11" style="flex-shrink:0">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+            <span>¿Qué incluye el Total Operativo?</span>
+          </summary>
+          <div class="totales-desglose-body">
+            ${FIJAS.map(c => `
+              <div class="totales-desglose-row">
+                <span class="totales-desglose-dot" style="background:${c.color}"></span>
+                <span class="totales-desglose-name">${c.label.charAt(0)+c.label.slice(1).toLowerCase()}</span>
+                <span class="totales-desglose-val">${c.val}</span>
+              </div>`).join('')}
+          </div>
+        </details>
 
       </div>`;
 

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unidad de Planeamiento Semafórico | CCM</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 52'%3E%3Crect x='10' y='2' width='24' height='48' rx='5' fill='%230f2236'/%3E%3Ccircle cx='22' cy='13' r='7' fill='%23e03535'/%3E%3Ccircle cx='22' cy='26' r='7' fill='%23c98a10'/%3E%3Ccircle cx='22' cy='39' r='7' fill='%231e8a4a'/%3E%3C/svg%3E">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     /* ── Variables globales (design tokens) ─────────────────
@@ -89,7 +88,9 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Figtree', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
       background: var(--bg-page);
       color: var(--text-dark);
       line-height: 1.5;
@@ -201,7 +202,7 @@
     }
     .filter-select,
     .date-input {
-      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+      font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600;
       color: var(--text-dark); background: var(--bg-white);
       border: 1.5px solid var(--border-mid); border-radius: var(--r-sm);
       padding: 6px 32px 6px 13px; cursor: pointer; outline: none;
@@ -246,7 +247,7 @@
     .date-sep         { font-size: 13px; color: var(--text-light); }
 
     .btn-clear {
-      font-family: 'Inter', sans-serif; font-size: 10px;
+      font-family: 'Figtree', sans-serif; font-size: 10px;
       color: #fff; background: var(--red);
       border: 1px solid var(--red); border-radius: var(--r-sm);
       padding: 5px 11px; cursor: pointer;
@@ -257,7 +258,7 @@
 
     .range-btns { display: flex; gap: 6px; }
     .range-btn {
-      font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 600;
+      font-family: 'Figtree', sans-serif; font-size: 10px; font-weight: 600;
       color: var(--text-mid); background: var(--bg-page);
       border: 1px solid var(--border-mid); border-radius: 20px;
       padding: 5px 15px; cursor: pointer;
@@ -288,7 +289,7 @@
       color: var(--text-mid); background: transparent;
       border: none; border-bottom: 2px solid transparent;
       cursor: pointer; transition: all .15s;
-      font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: .04em;
+      font-family: 'Figtree', sans-serif; text-transform: uppercase; letter-spacing: .04em;
     }
     .tab-btn svg   { width: 15px; height: 15px; stroke: currentColor; fill: none; }
     .tab-btn:hover { color: var(--flag-blue); background: var(--flag-blue-soft); }
@@ -689,7 +690,7 @@
     /* Botones de rango */
     .range-btns { display: flex; gap: 3px; }
     .range-btn {
-      font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+      font-family: 'Figtree', sans-serif; font-size: 11px; font-weight: 600;
       color: var(--text-mid); background: transparent;
       border: 1px solid transparent; border-radius: 20px;
       padding: 4px 12px; cursor: pointer; transition: all .15s; white-space: nowrap;
@@ -709,7 +710,7 @@
     .date-range-group { display: flex; align-items: center; gap: 5px; }
     .date-sep { color: var(--text-light); font-size: 12px; }
     .date-input {
-      font-family: 'Inter', sans-serif; font-size: 11px;
+      font-family: 'Figtree', sans-serif; font-size: 11px;
       color: var(--text-dark); background: var(--bg-white);
       border: 1px solid var(--border-mid); border-radius: var(--r-sm);
       padding: 4px 9px; outline: none; transition: border-color .15s; width: 126px;
@@ -718,7 +719,7 @@
 
     /* Botón LIMPIAR */
     .btn-clear {
-      font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700;
+      font-family: 'Figtree', sans-serif; font-size: 10px; font-weight: 700;
       color: #fff; background: var(--red); border: 1px solid var(--red);
       border-radius: var(--r-sm); padding: 4px 11px; cursor: pointer;
       transition: all .15s; text-transform: uppercase; letter-spacing: .04em;
@@ -747,7 +748,7 @@
     /* Botón activador */
     .fdd-btn {
       display: flex; align-items: center; gap: 7px;
-      font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+      font-family: 'Figtree', sans-serif; font-size: 11px; font-weight: 600;
       color: var(--text-mid); background: var(--bg-white);
       border: 1px solid var(--border-mid); border-radius: var(--r-sm);
       padding: 5px 13px; cursor: pointer; transition: all .2s;
@@ -836,7 +837,7 @@
     }
     .filter-main-btn {
       display: flex; align-items: center; gap: 8px;
-      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
+      font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 700;
       color: #fff;
       background: linear-gradient(135deg, var(--flag-blue) 0%, #3b82f6 100%);
       border: none;
@@ -912,7 +913,7 @@
       text-transform:uppercase; letter-spacing:.1em; margin-bottom:7px;
     }
     .fp-select {
-      width:100%; font-family:'Inter',sans-serif; font-size:12px;
+      width:100%; font-family:'Figtree',sans-serif; font-size:12px;
       color:var(--text-dark); background:var(--bg-white);
       border:1.5px solid var(--border-mid); border-radius:var(--r-md);
       padding:9px 14px; outline:none; cursor:pointer; transition:border-color .15s;
@@ -924,7 +925,7 @@
 
     .fp-dates { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
     .fp-date-input {
-      flex:1; font-family:'Inter',sans-serif; font-size:12px;
+      flex:1; font-family:'Figtree',sans-serif; font-size:12px;
       color:var(--text-dark); background:var(--bg-white);
       border:1.5px solid var(--border-mid); border-radius:var(--r-md);
       padding:9px 12px; outline:none; transition:border-color .15s;
@@ -933,7 +934,7 @@
 
     .fp-footer { padding:12px 20px 16px; border-top:1px solid var(--border); display:flex; gap:8px; }
     .fp-apply {
-      flex:1; font-family:'Inter',sans-serif; font-size:12px; font-weight:700;
+      flex:1; font-family:'Figtree',sans-serif; font-size:12px; font-weight:700;
       color:#fff; background:var(--flag-blue); border:none; border-radius:var(--r-md);
       padding:10px; cursor:pointer; transition:background .15s;
       text-transform:uppercase; letter-spacing:.05em;
@@ -1295,6 +1296,142 @@
     [data-theme="dark"] #zonas-top-table tbody tr:hover .top-ver-btn,
     [data-theme="dark"] #zonas-top-table tbody tr.top-active .top-ver-btn
       { background:#1e3a8a; border-color:#3b82f6; color:#fff; }
+
+    /* ══ Card dinámica (tipos frecuentes no cubiertos) ═══════════════ */
+    .k-dynamic::before { background: var(--text-light); }
+    .k-dynamic { border-color: var(--border-mid); }
+
+    /* ══ Card unificada de totales ══════════════════════════════════
+       Ocupa todo el ancho del grid y muestra Operativo + General
+       juntos con barra de proporción y desglose desplegable.
+    ═══════════════════════════════════════════════════════════════ */
+    .kpi-totales-wrap {
+      grid-column: 1 / -1;
+      background: var(--bg-white);
+      border: 1.5px solid var(--border-mid);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+    }
+
+    /* Fila superior: dos mitades (operativo | general) */
+    .kpi-totales-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .kpi-total-half {
+      padding: 16px 22px;
+      display: flex; align-items: center; gap: 14px;
+      position: relative;
+    }
+    .kpi-total-half::before {
+      content: ''; position: absolute;
+      left: 0; top: 12px; bottom: 12px;
+      width: 4px; border-radius: 0 4px 4px 0;
+    }
+    /* Operativo — borde azul institucional */
+    .half-op {
+      border-right: 1px solid var(--border);
+      background: var(--flag-blue-soft);
+    }
+    .half-op::before { background: var(--flag-blue); }
+
+    /* General — borde dorado institucional */
+    .half-gen { background: #fffceb; }
+    .half-gen::before { background: #FFD100; }
+
+    [data-theme="dark"] .half-gen { background: #1a1600; }
+
+    .kpi-total-meta { flex: 1; }
+    .kpi-total-lbl {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .09em; color: var(--text-light); margin-bottom: 3px;
+    }
+    .kpi-total-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 32px; font-weight: 800; line-height: 1;
+      color: var(--text-dark);
+    }
+    .half-op .kpi-total-num { color: var(--flag-blue); }
+    .half-gen .kpi-total-num { color: #0f2236; }
+    [data-theme="dark"] .half-gen .kpi-total-num { color: #FFD100; }
+    .kpi-total-sub {
+      font-size: 9px; color: var(--text-light); margin-top: 4px; line-height: 1.4;
+    }
+
+    /* Barra de proporción operativo/general */
+    .kpi-prop-bar-wrap {
+      padding: 10px 22px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .kpi-prop-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 9px; color: var(--text-light); font-weight: 600;
+      text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px;
+    }
+    .kpi-prop-bar {
+      height: 6px; background: var(--border-mid);
+      border-radius: 6px; overflow: hidden;
+    }
+    .kpi-prop-fill {
+      height: 100%; background: var(--flag-blue);
+      border-radius: 6px; opacity: .65;
+      transition: width .6s cubic-bezier(.22,1,.36,1);
+    }
+
+    /* Toggle desplegable de desglose */
+    .kpi-desglose-toggle {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 22px;
+      border-top: 1px solid var(--border);
+      font-size: 10px; font-weight: 600; color: var(--text-mid);
+      cursor: pointer; user-select: none;
+      transition: background .12s, color .12s;
+    }
+    .kpi-desglose-toggle:hover { background: var(--bg-page); color: var(--flag-blue); }
+    .kpi-desglose-toggle svg {
+      transition: transform .25s cubic-bezier(.68,-.55,.265,1.55);
+      flex-shrink: 0;
+    }
+    .kpi-desglose-toggle.open svg { transform: rotate(90deg); }
+    .kpi-desglose-toggle.open { color: var(--flag-blue); }
+
+    /* Cuerpo del desglose — barras horizontales por categoría */
+    .kpi-desglose-body {
+      display: none;
+      padding: 12px 22px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-page);
+    }
+    .kpi-desglose-body.open { display: block; }
+
+    .kpi-desglose-row {
+      display: grid;
+      grid-template-columns: 180px 1fr 36px;
+      align-items: center; gap: 10px;
+      margin-bottom: 7px;
+    }
+    .kpi-desglose-row:last-child { margin-bottom: 0; }
+    .kpi-desglose-name {
+      font-size: 10px; color: var(--text-mid); font-weight: 500;
+      display: flex; align-items: center; gap: 7px; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .kpi-desglose-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .kpi-desglose-bar-wrap {
+      height: 5px; background: var(--border-mid);
+      border-radius: 4px; overflow: hidden;
+    }
+    .kpi-desglose-bar-fill {
+      height: 100%; border-radius: 4px; opacity: .55;
+      transition: width .5s cubic-bezier(.22,1,.36,1);
+    }
+    .kpi-desglose-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700; color: var(--text-dark);
+      text-align: right;
+    }
 
   </style>
 </head>
@@ -1734,7 +1871,7 @@
   // Helpers — derivados del catálogo TIPOS
   const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw || 'Otro', badge: 'b-gray', color: '#94a3b8' };
   const isNormal = r     => (r.anomalia || '').toLowerCase().trim() === 'normal';
-  const countKw  = (rows, kw) => rows.filter(r => r.incidencia.toLowerCase().includes(kw)).length;
+  const countKw  = (rows, kw) => rows.filter(r => (r.incidencia || '').toLowerCase().includes(kw)).length;
 
   /* ─── Íconos SVG de las KPI cards ─────────────────────────────
      Cada ícono es SVG inline (48×48 px) con paleta oscura (#1e293b)
@@ -1993,7 +2130,7 @@
         const url   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
         const res   = await fetch(url);
         const text  = await res.text();
-        const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+?)\)\s*;?\s*$/);
+        const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+?)\);\s*$/);
         if (!match) throw new Error('Formato de respuesta inesperado.');
         const json  = JSON.parse(match[1]);
         dataset = (json.table.rows || [])
@@ -2099,9 +2236,9 @@
         const d = parseSheetDate(r.fecha);
         if (!d || (dateIni && d < dateIni) || (dateFin && d > dateFin)) return false;
       }
-      if (inc    && !r.incidencia.toLowerCase().includes(inc)) return false;
+      if (inc    && !(r.incidencia || '').toLowerCase().includes(inc)) return false;
       if (ciudad && (r.ciudad||'').toLowerCase() !== ciudad)   return false;
-      if (rep    && !r.reporte.toLowerCase().includes(rep))    return false;
+      if (rep    && !(r.reporte || '').toLowerCase().includes(rep)) return false;
       return true;
     });
 
@@ -2128,58 +2265,163 @@
 
   // Construye y renderiza las 9 tarjetas KPI en #kpi-grid
   function renderKPIs(rows) {
-    // Total operativo = suma de las 7 categorías principales del dashboard
-    const totalOperativo =
-      countKw(rows, 'forzamiento')  +
-      countKw(rows, 'apagado')      +
-      countKw(rows, 'mejora')       +
-      countKw(rows, 'intermitencia') +
-      countKw(rows, 'error')        +
-      countKw(rows, 'accidente')    +
-      countKw(rows, 'vdt');
-
-    // Total general = todos los registros del período (incluyendo categorías secundarias)
-    const totalGeneral = rows.length;
-
-    const cards = [
-      { label: 'FORZAMIENTO DE TIEMPOS', val: countKw(rows, 'forzamiento'),  cls: 'k-yellow',        bg: '#fffbeb', icon: ICONS.forzamiento  },
-      { label: 'SEMÁFORO APAGADO',       val: countKw(rows, 'apagado'),       cls: 'k-red',           bg: '#fef2f2', icon: ICONS.apagado      },
-      { label: 'MEJORA DE TIEMPOS',      val: countKw(rows, 'mejora'),        cls: 'k-green',         bg: '#ecfdf5', icon: ICONS.mejora       },
-      { label: 'INTERMITENCIA',          val: countKw(rows, 'intermitencia'), cls: 'k-intermitencia', bg: '#fff7ed', icon: ICONS.intermitencia },
-      { label: 'ERROR DE COMUNICACIÓN',  val: countKw(rows, 'error'),         cls: 'k-purple',        bg: '#f5f3ff', icon: ICONS.error        },
-      { label: 'APOYO EN ACCIDENTES',    val: countKw(rows, 'accidente'),     cls: 'k-red',           bg: '#fff1f2', icon: ICONS.accidente    },
-      { label: 'REVISIÓN VDT',           val: countKw(rows, 'vdt'),           cls: 'k-orange',        bg: '#fff7ed', icon: ICONS.vdt          },
-      { label: 'TOTAL OPERATIVO',        val: totalOperativo,                 cls: 'k-blue',          bg: '#eff6ff', icon: ICONS.total        },
-      { label: 'TOTAL GENERAL',          val: totalGeneral,                   cls: 'k-slate',         bg: '#f1f5f9', icon: ICONS.totalGeneral },
+    /* ─── Categorías fijas (7 tipos operativos principales) ─────────── */
+    const FIJAS = [
+      { label: 'FORZAMIENTO DE TIEMPOS', kw: 'forzamiento',    cls: 'k-yellow',        bg: '#fffbeb', icon: ICONS.forzamiento,  color: '#f59e0b' },
+      { label: 'SEMÁFORO APAGADO',       kw: 'apagado',         cls: 'k-red',           bg: '#fef2f2', icon: ICONS.apagado,       color: '#ef4444' },
+      { label: 'MEJORA DE TIEMPOS',      kw: 'mejora',          cls: 'k-green',         bg: '#ecfdf5', icon: ICONS.mejora,        color: '#10b981' },
+      { label: 'INTERMITENCIA',          kw: 'intermitencia',   cls: 'k-intermitencia', bg: '#fff7ed', icon: ICONS.intermitencia, color: '#f59e0b' },
+      { label: 'ERROR DE COMUNICACIÓN',  kw: 'error',           cls: 'k-purple',        bg: '#f5f3ff', icon: ICONS.error,         color: '#8b5cf6' },
+      { label: 'APOYO EN ACCIDENTES',    kw: 'accidente',       cls: 'k-red',           bg: '#fff1f2', icon: ICONS.accidente,     color: '#ef4444' },
+      { label: 'REVISIÓN VDT',           kw: 'vdt',             cls: 'k-orange',        bg: '#fff7ed', icon: ICONS.vdt,           color: '#f97316' },
     ];
-    // Renderizar cards con valor 0 primero; count-up animará después
-    document.getElementById('kpi-grid').innerHTML = cards.map(c => `
-      <div class="kpi-card ${c.cls}" data-val="${c.val}">
-        <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
-        <div class="kpi-content">
-          <div class="kpi-num" data-target="${c.val}">0</div>
-          <div class="kpi-label">${c.label}</div>
-        </div>
-      </div>`).join('');
 
-    // ── Count-up con rAF — evita acumulación de timers al filtrar rápido
-    document.querySelectorAll('.kpi-num[data-target]').forEach(el => {
-      const target   = +el.dataset.target;
-      const duration = 550; // ms totales de la animación
-      const start    = performance.now();
-      let   rafId;
-      function tick(now) {
-        // Cancelar si el elemento fue removido del DOM (filtro rápido)
-        if (!el.isConnected) { cancelAnimationFrame(rafId); return; }
-        const t        = Math.min((now - start) / duration, 1);
-        const progress = 1 - Math.pow(1 - t, 4); // easeOutQuart
-        el.textContent = Math.round(target * progress).toLocaleString('es-SV');
-        if (t < 1) rafId = requestAnimationFrame(tick);
-      }
-      rafId = requestAnimationFrame(tick);
+    /* ─── Calcular valores fijos ─────────────────────────────────────── */
+    FIJAS.forEach(c => { c.val = countKw(rows, c.kw); });
+
+    const totalOperativo = FIJAS.reduce((s, c) => s + c.val, 0);
+    const totalGeneral   = rows.length;
+    const pctOp          = totalGeneral ? Math.round((totalOperativo / totalGeneral) * 100) : 0;
+
+    /* ─── Detectar tipos frecuentes NO cubiertos por las fijas ──────────
+       Agrupa todos los registros por tipo normalizado (TIPOS),
+       excluye los ya cubiertos por las 7 fijas,
+       toma los top-3 con más registros.
+    ──────────────────────────────────────────────────────────────────── */
+    const kwFijas = new Set(FIJAS.map(c => c.kw));
+    const conteo  = {};
+    rows.forEach(r => {
+      const inc  = (r.incidencia || '').toLowerCase().trim();
+      const tipo = TIPOS[inc] || TIPOS['otros'] || { label: inc || 'Otros', badge: 'b-gray', color: '#64748b' };
+      const yaFija = [...kwFijas].some(kw => inc.includes(kw));
+      if (yaFija) return;
+      const key = tipo.label;
+      if (!conteo[key]) conteo[key] = { val: 0, tipo };
+      conteo[key].val++;
     });
 
+    const DINAMICAS = Object.values(conteo)
+      .filter(d => d.val > 0)
+      .sort((a, b) => b.val - a.val)
+      .slice(0, 3)
+      .map(d => ({
+        label: d.tipo.label.toUpperCase(),
+        val:   d.val,
+        cls:   'k-dynamic',
+        bg:    '#f8fafc',
+        icon:  ICONS.totalGeneral,
+        color: d.tipo.color || '#64748b',
+      }));
+
+    /* ─── Render cards fijas + dinámicas ─────────────────────────────── */
+    const todasCards = [...FIJAS, ...DINAMICAS];
+
+    document.getElementById('kpi-grid').innerHTML =
+      todasCards.map(c => `
+        <div class="kpi-card ${c.cls}" data-val="${c.val}"
+             style="${c.cls === 'k-dynamic' ? `--dyn-color:${c.color}` : ''}">
+          <div class="kpi-icon" style="background:${c.bg}">${c.icon}</div>
+          <div class="kpi-content">
+            <div class="kpi-num" data-target="${c.val}">0</div>
+            <div class="kpi-label">${c.label}</div>
+          </div>
+        </div>`).join('') +
+
+      /* ─── Card unificada de totales ────────────────────────────────── */
+      `<div class="kpi-totales-wrap" id="kpi-totales-card">
+
+        <!-- Fila superior: Total Operativo + Total General lado a lado -->
+        <div class="kpi-totales-header">
+          <div class="kpi-total-half half-op">
+            <div class="kpi-icon" style="background:#eff6ff">${ICONS.total}</div>
+            <div class="kpi-total-meta">
+              <div class="kpi-total-lbl">Total Operativo</div>
+              <div class="kpi-total-num" data-target="${totalOperativo}">0</div>
+              <div class="kpi-total-sub">Suma de las 7 categorías monitoreadas</div>
+            </div>
+          </div>
+          <div class="kpi-total-half half-gen">
+            <div class="kpi-icon" style="background:#fffbeb">${ICONS.totalGeneral}</div>
+            <div class="kpi-total-meta">
+              <div class="kpi-total-lbl">Total General</div>
+              <div class="kpi-total-num" data-target="${totalGeneral}">0</div>
+              <div class="kpi-total-sub">Todos los registros del período activo</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra de proporción operativo/general -->
+        <div class="kpi-prop-bar-wrap">
+          <div class="kpi-prop-bar-label">
+            <span>Operativo vs General</span>
+            <span>${pctOp}% del total</span>
+          </div>
+          <div class="kpi-prop-bar">
+            <div class="kpi-prop-fill" style="width:${pctOp}%"></div>
+          </div>
+        </div>
+
+        <!-- Toggle de desglose por categoría -->
+        <div class="kpi-desglose-toggle" id="kpi-desglose-toggle"
+             onclick="toggleDesgloseKPI()" role="button" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               width="13" height="13" class="toggle-chevron">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+          Ver desglose por categoría
+        </div>
+
+        <!-- Desglose: barras horizontales por tipo fijo -->
+        <div class="kpi-desglose-body" id="kpi-desglose-body">
+          ${FIJAS.map(c => {
+            const pct = totalOperativo ? Math.round((c.val / totalOperativo) * 100) : 0;
+            return `
+              <div class="kpi-desglose-row">
+                <div class="kpi-desglose-name">
+                  <div class="kpi-desglose-dot" style="background:${c.color}"></div>
+                  ${c.label.charAt(0) + c.label.slice(1).toLowerCase()}
+                </div>
+                <div class="kpi-desglose-bar-wrap">
+                  <div class="kpi-desglose-bar-fill"
+                       style="width:${pct}%;background:${c.color}"></div>
+                </div>
+                <div class="kpi-desglose-val">${c.val}</div>
+              </div>`;
+          }).join('')}
+        </div>
+
+      </div>`;
+
+    /* ─── Count-up animado en todos los números ───────────────────────── */
+    document.querySelectorAll('.kpi-num[data-target], .kpi-total-num[data-target]')
+      .forEach(el => {
+        const target   = +el.dataset.target;
+        const duration = 550;
+        const start    = performance.now();
+        let   rafId;
+        function tick(now) {
+          if (!el.isConnected) { cancelAnimationFrame(rafId); return; }
+          const t        = Math.min((now - start) / duration, 1);
+          const progress = 1 - Math.pow(1 - t, 4);
+          el.textContent = Math.round(target * progress).toLocaleString('es-SV');
+          if (t < 1) rafId = requestAnimationFrame(tick);
+        }
+        rafId = requestAnimationFrame(tick);
+      });
   }
+
+  /* Alterna el panel de desglose de la card unificada de totales */
+  function toggleDesgloseKPI() {
+    const toggle = document.getElementById('kpi-desglose-toggle');
+    const body   = document.getElementById('kpi-desglose-body');
+    if (!toggle || !body) return;
+    const isOpen = body.classList.toggle('open');
+    toggle.classList.toggle('open', isOpen);
+    toggle.setAttribute('aria-expanded', String(isOpen));
+    const textNode = [...toggle.childNodes].find(n => n.nodeType === 3 && n.textContent.trim());
+    if (textNode) textNode.textContent = isOpen ? ' Ocultar desglose' : ' Ver desglose por categoría';
+  }
+
 
   // Renderiza el contenido del desplegable de composición del Total Operativo.
   // Los colores de los dots coinciden con los de las barras laterales de cada KPI card.
@@ -2321,7 +2563,7 @@
     // Contar ocurrencias por tipo de incidencia normalizado
     const counts = {};
     rows.forEach(r => {
-      const t = getTipo(r.incidencia);
+      const t = getTipo(r.incidencia || '');
       counts[t.label] = (counts[t.label] || 0) + 1;
     });
 
@@ -2378,8 +2620,8 @@
             titleColor: '#f1f5f9',
             bodyColor:  '#94a3b8',
             padding: 11, cornerRadius: 10,
-            titleFont: { family: 'Inter', weight: '700', size: 12 },
-            bodyFont:  { family: 'Inter', size: 11 },
+            titleFont: { family: 'Figtree', weight: '700', size: 12 },
+            bodyFont:  { family: 'Figtree', size: 11 },
             callbacks: {
               title: items => labels[items[0].dataIndex],
               label: ctx => {
@@ -2980,8 +3222,8 @@
   }
   document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement) {
-      const lbl = document.getElementById('fs-label');
-      if (lbl) lbl.textContent = 'PANTALLA COMPLETA';
+      const lblFs = document.getElementById('fs-label');
+      if (lblFs) lblFs.textContent = 'PANTALLA COMPLETA';
     }
   });
 

@@ -1241,8 +1241,8 @@
 
     .kpi-total-meta { flex: 1; }
     .kpi-total-lbl {
-      font-size: 9px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .09em; color: var(--text-light); margin-bottom: 3px;
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .07em; color: var(--text-mid); margin-bottom: 4px;
     }
     .kpi-total-num {
       font-family: 'JetBrains Mono', monospace;
@@ -1315,18 +1315,22 @@
     .totales-desglose[open] .totales-desglose-sum svg { transform: rotate(180deg); }
     .totales-desglose-sum svg { transition: transform .25s ease; }
     .totales-desglose-body {
-      display: flex; flex-wrap: wrap; gap: 8px 20px;
-      padding: 10px 22px 14px;
-      background: var(--bg-page); border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 6px; padding: 10px 22px 14px;
+      background: var(--bg-white); border-top: 1px solid var(--border);
       animation: tabFade .18s ease;
     }
     .totales-desglose-row {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 11px; color: var(--text-mid); white-space: nowrap;
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; color: var(--text-mid);
     }
-    .totales-desglose-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-    .totales-desglose-name { }
-
+    .totales-desglose-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .totales-desglose-name { flex: 1; }
+    .totales-desglose-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 700; color: var(--text-dark);
+    }
     [data-theme="dark"] .totales-desglose-body { background: #0f172a; }
 
   </style>
@@ -1829,73 +1833,70 @@
 
     /* Semáforo inclinado/mal colocado — flecha de rotación indica reubicación */
     reorientacion: `<svg viewBox="0 0 48 48" fill="none">
-      <!-- Cuerpo semáforo principal — mismo estilo que forzamiento -->
-      <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
-      <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
-      <!-- Luz roja apagada -->
-      <circle cx="24" cy="14" r="5" fill="#1e293b" stroke="#475569" stroke-width="1"/>
-      <!-- Luz verde encendida — en funcionamiento tras reorientación -->
-      <circle cx="24" cy="26" r="6" fill="#065f46"/>
-      <circle cx="24" cy="26" r="4.5" fill="#10b981"/>
-      <circle cx="21.5" cy="23.5" r="1.2" fill="rgba(255,255,255,0.4)"/>
-      <!-- Luz roja apagada -->
-      <circle cx="24" cy="38" r="5" fill="#1e293b" stroke="#475569" stroke-width="1"/>
-      <!-- Elemento diferenciador: mini semáforo torcido a la derecha -->
-      <g transform="rotate(35,39,26)">
-        <rect x="35" y="18" width="8" height="16" rx="2.5" fill="#334155"/>
-        <circle cx="39" cy="22" r="2.2" fill="#374151"/>
-        <circle cx="39" cy="27" r="2.2" fill="#374151"/>
-        <circle cx="39" cy="32" r="2.2" fill="#374151"/>
+      <!-- Semáforo inclinado — mismo cuerpo base que forzamiento -->
+      <g transform="rotate(18,24,24)">
+        <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
+        <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
+        <!-- Luz roja apagada -->
+        <circle cx="24" cy="14" r="5" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+        <!-- Luz ámbar central — encendida, señal de precaución -->
+        <circle cx="24" cy="26" r="6" fill="#92400e"/>
+        <circle cx="24" cy="26" r="4.5" fill="#f59e0b"/>
+        <circle cx="21.5" cy="23.5" r="1.2" fill="rgba(255,255,255,0.4)"/>
+        <!-- Luz verde apagada -->
+        <circle cx="24" cy="38" r="5" fill="#1e293b" stroke="#475569" stroke-width="1"/>
       </g>
-      <!-- Flecha naranja: indica corrección de posición -->
-      <path d="M33 20 Q36 16 38 19" stroke="#f97316" stroke-width="2"
+      <!-- Flecha naranja fuera del semáforo — indica reubicación -->
+      <path d="M38 8 Q44 16 40 26" stroke="#f97316" stroke-width="2.5"
             fill="none" stroke-linecap="round"/>
-      <polygon points="38,19 35,16 39,14" fill="#f97316"/>
+      <polygon points="40,26 36,22 44,22" fill="#f97316"/>
     </svg>`,
 
     /* Ramas tapando el semáforo — hojas delante del cuerpo */
     ramas: `<svg viewBox="0 0 48 48" fill="none">
-      <!-- Cuerpo semáforo — mismo estilo que forzamiento -->
-      <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
-      <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
-      <!-- Luces apagadas / ocultas por vegetación -->
+      <!-- Cuerpo semáforo — mismo estilo base -->
+      <rect x="14" y="4" width="20" height="40" rx="5" fill="#1e293b"/>
+      <rect x="16" y="6" width="16" height="36" rx="4" fill="#0f172a"/>
       <circle cx="24" cy="14" r="5" fill="#1e293b" stroke="#374151" stroke-width="1"/>
       <circle cx="24" cy="26" r="5" fill="#1e293b" stroke="#374151" stroke-width="1"/>
       <circle cx="24" cy="38" r="5" fill="#1e293b" stroke="#374151" stroke-width="1"/>
-      <!-- Rama diagonal por delante del semáforo -->
-      <path d="M5 44 Q14 30 24 18 Q30 10 38 6"
-            stroke="#5c3317" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <!-- Rama principal diagonal — por delante -->
+      <path d="M4 46 Q12 32 22 20 Q28 12 38 6"
+            stroke="#5c3317" stroke-width="5" fill="none" stroke-linecap="round"/>
       <!-- Hoja grande tapando luz superior -->
-      <ellipse cx="21" cy="11" rx="10" ry="6"
-               fill="#16a34a" transform="rotate(-25,21,11)"/>
-      <!-- Hoja mediana tapando zona central -->
-      <ellipse cx="15" cy="24" rx="9" ry="5.5"
-               fill="#15803d" transform="rotate(20,15,24)"/>
-      <!-- Hoja pequeña esquina derecha -->
-      <ellipse cx="36" cy="9" rx="7" ry="4.5"
-               fill="#22c55e" transform="rotate(-15,36,9)"/>
+      <ellipse cx="20" cy="12" rx="11" ry="6.5"
+               fill="#16a34a" transform="rotate(-25,20,12)"/>
+      <!-- Hoja mediana izquierda -->
+      <ellipse cx="13" cy="24" rx="9.5" ry="5.5"
+               fill="#15803d" transform="rotate(18,13,24)"/>
+      <!-- Hoja derecha superior -->
+      <ellipse cx="36" cy="8" rx="8" ry="5"
+               fill="#22c55e" transform="rotate(-20,36,8)"/>
     </svg>`,
 
     /* Semáforo funcionando + llave inglesa — mantenimiento/revisión */
     funcionamiento: `<svg viewBox="0 0 48 48" fill="none">
-      <!-- Cuerpo semáforo — mismo estilo que forzamiento -->
+      <!-- Cuerpo semáforo — mismo estilo base -->
       <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
       <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
-      <!-- Luz roja apagada -->
-      <circle cx="24" cy="14" r="5" fill="#1e293b" stroke="#475569" stroke-width="1"/>
-      <!-- Luz ámbar apagada -->
-      <circle cx="24" cy="26" r="5" fill="#1e293b" stroke="#475569" stroke-width="1"/>
-      <!-- Luz verde encendida — semáforo en funcionamiento -->
+      <!-- Luz roja encendida -->
+      <circle cx="24" cy="14" r="6" fill="#991b1b"/>
+      <circle cx="24" cy="14" r="4.5" fill="#ef4444"/>
+      <circle cx="21.5" cy="11.5" r="1.2" fill="rgba(255,255,255,0.4)"/>
+      <!-- Luz ámbar encendida -->
+      <circle cx="24" cy="26" r="6" fill="#92400e"/>
+      <circle cx="24" cy="26" r="4.5" fill="#f59e0b"/>
+      <circle cx="21.5" cy="23.5" r="1.2" fill="rgba(255,255,255,0.4)"/>
+      <!-- Luz verde encendida -->
       <circle cx="24" cy="38" r="6" fill="#065f46"/>
       <circle cx="24" cy="38" r="4.5" fill="#10b981"/>
       <circle cx="21.5" cy="35.5" r="1.2" fill="rgba(255,255,255,0.4)"/>
-      <!-- Elemento diferenciador: tuerca naranja a la derecha -->
-      <!-- Tuerca hexagonal -->
-      <polygon points="39,18 43,20.5 43,25.5 39,28 35,25.5 35,20.5"
+      <!-- Tuerca hexagonal grande — naranja -->
+      <polygon points="40,17 44.5,19.5 44.5,24.5 40,27 35.5,24.5 35.5,19.5"
                fill="#f97316"/>
-      <!-- Agujero interior de la tuerca -->
-      <circle cx="39" cy="23" r="3.5" fill="#0f172a"/>
-      <circle cx="39" cy="23" r="2" fill="#1e293b" stroke="#f97316" stroke-width="0.8"/>
+      <!-- Agujero interior -->
+      <circle cx="40" cy="22" r="4" fill="#0f172a"/>
+      <circle cx="40" cy="22" r="2.4" fill="#1e293b" stroke="#f97316" stroke-width="0.8"/>
     </svg>`,
   };
 
@@ -2267,18 +2268,18 @@
       conteo[key].val++;
     });
 
-    // Tipos secundarios fijos — siempre visibles con su ícono propio
-    const TIPOS_SECUNDARIOS = ['reorientacion', 'funcionamiento', 'ramas'];
-    const DINAMICAS = TIPOS_SECUNDARIOS.map(key => {
-      const tipo = TIPOS[key] || {};
-      const entry = Object.values(conteo).find(d =>
-        normInc(d.tipo.label) === key || d.tipo.label === tipo.label
-      );
+    // Tipos secundarios fijos — siempre visibles con ícono propio y color de fondo
+    const SEC_KEYS = ['reorientacion', 'funcionamiento', 'ramas'];
+    const SEC_BG   = { reorientacion: '#ecfdf5', funcionamiento: '#fff7ed', ramas: '#f0fdf4' };
+    const normKey  = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const DINAMICAS = SEC_KEYS.map(key => {
+      const tipo  = TIPOS[key] || {};
+      const entry = Object.values(conteo).find(d => normKey(d.tipo.label) === key);
       return {
         label: (tipo.label || key).toUpperCase(),
         val:   entry ? entry.val : 0,
         cls:   'k-dynamic',
-        bg:    '#f8fafc',
+        bg:    SEC_BG[key] || '#f8fafc',
         icon:  tipo.icon || ICONS.totalGeneral,
         color: tipo.color || '#64748b',
       };
@@ -2308,7 +2309,7 @@
             <div class="kpi-total-meta">
               <div class="kpi-total-lbl">Registros Comunes</div>
               <div class="kpi-total-num" data-target="${totalOperativo}">0</div>
-              <div class="kpi-total-sub">Suma de los tipos de incidencia más frecuentes</div>
+              <div class="kpi-total-sub">Incidencias reportadas en las categorías principales de monitoreo</div>
             </div>
           </div>
           <div class="kpi-total-half half-gen">
@@ -2331,7 +2332,7 @@
             <span>¿Cuáles son los registros comunes?</span>
           </summary>
           <div class="totales-desglose-body">
-            ${[...FIJAS, ...TIPOS_SECUNDARIOS.map(key => ({
+            ${[...FIJAS, ...SEC_KEYS.map(key => ({
               label: (TIPOS[key]?.label || key).toUpperCase(),
               color: TIPOS[key]?.color || '#64748b',
             }))].map(c => `

@@ -1829,88 +1829,73 @@
 
     /* Semáforo inclinado/mal colocado — flecha de rotación indica reubicación */
     reorientacion: `<svg viewBox="0 0 48 48" fill="none">
-      <!-- Semáforo TORCIDO (mal colocado) — izquierda, oscuro -->
-      <g transform="rotate(30,14,22)">
-        <rect x="5" y="6" width="16" height="26" rx="4" fill="#334155"/>
-        <rect x="7" y="8" width="12" height="22" rx="3" fill="#1e293b"/>
-        <circle cx="13" cy="14" r="3.5" fill="#374151"/>
-        <circle cx="13" cy="21" r="3.5" fill="#374151"/>
-        <circle cx="13" cy="28" r="3.5" fill="#374151"/>
-        <rect x="11" y="32" width="4" height="6" rx="1.5" fill="#475569"/>
+      <!-- Cuerpo semáforo principal — mismo estilo que forzamiento -->
+      <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
+      <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
+      <!-- Luz roja apagada -->
+      <circle cx="24" cy="14" r="5" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+      <!-- Luz verde encendida — en funcionamiento tras reorientación -->
+      <circle cx="24" cy="26" r="6" fill="#065f46"/>
+      <circle cx="24" cy="26" r="4.5" fill="#10b981"/>
+      <circle cx="21.5" cy="23.5" r="1.2" fill="rgba(255,255,255,0.4)"/>
+      <!-- Luz roja apagada -->
+      <circle cx="24" cy="38" r="5" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+      <!-- Elemento diferenciador: mini semáforo torcido a la derecha -->
+      <g transform="rotate(35,39,26)">
+        <rect x="35" y="18" width="8" height="16" rx="2.5" fill="#334155"/>
+        <circle cx="39" cy="22" r="2.2" fill="#374151"/>
+        <circle cx="39" cy="27" r="2.2" fill="#374151"/>
+        <circle cx="39" cy="32" r="2.2" fill="#374151"/>
       </g>
-      <!-- Semáforo RECTO (correcto) — derecha, iluminado -->
-      <rect x="27" y="4" width="16" height="28" rx="4" fill="#1e293b"/>
-      <rect x="29" y="6" width="12" height="24" rx="3" fill="#0f172a"/>
-      <circle cx="35" cy="13" r="4" fill="#991b1b"/>
-      <circle cx="35" cy="13" r="2.8" fill="#ef4444"/>
-      <circle cx="35" cy="22" r="4" fill="#92400e"/>
-      <circle cx="35" cy="22" r="2.8" fill="#f59e0b"/>
-      <circle cx="35" cy="31" r="4" fill="#065f46"/>
-      <circle cx="35" cy="31" r="2.8" fill="#10b981"/>
-      <circle cx="33.5" cy="29.5" r="0.8" fill="rgba(255,255,255,.4)"/>
-      <rect x="33" y="32" width="4" height="8"  rx="1.5" fill="#475569"/>
-      <!-- Flecha curva naranja de torcido → recto -->
-      <path d="M20 20 Q24 12 28 16" stroke="#f97316" stroke-width="3"
+      <!-- Flecha naranja: indica corrección de posición -->
+      <path d="M33 20 Q36 16 38 19" stroke="#f97316" stroke-width="2"
             fill="none" stroke-linecap="round"/>
-      <polygon points="28,16 24,11 31,12" fill="#f97316"/>
+      <polygon points="38,19 35,16 39,14" fill="#f97316"/>
     </svg>`,
 
     /* Ramas tapando el semáforo — hojas delante del cuerpo */
     ramas: `<svg viewBox="0 0 48 48" fill="none">
-      <!-- Semáforo — visible pero parcialmente tapado -->
-      <rect x="17" y="6" width="15" height="26" rx="4" fill="#1e293b"/>
-      <rect x="19" y="8" width="11" height="22" rx="3" fill="#0f172a"/>
-      <circle cx="24" cy="14" r="3.8" fill="#991b1b"/>
-      <circle cx="24" cy="14" r="2.6" fill="#ef4444"/>
-      <circle cx="24" cy="22" r="3.8" fill="#374151"/>
-      <circle cx="24" cy="30" r="3.8" fill="#374151"/>
-      <rect x="22" y="32" width="4" height="10" rx="1.5" fill="#475569"/>
-      <!-- Tronco grueso diagonal — desde abajo izquierda -->
-      <path d="M2 46 Q10 32 20 20 Q26 13 34 8"
-            stroke="#5c3317" stroke-width="5" fill="none"
-            stroke-linecap="round"/>
-      <!-- Rama secundaria -->
-      <path d="M16 28 Q10 20 16 12"
-            stroke="#6b3a1f" stroke-width="3" fill="none"
-            stroke-linecap="round"/>
-      <!-- Hoja grande verde sobre luz roja -->
-      <ellipse cx="19" cy="13" rx="10" ry="6.5"
-               fill="#16a34a" transform="rotate(-20,19,13)"/>
-      <!-- Segunda hoja sobre zona ámbar -->
-      <ellipse cx="11" cy="23" rx="9" ry="5.5"
-               fill="#15803d" transform="rotate(15,11,23)"/>
-      <!-- Hoja lateral derecha -->
-      <ellipse cx="34" cy="10" rx="8" ry="5"
-               fill="#22c55e" transform="rotate(-30,34,10)"/>
+      <!-- Cuerpo semáforo — mismo estilo que forzamiento -->
+      <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
+      <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
+      <!-- Luces apagadas / ocultas por vegetación -->
+      <circle cx="24" cy="14" r="5" fill="#1e293b" stroke="#374151" stroke-width="1"/>
+      <circle cx="24" cy="26" r="5" fill="#1e293b" stroke="#374151" stroke-width="1"/>
+      <circle cx="24" cy="38" r="5" fill="#1e293b" stroke="#374151" stroke-width="1"/>
+      <!-- Rama diagonal por delante del semáforo -->
+      <path d="M5 44 Q14 30 24 18 Q30 10 38 6"
+            stroke="#5c3317" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <!-- Hoja grande tapando luz superior -->
+      <ellipse cx="21" cy="11" rx="10" ry="6"
+               fill="#16a34a" transform="rotate(-25,21,11)"/>
+      <!-- Hoja mediana tapando zona central -->
+      <ellipse cx="15" cy="24" rx="9" ry="5.5"
+               fill="#15803d" transform="rotate(20,15,24)"/>
+      <!-- Hoja pequeña esquina derecha -->
+      <ellipse cx="36" cy="9" rx="7" ry="4.5"
+               fill="#22c55e" transform="rotate(-15,36,9)"/>
     </svg>`,
 
     /* Semáforo funcionando + llave inglesa — mantenimiento/revisión */
     funcionamiento: `<svg viewBox="0 0 48 48" fill="none">
-      <!-- Semáforo izquierda — reconocible con las 3 luces -->
-      <rect x="5" y="5" width="17" height="30" rx="4" fill="#1e293b"/>
-      <rect x="7" y="7" width="13" height="26" rx="3" fill="#0f172a"/>
-      <circle cx="13" cy="13" r="4.2" fill="#991b1b"/>
-      <circle cx="13" cy="13" r="3" fill="#ef4444"/>
-      <circle cx="11.8" cy="11.8" r="0.9" fill="rgba(255,255,255,.45)"/>
-      <circle cx="13" cy="22" r="4.2" fill="#92400e"/>
-      <circle cx="13" cy="22" r="3" fill="#f59e0b"/>
-      <circle cx="13" cy="31" r="4.2" fill="#065f46"/>
-      <circle cx="13" cy="31" r="3" fill="#10b981"/>
-      <circle cx="11.8" cy="29.8" r="0.9" fill="rgba(255,255,255,.45)"/>
-      <!-- Poste -->
-      <rect x="11" y="35" width="4" height="10" rx="1.5" fill="#475569"/>
-      <rect x="7"  y="43" width="12" height="3"  rx="1.5" fill="#334155"/>
-      <!-- Llave fija derecha — grande y clara -->
-      <g transform="translate(36,26) rotate(-45)">
-        <!-- Mango -->
-        <rect x="-3" y="1" width="6" height="19" rx="2.5" fill="#f97316"/>
-        <rect x="-3" y="1" width="6" height="4"  rx="0"   fill="#ea6c00"/>
-        <!-- Cabeza — mordaza fija en U -->
-        <path d="M-6,-2 L-6,-12 Q-6,-16 0,-16 Q6,-16 6,-12 L6,-2 Z" fill="#f97316"/>
-        <rect x="-3.5" y="-13" width="7" height="9" rx="1" fill="#0f172a"/>
-        <!-- Mordaza inferior -->
-        <rect x="-6" y="-3" width="12" height="4" rx="2" fill="#ea6c00"/>
-      </g>
+      <!-- Cuerpo semáforo — mismo estilo que forzamiento -->
+      <rect x="12" y="4" width="24" height="40" rx="5" fill="#1e293b"/>
+      <rect x="14" y="6" width="20" height="36" rx="4" fill="#0f172a"/>
+      <!-- Luz roja apagada -->
+      <circle cx="24" cy="14" r="5" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+      <!-- Luz ámbar apagada -->
+      <circle cx="24" cy="26" r="5" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+      <!-- Luz verde encendida — semáforo en funcionamiento -->
+      <circle cx="24" cy="38" r="6" fill="#065f46"/>
+      <circle cx="24" cy="38" r="4.5" fill="#10b981"/>
+      <circle cx="21.5" cy="35.5" r="1.2" fill="rgba(255,255,255,0.4)"/>
+      <!-- Elemento diferenciador: tuerca naranja a la derecha -->
+      <!-- Tuerca hexagonal -->
+      <polygon points="39,18 43,20.5 43,25.5 39,28 35,25.5 35,20.5"
+               fill="#f97316"/>
+      <!-- Agujero interior de la tuerca -->
+      <circle cx="39" cy="23" r="3.5" fill="#0f172a"/>
+      <circle cx="39" cy="23" r="2" fill="#1e293b" stroke="#f97316" stroke-width="0.8"/>
     </svg>`,
   };
 
@@ -2321,9 +2306,9 @@
           <div class="kpi-total-half half-op">
             <div class="kpi-icon" style="background:#eff6ff">${ICONS.total}</div>
             <div class="kpi-total-meta">
-              <div class="kpi-total-lbl">Incidencias Registradas</div>
+              <div class="kpi-total-lbl">Registros Comunes</div>
               <div class="kpi-total-num" data-target="${totalOperativo}">0</div>
-              <div class="kpi-total-sub">Incidencias reportadas en las categorías principales de monitoreo</div>
+              <div class="kpi-total-sub">Suma de los tipos de incidencia más frecuentes</div>
             </div>
           </div>
           <div class="kpi-total-half half-gen">
@@ -2343,10 +2328,13 @@
                  stroke-width="2.5" width="11" height="11" style="flex-shrink:0">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
-            <span>¿Qué tipos incluye?</span>
+            <span>¿Cuáles son los registros comunes?</span>
           </summary>
           <div class="totales-desglose-body">
-            ${FIJAS.map(c => `
+            ${[...FIJAS, ...TIPOS_SECUNDARIOS.map(key => ({
+              label: (TIPOS[key]?.label || key).toUpperCase(),
+              color: TIPOS[key]?.color || '#64748b',
+            }))].map(c => `
               <div class="totales-desglose-row">
                 <span class="totales-desglose-dot" style="background:${c.color}"></span>
                 <span class="totales-desglose-name">${c.label.charAt(0)+c.label.slice(1).toLowerCase()}</span>

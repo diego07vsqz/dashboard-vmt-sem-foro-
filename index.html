@@ -1891,12 +1891,12 @@
       <circle cx="24" cy="38" r="6" fill="#065f46"/>
       <circle cx="24" cy="38" r="4.5" fill="#10b981"/>
       <circle cx="21.5" cy="35.5" r="1.2" fill="rgba(255,255,255,0.4)"/>
-      <!-- Tuerca hexagonal grande — naranja -->
-      <polygon points="40,17 44.5,19.5 44.5,24.5 40,27 35.5,24.5 35.5,19.5"
+      <!-- Tuerca hexagonal — más grande y prominente -->
+      <polygon points="39,14 45,17.5 45,24.5 39,28 33,24.5 33,17.5"
                fill="#f97316"/>
-      <!-- Agujero interior -->
-      <circle cx="40" cy="22" r="4" fill="#0f172a"/>
-      <circle cx="40" cy="22" r="2.4" fill="#1e293b" stroke="#f97316" stroke-width="0.8"/>
+      <!-- Agujero interior tuerca -->
+      <circle cx="39" cy="21" r="5" fill="#0f172a"/>
+      <circle cx="39" cy="21" r="3.2" fill="#1e293b" stroke="#f97316" stroke-width="1"/>
     </svg>`,
   };
 
@@ -1922,6 +1922,7 @@
     'visita técnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
     'chorros':                { label: 'Chorros',                 badge: 'b-purple', color: '#c026d3' },
     'ramas':                  { label: 'Ramas / Vegetación',      badge: 'b-green',  color: '#84cc16', icon: ICONS.ramas },
+    'ramas / vegetacion':     { label: 'Ramas / Vegetación',      badge: 'b-green',  color: '#84cc16', icon: ICONS.ramas },
     'apoyo en accidente':     { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#c2400a' },
     'evento':                 { label: 'Evento',                 badge: 'b-blue',   color: '#0ea5e9' },
     'reorientacion':          { label: 'Reorientación',          badge: 'b-green',  color: '#10b981', icon: ICONS.reorientacion },
@@ -2274,7 +2275,14 @@
     const normKey  = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
     const DINAMICAS = SEC_KEYS.map(key => {
       const tipo  = TIPOS[key] || {};
-      const entry = Object.values(conteo).find(d => normKey(d.tipo.label) === key);
+      // Buscar en el conteo por la clave TIPOS directamente (soporta alias)
+      // Un registro 'Ramas' del Sheet matchea TIPOS['ramas'] con label 'Ramas / Vegetación'
+      const entry = Object.values(conteo).find(d => {
+        const tipoKey = normKey(d.tipo.label);
+        return tipoKey === key ||
+               tipoKey.startsWith(key) ||
+               normKey(d.tipo.label) === normKey(tipo.label || '');
+      });
       return {
         label: (tipo.label || key).toUpperCase(),
         val:   entry ? entry.val : 0,

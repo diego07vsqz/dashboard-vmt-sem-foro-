@@ -2266,8 +2266,8 @@
     /* ─── Calcular valores fijos ─────────────────────────────────────── */
     FIJAS.forEach(c => { c.val = countKw(rows, c.kw); });
 
-    const totalOperativo = FIJAS.reduce((s, c) => s + c.val, 0);
     const totalGeneral   = rows.length;
+    // totalOperativo se recalcula después de DINAMICAS — ver abajo
     /* ─── Detectar tipos frecuentes NO cubiertos por las fijas ──────────
        Agrupa todos los registros por tipo normalizado (TIPOS),
        excluye los ya cubiertos por las 7 fijas,
@@ -2313,6 +2313,10 @@
         color: tipo.color || '#64748b',
       };
     });
+
+    /* ─── Total Operativo = fijas + dinámicas (10 tipos) ────────────── */
+    const totalOperativo = FIJAS.reduce((s, c) => s + c.val, 0)
+                         + DINAMICAS.reduce((s, c) => s + c.val, 0);
 
     /* ─── Render cards fijas + dinámicas ─────────────────────────────── */
     const todasCards = [...FIJAS, ...DINAMICAS];

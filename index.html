@@ -388,128 +388,26 @@
     /* Nota al pie del KPI grid (opción 3 — reserva)
        Para activar: quitar la clase "hidden" del elemento en el HTML.
        Para desactivar: añadir la clase "hidden". */
-    .kpi-footnote {
-      font-size: 9px; color: var(--text-light);
-      margin-top: -10px; margin-bottom: 20px;
-      padding: 8px 14px;
-      background: var(--bg-white);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      line-height: 1.6;
-    }
+
     .kpi-footnote strong { color: var(--text-mid); font-weight: 600; }
-    .kpi-footnote.hidden { display: none; }
 
-    /* ── Desplegable: composición del Total Operativo ───────
-       Cerrado por defecto. Fondo azul sutil + badge "Clic
-       para ver" indican claramente que es interactivo.
-       Al abrirse el fondo pasa a blanco y el badge desaparece.
-    ────────────────────────────────────────────────────────── */
-
-    /* Contenedor — fondo azul sutil cuando está cerrado */
-    .operativo-details {
-      margin-bottom: 26px;
-      border: 1.5px solid #bfdbfe;
-      border-radius: var(--r-lg);
-      background: #eff6ff;
-      position: relative;
-      overflow: hidden;
-      transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
-    }
-    .operativo-details:not([open]):hover {
-      border-color: #93c5fd;
-      box-shadow: 0 2px 10px rgba(37,99,235,.1);
-    }
     /* Abierto: fondo blanco, borde más definido */
-    .operativo-details[open] {
-      background: var(--bg-white);
-      border-color: #93c5fd;
-    }
+
 
     /* Barra lateral azul — igual que la card k-blue */
-    .operativo-details::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: var(--blue);
-    }
+    
 
     /* Summary — la cabecera clickeable */
-    .operativo-summary {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 18px 12px 22px;
-      cursor: pointer;
-      list-style: none;
-      user-select: none;
-      font-size: 10px; font-weight: 800;
-      text-transform: uppercase; letter-spacing: .1em;
-      color: var(--text-mid);
-      transition: background .15s ease;
-    }
-    .operativo-summary::-webkit-details-marker { display: none; }
-    .operativo-summary:hover { background: rgba(37,99,235,.05); }
 
-    /* "Composición del" en gris, "Total Operativo" en azul */
-    .operativo-summary .highlight { color: var(--blue); }
 
-    /* Grupo derecho: badge + chevron */
-    .operativo-right {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-    }
 
     /* Badge "CLIC PARA VER" — visible solo cuando está cerrado */
-    .operativo-badge {
-      font-size: 8.5px; font-weight: 700;
-      color: var(--blue);
-      background: #dbeafe;
-      border: 1px solid #bfdbfe;
-      border-radius: 20px;
-      padding: 3px 10px;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      transition: opacity .15s ease, transform .15s ease;
-    }
-    .operativo-details[open] .operativo-badge {
-      opacity: 0;
-      transform: scale(.9);
-      pointer-events: none;
-    }
+
+
 
     /* Chevron — rota 90° al abrir */
-    .operativo-chevron {
-      width: 14px; height: 14px;
-      color: var(--blue);
-      transition: transform .25s ease;
-      flex-shrink: 0;
-    }
-    .operativo-details[open] .operativo-chevron { transform: rotate(90deg); }
 
-    /* Cuerpo desplegado */
-    .operativo-body {
-      padding: 6px 20px 16px 22px;
-      border-top: 1px solid var(--border);
-    }
 
-    /* Grid 2 columnas para las 7 categorías */
-    .operativo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 0 24px;
-    }
-    .operativo-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 0;
-      border-bottom: 1px solid var(--border);
-    }
     .operativo-row:last-child { border-bottom: none; }
 
     .operativo-dot {
@@ -1646,41 +1544,7 @@
       <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div> <div class="skeleton kpi-skeleton"></div>
     </div>
 
-    <!-- Desplegable: composición del Total Operativo
-         Cerrado por defecto para capturas. Clic en el summary para expandir. -->
-    <details class="operativo-details" id="operativo-details">
-      <summary class="operativo-summary">
-        <!-- Ícono info -->
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             width="13" height="13" style="flex-shrink:0;color:var(--blue)">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8"  x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        Composición del&nbsp;<span class="highlight">Total Operativo</span>
-        <!-- Grupo derecho: badge visible cuando está cerrado + chevron -->
-        <div class="operativo-right">
-          <span class="operativo-badge">&#9660; Clic para ver</span>
-          <svg class="operativo-chevron" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </div>
-      </summary>
-      <!-- Contenido renderizado dinámicamente por renderOperativo() -->
-      <div class="operativo-body">
-        <div class="operativo-grid" id="operativo-panel"></div>
-      </div>
-    </details>
-
-    <!-- Opción 3 (reserva): nota al pie explicando el Total Operativo.
-         Para activar como principal: quitar la clase "hidden".
-         Para usar la opción 2 (subtítulo en card): mantener "hidden". -->
-    <p class="kpi-footnote hidden">
-      <strong>* Total Operativo</strong> incluye:
-      Forzamiento de Tiempos, Semáforo Apagado, Mejora de Tiempos,
-      Intermitencia, Error de Comunicación, Apoyo en Accidentes y Revisión VDT.
-    </p>
+    
 
     <div class="dashboard-grid">
       <div class="card">
@@ -2391,7 +2255,7 @@
         val:   d.val,
         cls:   'k-dynamic',
         bg:    '#f8fafc',
-        icon:  ICONS.totalGeneral,
+        icon:  d.tipo.icon || ICONS.totalGeneral,
         color: d.tipo.color || '#64748b',
       }));
 
@@ -2419,7 +2283,7 @@
             <div class="kpi-total-meta">
               <div class="kpi-total-lbl">Total Operativo</div>
               <div class="kpi-total-num" data-target="${totalOperativo}">0</div>
-              <div class="kpi-total-sub">Suma de las 7 categorías monitoreadas</div>
+              <div class="kpi-total-sub">Incidencias reportadas en las categorías principales de monitoreo</div>
             </div>
           </div>
           <div class="kpi-total-half half-gen">
@@ -2427,7 +2291,7 @@
             <div class="kpi-total-meta">
               <div class="kpi-total-lbl">Total General</div>
               <div class="kpi-total-num" data-target="${totalGeneral}">0</div>
-              <div class="kpi-total-sub">Todos los registros del período activo</div>
+              <div class="kpi-total-sub">Incluye operativo + reorientaciones, funcionamientos y otros</div>
             </div>
           </div>
         </div>
@@ -2458,25 +2322,7 @@
 
   // Renderiza el contenido del desplegable de composición del Total Operativo.
   // Los colores de los dots coinciden con los de las barras laterales de cada KPI card.
-  function renderOperativo() {
-    const categorias = [
-      { nombre: 'Forzamiento de Tiempos', color: '#f59e0b' }, // k-yellow — var(--yellow)
-      { nombre: 'Semáforo Apagado',       color: '#ef4444' }, // k-red    — var(--red)
-      { nombre: 'Mejora de Tiempos',      color: '#10b981' }, // k-green  — var(--green)
-      { nombre: 'Intermitencia',          color: '#dc2626' }, // k-intermitencia (franja roja superior)
-      { nombre: 'Error de Comunicación',  color: '#8b5cf6' }, // k-purple — var(--purple)
-      { nombre: 'Apoyo en Accidentes',    color: '#ef4444' }, // k-red    — var(--red)
-      { nombre: 'Revisión VDT',           color: '#f97316' }, // k-orange — var(--orange)
-    ];
-
-    document.getElementById('operativo-panel').innerHTML = categorias
-      .map(cat => `
-        <div class="operativo-row">
-          <div class="operativo-dot" style="background:${cat.color}"></div>
-          <div class="operativo-name">${cat.nombre}</div>
-        </div>`)
-      .join('');
-  }
+  
 
   // Renderiza la clasificación Normal vs Extraordinario con desglose por operador
   function renderNorEx(rows) {
@@ -3292,7 +3138,6 @@
       document.getElementById('dark-label').textContent = 'CLARO';
     }
 
-    renderOperativo();
     try {
       await loadData();
     } finally {

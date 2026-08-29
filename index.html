@@ -1378,60 +1378,53 @@
       transition: width .6s cubic-bezier(.22,1,.36,1);
     }
 
-    /* Toggle desplegable de desglose */
-    .kpi-desglose-toggle {
-      display: flex; align-items: center; gap: 6px;
-      padding: 9px 22px;
+    /* ── Composición visual de totales (reemplaza desglose toggle) ── */
+    .kpi-composicion {
       border-top: 1px solid var(--border);
-      font-size: 10px; font-weight: 600; color: var(--text-mid);
-      cursor: pointer; user-select: none;
-      transition: background .12s, color .12s;
-    }
-    .kpi-desglose-toggle:hover { background: var(--bg-page); color: var(--flag-blue); }
-    .kpi-desglose-toggle svg {
-      transition: transform .25s cubic-bezier(.68,-.55,.265,1.55);
-      flex-shrink: 0;
-    }
-    .kpi-desglose-toggle.open svg { transform: rotate(90deg); }
-    .kpi-desglose-toggle.open { color: var(--flag-blue); }
-
-    /* Cuerpo del desglose — barras horizontales por categoría */
-    .kpi-desglose-body {
-      display: none;
-      padding: 12px 22px 14px;
-      border-top: 1px solid var(--border);
-      background: var(--bg-page);
-    }
-    .kpi-desglose-body.open { display: block; }
-
-    .kpi-desglose-row {
       display: grid;
-      grid-template-columns: 180px 1fr 36px;
-      align-items: center; gap: 10px;
-      margin-bottom: 7px;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0;
     }
-    .kpi-desglose-row:last-child { margin-bottom: 0; }
-    .kpi-desglose-name {
-      font-size: 10px; color: var(--text-mid); font-weight: 500;
-      display: flex; align-items: center; gap: 7px; white-space: nowrap;
-      overflow: hidden; text-overflow: ellipsis;
+    .kpi-comp-bloque {
+      padding: 14px 20px;
     }
-    .kpi-desglose-dot {
-      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    .kpi-comp-op  { background: var(--flag-blue-soft); border-right: 1px solid var(--border); }
+    .kpi-comp-gen { background: #fffceb; }
+    [data-theme="dark"] .kpi-comp-gen { background: #1a1600; }
+    .kpi-comp-titulo {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 10px; font-weight: 700; color: var(--flag-blue);
+      text-transform: uppercase; letter-spacing: .07em;
+      margin-bottom: 8px;
     }
-    .kpi-desglose-bar-wrap {
-      height: 5px; background: var(--border-mid);
-      border-radius: 4px; overflow: hidden;
+    .kpi-comp-desc {
+      font-size: 11px; color: var(--text-mid); line-height: 1.55;
+      margin-bottom: 10px;
     }
-    .kpi-desglose-bar-fill {
-      height: 100%; border-radius: 4px; opacity: .55;
-      transition: width .5s cubic-bezier(.22,1,.36,1);
+    .kpi-comp-desc strong { color: var(--text-dark); }
+    .kpi-comp-chips {
+      display: flex; flex-wrap: wrap; gap: 5px;
     }
-    .kpi-desglose-val {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; font-weight: 700; color: var(--text-dark);
-      text-align: right;
+    .kpi-comp-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 9px; font-weight: 500; padding: 3px 8px;
+      border-radius: 20px; border: 1px solid transparent;
     }
+    .kpi-comp-diferencia {
+      display: flex; align-items: baseline; gap: 7px;
+      margin-top: 8px; padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Separador central con barra de proporción */
+    .kpi-comp-sep {
+      display: flex; align-items: center; padding: 0 16px;
+      background: var(--bg-white); border-right: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+    }
+    .kpi-comp-sep-inner { width: 80px; }
+
+    /* Estilos de desglose eliminados — reemplazados por composición visual */
 
   </style>
 </head>
@@ -1844,7 +1837,7 @@
     'intermitencia':          { label: 'Intermitencia',          badge: 'b-blue',   color: '#2563eb' },
     'error de comunicación':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#9333ea' },
     'error de comunicacion':  { label: 'Error de Comunicación',  badge: 'b-purple', color: '#9333ea' },
-    'funcionamiento':         { label: 'Funcionamiento',         badge: 'b-green',  color: '#4f46e5' },
+    'funcionamiento':         { label: 'Funcionamiento',         badge: 'b-teal',   color: '#0891b2', icon: ICONS.funcionamiento },
     'programa':               { label: 'Programa',               badge: 'b-purple', color: '#db2777' },
     'accidente':              { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#ea580c' },
     'vdt volumen':            { label: 'Revisión VDT',           badge: 'b-orange', color: '#0d9488' },
@@ -1856,10 +1849,10 @@
     'visita tecnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
     'visita técnica':         { label: 'Visita Técnica',          badge: 'b-blue',   color: '#059669' },
     'chorros':                { label: 'Chorros',                 badge: 'b-purple', color: '#c026d3' },
-    'ramas':                  { label: 'Ramas / Vegetación',      badge: 'b-green',  color: '#84cc16' },
+    'ramas':                  { label: 'Ramas / Vegetación',      badge: 'b-green',  color: '#84cc16', icon: ICONS.ramas },
     'apoyo en accidente':     { label: 'Apoyo en Accidentes',    badge: 'b-red',    color: '#c2400a' },
     'evento':                 { label: 'Evento',                 badge: 'b-blue',   color: '#0ea5e9' },
-    'reorientacion':          { label: 'Reorientación',          badge: 'b-green',  color: '#10b981' },
+    'reorientacion':          { label: 'Reorientación',          badge: 'b-green',  color: '#10b981', icon: ICONS.reorientacion },
     'reorientación':          { label: 'Reorientación',          badge: 'b-green',  color: '#10b981' },
     'comunicacion':           { label: 'Comunicación',           badge: 'b-teal',   color: '#14b8a6' },
     'comunicación':           { label: 'Comunicación',           badge: 'b-teal',   color: '#14b8a6' },
@@ -2005,6 +1998,78 @@
       <circle cx="10" cy="34" r="1.8" fill="#10b981"/>
       <!-- Pestaña superior de la carpeta -->
       <rect x="6" y="7" width="14" height="5" rx="2" fill="#334155"/>
+    </svg>`,
+
+    /* Semáforo inclinado/mal colocado — flecha de rotación indica reubicación */
+    reorientacion: `<svg viewBox="0 0 48 48" fill="none">
+      <!-- Semáforo rotado ~20° — cuerpo -->
+      <g transform="rotate(22,24,24)">
+        <rect x="14" y="4" width="20" height="34" rx="5" fill="#1e293b"/>
+        <rect x="16" y="6" width="16" height="30" rx="4" fill="#0f172a"/>
+        <circle cx="24" cy="13" r="4.5" fill="#991b1b"/>
+        <circle cx="24" cy="13" r="3" fill="#ef4444" opacity="0.7"/>
+        <circle cx="24" cy="24" r="4.5" fill="#92400e"/>
+        <circle cx="24" cy="24" r="3" fill="#f59e0b" opacity="0.7"/>
+        <circle cx="24" cy="35" r="4.5" fill="#1e293b" stroke="#374151" stroke-width="1"/>
+        <!-- Poste -->
+        <rect x="22" y="38" width="4" height="7" rx="1.5" fill="#475569"/>
+      </g>
+      <!-- Flecha circular de reorientación — naranja -->
+      <path d="M36 10 A14 14 0 0 1 38 24" stroke="#f97316" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <polygon points="38,24 34,20 42,20" fill="#f97316"/>
+    </svg>`,
+
+    /* Ramas tapando el semáforo — hojas delante del cuerpo */
+    ramas: `<svg viewBox="0 0 48 48" fill="none">
+      <!-- Semáforo de fondo (oscuro, parcialmente oculto) -->
+      <rect x="16" y="4" width="18" height="32" rx="5" fill="#1e293b" opacity="0.7"/>
+      <rect x="18" y="6" width="14" height="28" rx="4" fill="#0f172a" opacity="0.7"/>
+      <circle cx="25" cy="13" r="4" fill="#374151" opacity="0.5"/>
+      <circle cx="25" cy="23" r="4" fill="#374151" opacity="0.5"/>
+      <circle cx="25" cy="33" r="4" fill="#374151" opacity="0.5"/>
+      <!-- Rama principal — tronco -->
+      <path d="M4 48 Q8 30 18 18 Q24 10 32 6" stroke="#7c5130" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Ramas secundarias -->
+      <path d="M14 26 Q10 18 16 12" stroke="#7c5130" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M20 18 Q28 14 30 8"  stroke="#7c5130" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- Hojas — manchas verdes cubriendo el semáforo -->
+      <ellipse cx="10" cy="14" rx="7" ry="5" fill="#16a34a" opacity="0.85" transform="rotate(-20,10,14)"/>
+      <ellipse cx="22" cy="10" rx="8" ry="5" fill="#15803d" opacity="0.9"  transform="rotate(10,22,10)"/>
+      <ellipse cx="34" cy="8"  rx="7" ry="4" fill="#16a34a" opacity="0.85" transform="rotate(-15,34,8)"/>
+      <ellipse cx="16" cy="22" rx="7" ry="4" fill="#22c55e" opacity="0.75" transform="rotate(25,16,22)"/>
+      <ellipse cx="28" cy="18" rx="6" ry="4" fill="#15803d" opacity="0.8"  transform="rotate(-10,28,18)"/>
+      <ellipse cx="8"  cy="26" rx="6" ry="4" fill="#16a34a" opacity="0.7"  transform="rotate(15,8,26)"/>
+    </svg>`,
+
+    /* Semáforo funcionando + llave inglesa — mantenimiento/revisión */
+    funcionamiento: `<svg viewBox="0 0 48 48" fill="none">
+      <!-- Semáforo completo y funcionando -->
+      <rect x="8" y="4" width="20" height="36" rx="5" fill="#1e293b"/>
+      <rect x="10" y="6" width="16" height="32" rx="4" fill="#0f172a"/>
+      <circle cx="18" cy="14" r="5" fill="#991b1b"/>
+      <circle cx="18" cy="14" r="3.5" fill="#ef4444"/>
+      <circle cx="16.5" cy="12.5" r="1" fill="rgba(255,255,255,0.4)"/>
+      <circle cx="18" cy="25" r="5" fill="#92400e"/>
+      <circle cx="18" cy="25" r="3.5" fill="#f59e0b"/>
+      <circle cx="18" cy="36" r="5" fill="#065f46"/>
+      <circle cx="18" cy="36" r="3.5" fill="#10b981"/>
+      <circle cx="16.5" cy="34.5" r="1" fill="rgba(255,255,255,0.4)"/>
+      <!-- Poste -->
+      <rect x="16" y="40" width="4" height="5" rx="1.5" fill="#475569"/>
+      <!-- Llave inglesa — naranja, superpuesta a la derecha -->
+      <g transform="translate(26,16) rotate(-35)">
+        <!-- Mango de la llave -->
+        <rect x="-3" y="0" width="6" height="18" rx="2" fill="#f97316"/>
+        <!-- Cabeza de la llave — U abierta -->
+        <path d="M-5,-8 Q-8,-12 -4,-15 Q0,-18 4,-15 Q8,-12 5,-8 L3,-8 Q5,-11 0,-13 Q-5,-11 -3,-8 Z"
+              fill="#f97316"/>
+        <!-- Agujero de la llave -->
+        <circle cx="0" cy="-6" r="2.5" fill="#0f172a"/>
+      </g>
+      <!-- Check verde — indicando que funciona -->
+      <circle cx="40" cy="10" r="7" fill="#065f46"/>
+      <circle cx="40" cy="10" r="5.5" fill="#10b981"/>
+      <polyline points="37,10 39.5,12.5 44,7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`,
   };
 
@@ -2350,44 +2415,64 @@
           </div>
         </div>
 
-        <!-- Barra de proporción operativo/general -->
-        <div class="kpi-prop-bar-wrap">
-          <div class="kpi-prop-bar-label">
-            <span>Operativo vs General</span>
-            <span>${pctOp}% del total</span>
-          </div>
-          <div class="kpi-prop-bar">
-            <div class="kpi-prop-fill" style="width:${pctOp}%"></div>
-          </div>
-        </div>
+        <!-- Composición visual: qué incluye cada total -->
+        <div class="kpi-composicion">
 
-        <!-- Toggle de desglose por categoría -->
-        <div class="kpi-desglose-toggle" id="kpi-desglose-toggle"
-             onclick="toggleDesgloseKPI()" role="button" aria-expanded="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-               width="13" height="13" class="toggle-chevron">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-          Ver desglose por categoría
-        </div>
+          <!-- Bloque Operativo: qué monitorean las 7 categorías -->
+          <div class="kpi-comp-bloque kpi-comp-op">
+            <div class="kpi-comp-titulo">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                <circle cx="8" cy="8" r="6"/><polyline points="6,8 8,10 11,6"/>
+              </svg>
+              ¿Qué incluye el Total Operativo?
+            </div>
+            <div class="kpi-comp-desc">
+              Son los <strong>${FIJAS.length} tipos de incidencia</strong> que el CCM monitorea activamente:
+              forzamientos, apagados, mejoras, intermitencias, errores de comunicación,
+              apoyo en accidentes y revisiones VDT.
+              Cada uno tiene su propia tarjeta arriba.
+            </div>
+            <div class="kpi-comp-chips">
+              ${FIJAS.map(c => `<span class="kpi-comp-chip" style="background:${c.color}22;color:${c.color};border-color:${c.color}44">
+                <span style="width:6px;height:6px;border-radius:50%;background:${c.color};display:inline-block;flex-shrink:0"></span>
+                ${c.label.split(' ').slice(0,2).join(' ')} <strong>${c.val}</strong>
+              </span>`).join('')}
+            </div>
+          </div>
 
-        <!-- Desglose: barras horizontales por tipo fijo -->
-        <div class="kpi-desglose-body" id="kpi-desglose-body">
-          ${FIJAS.map(c => {
-            const pct = totalOperativo ? Math.round((c.val / totalOperativo) * 100) : 0;
-            return `
-              <div class="kpi-desglose-row">
-                <div class="kpi-desglose-name">
-                  <div class="kpi-desglose-dot" style="background:${c.color}"></div>
-                  ${c.label.charAt(0) + c.label.slice(1).toLowerCase()}
-                </div>
-                <div class="kpi-desglose-bar-wrap">
-                  <div class="kpi-desglose-bar-fill"
-                       style="width:${pct}%;background:${c.color}"></div>
-                </div>
-                <div class="kpi-desglose-val">${c.val}</div>
-              </div>`;
-          }).join('')}
+          <!-- Separador con barra de proporción -->
+          <div class="kpi-comp-sep">
+            <div class="kpi-comp-sep-inner">
+              <div class="kpi-prop-bar" style="height:8px;border-radius:6px">
+                <div class="kpi-prop-fill" style="width:${pctOp}%;height:100%"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-light);margin-top:4px;font-weight:600">
+                <span style="color:var(--flag-blue)">${pctOp}% operativo (${totalOperativo})</span>
+                <span>${100 - pctOp}% otros (${totalGeneral - totalOperativo})</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bloque General: qué es lo extra -->
+          <div class="kpi-comp-bloque kpi-comp-gen">
+            <div class="kpi-comp-titulo" style="color:#92400e">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                <rect x="2" y="3" width="12" height="10" rx="2"/><line x1="5" y1="7" x2="11" y2="7"/><line x1="5" y1="10" x2="9" y2="10"/>
+              </svg>
+              ¿Qué incluye el Total General?
+            </div>
+            <div class="kpi-comp-desc">
+              Es el <strong>conteo completo de todos los registros</strong> del período,
+              incluyendo los ${totalGeneral - totalOperativo > 0 ? totalGeneral - totalOperativo + ' registros adicionales como' : 'mismos registros que el operativo pero'} reorientaciones,
+              funcionamientos rutinarios, visitas técnicas y otros eventos no críticos.
+              La diferencia con el Operativo son registros de soporte general.
+            </div>
+            <div class="kpi-comp-diferencia">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:800;color:#FFD100">${totalGeneral - totalOperativo}</span>
+              <span style="font-size:10px;color:var(--text-light)">registros fuera de las categorías operativas</span>
+            </div>
+          </div>
+
         </div>
 
       </div>`;
@@ -2411,16 +2496,7 @@
   }
 
   /* Alterna el panel de desglose de la card unificada de totales */
-  function toggleDesgloseKPI() {
-    const toggle = document.getElementById('kpi-desglose-toggle');
-    const body   = document.getElementById('kpi-desglose-body');
-    if (!toggle || !body) return;
-    const isOpen = body.classList.toggle('open');
-    toggle.classList.toggle('open', isOpen);
-    toggle.setAttribute('aria-expanded', String(isOpen));
-    const textNode = [...toggle.childNodes].find(n => n.nodeType === 3 && n.textContent.trim());
-    if (textNode) textNode.textContent = isOpen ? ' Ocultar desglose' : ' Ver desglose por categoría';
-  }
+  /* toggleDesgloseKPI eliminado — reemplazado por composición visual estática */
 
 
   // Renderiza el contenido del desplegable de composición del Total Operativo.

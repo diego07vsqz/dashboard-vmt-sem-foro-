@@ -1315,22 +1315,18 @@
     .totales-desglose[open] .totales-desglose-sum svg { transform: rotate(180deg); }
     .totales-desglose-sum svg { transition: transform .25s ease; }
     .totales-desglose-body {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 6px; padding: 10px 22px 14px;
+      display: flex; flex-wrap: wrap; gap: 8px 20px;
+      padding: 10px 22px 14px;
       background: var(--bg-page); border-top: 1px solid var(--border);
       animation: tabFade .18s ease;
     }
     .totales-desglose-row {
-      display: flex; align-items: center; gap: 7px;
-      font-size: 11px; color: var(--text-mid);
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--text-mid); white-space: nowrap;
     }
-    .totales-desglose-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .totales-desglose-name { flex: 1; }
-    .totales-desglose-val {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; font-weight: 700; color: var(--text-dark);
-    }
+    .totales-desglose-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .totales-desglose-name { }
+
     [data-theme="dark"] .totales-desglose-body { background: #0f172a; }
 
   </style>
@@ -2286,18 +2282,22 @@
       conteo[key].val++;
     });
 
-    const DINAMICAS = Object.values(conteo)
-      .filter(d => d.val > 0)
-      .sort((a, b) => b.val - a.val)
-      .slice(0, 3)
-      .map(d => ({
-        label: d.tipo.label.toUpperCase(),
-        val:   d.val,
+    // Tipos secundarios fijos — siempre visibles con su ícono propio
+    const TIPOS_SECUNDARIOS = ['reorientacion', 'funcionamiento', 'ramas'];
+    const DINAMICAS = TIPOS_SECUNDARIOS.map(key => {
+      const tipo = TIPOS[key] || {};
+      const entry = Object.values(conteo).find(d =>
+        normInc(d.tipo.label) === key || d.tipo.label === tipo.label
+      );
+      return {
+        label: (tipo.label || key).toUpperCase(),
+        val:   entry ? entry.val : 0,
         cls:   'k-dynamic',
         bg:    '#f8fafc',
-        icon:  d.tipo.icon || ICONS.totalGeneral,
-        color: d.tipo.color || '#64748b',
-      }));
+        icon:  tipo.icon || ICONS.totalGeneral,
+        color: tipo.color || '#64748b',
+      };
+    });
 
     /* ─── Render cards fijas + dinámicas ─────────────────────────────── */
     const todasCards = [...FIJAS, ...DINAMICAS];
@@ -2321,7 +2321,7 @@
           <div class="kpi-total-half half-op">
             <div class="kpi-icon" style="background:#eff6ff">${ICONS.total}</div>
             <div class="kpi-total-meta">
-              <div class="kpi-total-lbl">Total Operativo</div>
+              <div class="kpi-total-lbl">Incidencias Registradas</div>
               <div class="kpi-total-num" data-target="${totalOperativo}">0</div>
               <div class="kpi-total-sub">Incidencias reportadas en las categorías principales de monitoreo</div>
             </div>
@@ -2343,14 +2343,13 @@
                  stroke-width="2.5" width="11" height="11" style="flex-shrink:0">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
-            <span>¿Qué incluye el Total Operativo?</span>
+            <span>¿Qué tipos incluye?</span>
           </summary>
           <div class="totales-desglose-body">
             ${FIJAS.map(c => `
               <div class="totales-desglose-row">
                 <span class="totales-desglose-dot" style="background:${c.color}"></span>
                 <span class="totales-desglose-name">${c.label.charAt(0)+c.label.slice(1).toLowerCase()}</span>
-                <span class="totales-desglose-val">${c.val}</span>
               </div>`).join('')}
           </div>
         </details>

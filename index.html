@@ -351,10 +351,64 @@
       display: flex; align-items: center; gap: 8px;
     }
 
-    /* Tabla de últimos eventos a ancho completo */
+    /* Layout tabla + gráfica barras */
     .dashboard-grid--full {
-      display: block;
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 16px;
+      align-items: start;
     }
+
+    /* Panel lateral de barras por día */
+    .bar-panel {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 18px 20px;
+    }
+    .bar-panel-title {
+      font-size: 11px; font-weight: 800;
+      color: var(--text-mid); text-transform: uppercase;
+      letter-spacing: .08em; margin-bottom: 14px;
+      padding-bottom: 10px; border-bottom: 1.5px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .bar-panel-title::before {
+      content: ''; width: 4px; height: 15px;
+      background: var(--flag-blue); border-radius: 3px; flex-shrink: 0;
+    }
+    .bar-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 9px;
+    }
+    .bar-row:last-child { margin-bottom: 0; }
+    .bar-day {
+      font-size: 10px; font-weight: 600;
+      color: var(--text-light); width: 28px; flex-shrink: 0;
+    }
+    .bar-track {
+      flex: 1; height: 8px;
+      background: var(--border); border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%; border-radius: 4px;
+      background: var(--flag-blue);
+      transition: width .4s cubic-bezier(.22,1,.36,1);
+    }
+    .bar-fill.bar-peak { background: #ef4444; }
+    .bar-val {
+      font-size: 11px; font-weight: 700;
+      color: var(--text-dark); width: 24px;
+      text-align: right; flex-shrink: 0;
+    }
+    .bar-footer {
+      margin-top: 12px; padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 10px; color: var(--text-light);
+      display: flex; align-items: center; gap: 6px;
+    }
+    [data-theme="dark"] .bar-panel { background: var(--bg-white); }
     /* Padding y espaciado de la tabla principal de eventos */
     .dashboard-grid--full .table-scroll {
       overflow-y: auto;
@@ -2682,6 +2736,15 @@
           </table>
         </div>
       </div>
+      <!-- Panel lateral: incidentes por día de la semana (columna A del Sheet) -->
+      <div class="bar-panel" id="bar-dia-panel">
+        <div class="bar-panel-title">Incidentes por día</div>
+        <div id="bar-dia-rows">
+          <!-- Se renderiza por renderBarDia() al cargar datos -->
+          <div style="color:var(--text-light);font-size:11px;text-align:center;padding:20px 0">Cargando...</div>
+        </div>
+        <div class="bar-footer" id="bar-dia-footer"></div>
+      </div>
     </div>
     <div class="footer">
       Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte
@@ -3289,6 +3352,7 @@
     updateSelectStates();
     if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(filtered);
     if (document.getElementById('panel-zonas').classList.contains('active'))    renderZonas(filtered);
+    renderBarDia(filtered); // Gráfica días — siempre visible en Dashboard
   }
 
   /* Marca con .is-active los selects que tienen un valor distinto del default */
@@ -4319,6 +4383,58 @@
     } finally {
       btn.classList.remove('exporting');
       btn.querySelector('span').textContent = 'Exportar Excel';
+    }
+  }
+
+  /* ── Gráfica de barras: incidentes por día de la semana ───────────
+     Lee r.fecha (columna A del Sheet) via parseSheetDate.
+     Se llama desde applyFilters con los datos ya filtrados.
+  ──────────────────────────────────────────────────────────────────── */
+  function renderBarDia(rows) {
+    const panel = document.getElementById('bar-dia-rows');
+    const footer = document.getElementById('bar-dia-footer');
+    if (!panel) return;
+
+    const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    const counts = [0, 0, 0, 0, 0, 0, 0];
+
+    rows.forEach(r => {
+      const d = parseSheetDate(r.fecha); // usa columna A parseada
+      if (!d) return;
+      counts[d.getDay()]++;
+    });
+
+    const max   = Math.max(...counts, 1);
+    const total = counts.reduce((a, b) => a + b, 0);
+    const peakIdx = counts.indexOf(max);
+
+    // Reordenar Lun→Dom (índices 1..6, 0)
+    const order = [1, 2, 3, 4, 5, 6, 0];
+
+    panel.innerHTML = order.map(i => {
+      const pct  = Math.round((counts[i] / max) * 100);
+      const peak = i === peakIdx;
+      return `
+        <div class="bar-row">
+          <span class="bar-day">${DIAS[i]}</span>
+          <div class="bar-track">
+            <div class="bar-fill${peak ? ' bar-peak' : ''}"
+                 style="width:${pct}%"></div>
+          </div>
+          <span class="bar-val">${counts[i]}</span>
+        </div>`;
+    }).join('');
+
+    if (footer) {
+      footer.innerHTML = total > 0
+        ? `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
+               width="11" height="11" style="flex-shrink:0">
+             <circle cx="8" cy="8" r="6"/>
+             <line x1="8" y1="5" x2="8" y2="8"/>
+             <line x1="8" y1="11" x2="8.01" y2="11"/>
+           </svg>
+           Pico: <strong>${DIAS[peakIdx]}</strong> · ${max} incidentes`
+        : 'Sin datos en el período';
     }
   }
 </script>

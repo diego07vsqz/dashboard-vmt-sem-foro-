@@ -344,9 +344,9 @@
     }
 
     .card-title {
-      font-size: 12px; font-weight: 800;
+      font-size: 11px; font-weight: 800;
       color: var(--text-mid); text-transform: uppercase;
-      letter-spacing: .1em; margin-bottom: 16px;
+      letter-spacing: .08em; margin-bottom: 16px;
       padding-bottom: 11px; border-bottom: 1.5px solid var(--border);
       display: flex; align-items: center; gap: 8px;
     }
@@ -358,6 +358,24 @@
     .dashboard-grid--full .table-scroll {
       max-height: 480px;
     }
+
+    /* Padding y espaciado de la tabla principal de eventos */
+    .table-scroll table { width: 100%; border-collapse: collapse; }
+    .table-scroll thead th {
+      padding: 9px 14px;
+      font-size: 10px; font-weight: 800; color: var(--text-light);
+      text-transform: uppercase; letter-spacing: .1em;
+      border-bottom: 1.5px solid var(--border);
+      background: var(--bg-page);
+      text-align: left; white-space: nowrap;
+    }
+    .table-scroll tbody td {
+      padding: 9px 14px;
+      font-size: 12px; color: var(--text-mid);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .table-scroll tbody tr:hover td { background: var(--bg-page); }
     .card-title::before {
       content: ''; width: 4px; height: 15px;
       background: var(--flag-blue); border-radius: 3px; flex-shrink: 0;
@@ -2636,7 +2654,7 @@
 
     <div class="dashboard-grid dashboard-grid--full">
       <div class="card">
-        <div class="card-title" style="font-size:15px;font-weight:900;color:var(--text-dark);letter-spacing:.06em">ÚLTIMOS EVENTOS</div>
+        <div class="card-title">ÚLTIMOS EVENTOS</div>
         <!-- Barra de contexto: registros mostrados + fecha más reciente -->
         <div class="tabla-summary" id="tabla-summary">
           <span>Mostrando <strong id="tbl-showing">—</strong> de <strong id="tbl-total">—</strong> registros</span>
@@ -2667,16 +2685,16 @@
     <div class="charts-grid">
       <!-- Fila 1: dona + numérica, una columna cada una -->
       <div class="card">
-        <div class="card-title" style="font-size:15px;font-weight:900;color:var(--text-dark);letter-spacing:.06em">DISTRIBUCIÓN PORCENTUAL</div>
+        <div class="card-title">DISTRIBUCIÓN PORCENTUAL</div>
         <div class="chart-box" style="height:320px"><canvas id="chart-donut"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title" style="font-size:15px;font-weight:900;color:var(--text-dark);letter-spacing:.06em">DISTRIBUCIÓN NUMÉRICA</div>
+        <div class="card-title">DISTRIBUCIÓN NUMÉRICA</div>
         <div id="dist-numerica" style="overflow-y:auto"></div>
       </div>
       <!-- Fila 2: barras a ancho completo -->
       <div class="card full-width">
-        <div class="card-title" style="font-size:15px;font-weight:900;color:var(--text-dark);letter-spacing:.06em">INCIDENCIAS POR TIPO</div>
+        <div class="card-title">INCIDENCIAS POR TIPO</div>
         <div class="chart-box" style="height:340px"><canvas id="chart-bar"></canvas></div>
       </div>
     </div>
@@ -2692,7 +2710,7 @@
 
     <!-- Tarjetas por ciudad -->
     <div class="card" style="margin-bottom:20px">
-      <div class="card-title" style="font-size:15px;font-weight:900;color:var(--text-dark);letter-spacing:.06em">MOVIMIENTOS POR CIUDAD</div>
+      <div class="card-title">MOVIMIENTOS POR CIUDAD</div>
       <div id="zonas-ciudades"></div>
       <!-- Panel de detalle a ancho completo -->
       <div id="zonas-detalle" style="display:none"></div>
@@ -2700,7 +2718,7 @@
 
     <!-- Top semáforos críticos -->
     <div class="card">
-      <div class="card-title" style="font-size:15px;font-weight:900;color:var(--text-dark);letter-spacing:.06em">TOP SEMÁFOROS CRÍTICOS</div>
+      <div class="card-title">TOP SEMÁFOROS CRÍTICOS</div>
       <!-- Tabla limpia: solo Código · Ciudad · Fecha · Hora + indicador de detalle -->
       <div class="table-scroll">
         <table id="zonas-top-table">

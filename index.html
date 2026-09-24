@@ -355,11 +355,11 @@
     .dashboard-grid--full {
       display: block;
     }
-    .dashboard-grid--full .table-scroll {
-      max-height: 480px;
-    }
-
     /* Padding y espaciado de la tabla principal de eventos */
+    .dashboard-grid--full .table-scroll {
+      overflow-y: auto;
+      overflow-x: auto;
+    }
     .table-scroll table { width: 100%; border-collapse: collapse; }
     .table-scroll thead th {
       padding: 9px 14px;
@@ -368,6 +368,7 @@
       border-bottom: 1.5px solid var(--border);
       background: var(--bg-page);
       text-align: left; white-space: nowrap;
+      position: sticky; top: 0; z-index: 1;
     }
     .table-scroll tbody td {
       padding: 9px 14px;

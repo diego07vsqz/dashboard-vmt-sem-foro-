@@ -361,7 +361,7 @@
       overflow-x: auto;
     }
     .table-scroll table {
-      width: 100%; border-collapse: collapse; table-layout: fixed;
+      width: 100%; border-collapse: collapse;
     }
     .table-scroll thead th {
       padding: 9px 14px;
@@ -369,23 +369,23 @@
       text-transform: uppercase; letter-spacing: .1em;
       border-bottom: 1.5px solid var(--border);
       background: var(--bg-page);
-      text-align: left; overflow: hidden; text-overflow: ellipsis;
-      white-space: nowrap; position: sticky; top: 0; z-index: 1;
+      text-align: left; white-space: nowrap;
+      position: sticky; top: 0; z-index: 1;
     }
     .table-scroll tbody td {
       padding: 9px 14px;
       font-size: 12px; color: var(--text-mid);
       border-bottom: 1px solid var(--border);
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      white-space: nowrap;
     }
     .table-scroll tbody tr:hover td { background: var(--bg-page); }
-    /* Anchos proporcionales: fijos para fecha/hora/código/incidencia, flexibles para reporte y dirección */
-    .table-scroll th:nth-child(1), .table-scroll td:nth-child(1) { width: 110px; }  /* FECHA */
-    .table-scroll th:nth-child(2), .table-scroll td:nth-child(2) { width: 110px; }  /* HORA */
-    .table-scroll th:nth-child(3), .table-scroll td:nth-child(3) { width: 90px;  }  /* CÓDIGO */
-    .table-scroll th:nth-child(4), .table-scroll td:nth-child(4) { width: 160px; }  /* REPORTE */
-    .table-scroll th:nth-child(5), .table-scroll td:nth-child(5) { width: 180px; }  /* INCIDENCIA */
-    .table-scroll th:nth-child(6), .table-scroll td:nth-child(6) { width: auto;  }  /* DIRECCIÓN — toma el resto */
+    /* Porcentajes: fecha+hora+código+reporte+incidencia suman ~55%, dirección toma el 45% restante */
+    .table-scroll th:nth-child(1), .table-scroll td:nth-child(1) { width: 9%;  }   /* FECHA */
+    .table-scroll th:nth-child(2), .table-scroll td:nth-child(2) { width: 9%;  }   /* HORA */
+    .table-scroll th:nth-child(3), .table-scroll td:nth-child(3) { width: 7%;  }   /* CÓDIGO */
+    .table-scroll th:nth-child(4), .table-scroll td:nth-child(4) { width: 13%; }   /* REPORTE */
+    .table-scroll th:nth-child(5), .table-scroll td:nth-child(5) { width: 17%; }   /* INCIDENCIA */
+    .table-scroll th:nth-child(6), .table-scroll td:nth-child(6) { width: 45%; }   /* DIRECCIÓN */
     .card-title::before {
       content: ''; width: 4px; height: 15px;
       background: var(--flag-blue); border-radius: 3px; flex-shrink: 0;

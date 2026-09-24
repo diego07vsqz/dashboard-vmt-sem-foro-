@@ -354,7 +354,7 @@
     /* Layout tabla + gráfica barras */
     .dashboard-grid--full {
       display: grid;
-      grid-template-columns: 1fr 260px;
+      grid-template-columns: 260px 1fr;
       gap: 16px;
       align-items: start;
     }
@@ -369,8 +369,8 @@
     .bar-panel-title {
       font-size: 11px; font-weight: 800;
       color: var(--text-mid); text-transform: uppercase;
-      letter-spacing: .08em; margin-bottom: 14px;
-      padding-bottom: 10px; border-bottom: 1.5px solid var(--border);
+      letter-spacing: .08em; margin-bottom: 16px;
+      padding-bottom: 11px; border-bottom: 1.5px solid var(--border);
       display: flex; align-items: center; gap: 8px;
     }
     .bar-panel-title::before {
@@ -2717,6 +2717,15 @@
     
 
     <div class="dashboard-grid dashboard-grid--full">
+      <!-- Panel barras: izquierda -->
+      <div class="bar-panel" id="bar-dia-panel">
+        <div class="bar-panel-title">Incidentes por día</div>
+        <div id="bar-dia-rows">
+          <div style="color:var(--text-light);font-size:11px;text-align:center;padding:20px 0">Cargando...</div>
+        </div>
+        <div class="bar-footer" id="bar-dia-footer"></div>
+      </div>
+      <!-- Tabla eventos: derecha -->
       <div class="card">
         <div class="card-title">ÚLTIMOS EVENTOS</div>
         <!-- Barra de contexto: registros mostrados + fecha más reciente -->
@@ -2736,15 +2745,7 @@
           </table>
         </div>
       </div>
-      <!-- Panel lateral: incidentes por día de la semana (columna A del Sheet) -->
-      <div class="bar-panel" id="bar-dia-panel">
-        <div class="bar-panel-title">Incidentes por día</div>
-        <div id="bar-dia-rows">
-          <!-- Se renderiza por renderBarDia() al cargar datos -->
-          <div style="color:var(--text-light);font-size:11px;text-align:center;padding:20px 0">Cargando...</div>
-        </div>
-        <div class="bar-footer" id="bar-dia-footer"></div>
-      </div>
+
     </div>
     <div class="footer">
       Unidad de Planeamiento Semafórico — CCM &nbsp;·&nbsp; Ministerio de Obras Públicas y de Transporte

@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unidad de Planeamiento Semafórico | CCM</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 52'%3E%3Crect x='10' y='2' width='24' height='48' rx='5' fill='%230f2236'/%3E%3Ccircle cx='22' cy='13' r='7' fill='%23e03535'/%3E%3Ccircle cx='22' cy='26' r='7' fill='%23c98a10'/%3E%3Ccircle cx='22' cy='39' r='7' fill='%231e8a4a'/%3E%3C/svg%3E">
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Fuentes: media="print" + onload = no bloquean la carga (antes congelaban la pantalla de carga si Google Fonts no respondía) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"></noscript>
   <script async src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
           onload="window.__onChartReady && window.__onChartReady()" onerror="window.__chartFail = true"></script>
   <style>
@@ -630,6 +634,13 @@
   <div class="spinner"></div>
   <div class="loading-msg">Cargando datos</div>
 </div>
+
+<script>
+  setTimeout(function () {
+    var o = document.getElementById('loading-overlay');
+    if (o) { o.classList.add('fade-out'); setTimeout(function () { if (o.parentNode) o.parentNode.removeChild(o); }, 400); }
+  }, 30000);
+</script>
 
 <div class="app">
 

@@ -43,6 +43,7 @@
 
   /* ══ Modo oscuro — tokens ══════════════════════════════════════ */
   [data-theme="dark"] {
+    --flag-blue: #3b82f6;   /* #0033a0 no se lee sobre fondo oscuro */
     --bg-page: #0f172a;
     --bg-white: #1e293b;
     --bg-header: #020617;
@@ -717,9 +718,9 @@
     overflow-x: auto;
   }
   .main {
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
-    padding: 26px 32px 52px;
+    padding: 26px 20px 52px;
   }
   .card {
     background: var(--bg-white);
@@ -728,11 +729,11 @@
     padding: 20px 24px;
   }
   .card-title {
-    font-size: 10.5px;
-    font-weight: 700;
-    color: var(--text-light);
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-dark);
     text-transform: uppercase;
-    letter-spacing: .12em;
+    letter-spacing: .08em;
     margin-bottom: 16px;
     padding-bottom: 11px;
     border-bottom: 1.5px solid var(--border);
@@ -1077,7 +1078,8 @@
   }
   .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(225px, 1fr));
+    /* máx. 5 columnas (10 cards → 5+5); en pantallas chicas baja a 225px mínimo */
+    grid-template-columns: repeat(auto-fit, minmax(max(225px, calc((100% - 4 * 16px) / 5)), 1fr));
     gap: 16px;
     margin-bottom: 26px;
   }
@@ -1913,6 +1915,25 @@
   @keyframes panelIn { from { opacity: 0; transform: translateY(-12px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
   @keyframes rowIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+  /* ══ Modo oscuro — textos de acento (azul claro, contraste AA) ═══ */
+  [data-theme="dark"] .half-op .kpi-total-num,
+  [data-theme="dark"] .totales-desglose-sum,
+  [data-theme="dark"] .totales-desglose-sum:hover,
+  [data-theme="dark"] .totales-desglose[open] .totales-desglose-sum,
+  [data-theme="dark"] .zona-total-pill,
+  [data-theme="dark"] .zona-count-badge,
+  [data-theme="dark"] .tab-btn:hover {
+    color: #93c5fd;
+  }
+  [data-theme="dark"] .totales-desglose-sum {
+    border-top-color: rgba(147,197,253,.25);
+    background: linear-gradient(90deg, rgba(59,130,246,.08) 0%, transparent 100%);
+  }
+  [data-theme="dark"] .totales-desglose-sum::after {
+    color: #93c5fd;
+    background: rgba(59,130,246,.15);
+    border-color: rgba(147,197,253,.35);
+  }
   </style>
   <!-- SheetJS para exportar Excel -->
   <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -3001,6 +3022,7 @@
     const tema = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     aplicarTema(tema);
     try { localStorage.setItem('ccm_theme', tema); } catch (_) {}
+    if (document.getElementById('panel-graficas').classList.contains('active')) renderCharts(lastFilteredRows);
   }
 
   // Activa la pestaña seleccionada y renderiza la visualización correspondiente
@@ -3020,7 +3042,15 @@
      ordenados de mayor a menor. Las etiquetas largas se parten en
      dos líneas para evitar solapamiento en el eje X.
   ─────────────────────────────────────────────────────────────── */
+  // Colores de ejes/leyendas según el tema (leídos de los tokens CSS)
+  function chartTheme() {
+    const cs  = getComputedStyle(document.documentElement);
+    const get = v => cs.getPropertyValue(v).trim();
+    return { grid: get('--border-mid'), text: get('--text-mid'), title: get('--text-light'), bg: get('--bg-white') };
+  }
+
   function renderCharts(rows) {
+    const th = chartTheme();
     // Contar ocurrencias por tipo de incidencia normalizado
     const counts = {};
     rows.forEach(r => {
@@ -3097,13 +3127,14 @@
         scales: {
           y: {
             beginAtZero: true,
-            grid: { color: '#e5e7eb' },
-            title: { display: true, text: 'Cantidad', font: { size: 11, weight: '600' }, color: '#6b7280' },
+            grid: { color: th.grid },
+            ticks: { color: th.text },
+            title: { display: true, text: 'Cantidad', font: { size: 11, weight: '600' }, color: th.title },
           },
           x: {
             // maxRotation: 0 evita que Chart.js rote las etiquetas
             // la partición en 2 líneas las mantiene legibles en vertical
-            ticks: { font: { size: 10, weight: '500' }, color: '#374151', maxRotation: 0, autoSkip: false },
+            ticks: { font: { size: 10, weight: '500' }, color: th.text, maxRotation: 0, autoSkip: false },
             grid: { display: false },
           },
         },
@@ -3119,7 +3150,7 @@
         datasets: [{
           data: values,
           backgroundColor: borders.map(c => c + 'dd'),
-          borderColor: '#fff',
+          borderColor: th.bg,
           borderWidth: 2,
           hoverOffset: 6,
         }],
@@ -3135,7 +3166,7 @@
             labels: {
               boxWidth: 9,
               font: { size: 10 },
-              color: '#374151',
+              color: th.text,
               usePointStyle: true,
               pointStyle: 'circle',
               padding: 10,

@@ -161,7 +161,7 @@
   }
   .topbar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
   .topbar-row--head { justify-content: space-between; }
-  .page-head { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .page-head { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 320px; }   /* se envuelve antes que los botones */
   .page-title { font-size: 24px; font-weight: 800; letter-spacing: -.01em; line-height: 1.2; }
   .page-sub { font-size: 13px; color: var(--text-light); }
   .page-sub-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -172,7 +172,7 @@
   }
   .demo-pill[hidden] { display: none; }
   .side-sema { flex-shrink: 0; display: block; filter: drop-shadow(0 2px 6px rgba(0,0,0,.35)); }
-  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: 0 1 auto; justify-content: flex-end; }
 
   .live-pill {
     display: inline-flex; align-items: center; gap: 8px;
@@ -220,7 +220,7 @@
   .range-btn:hover { background: var(--flag-blue-soft); color: var(--accent-text); }
   .range-btn.active-range { background: var(--flag-blue); color: #fff; }
 
-  .update-note { margin-left: auto; font-size: 12px; color: var(--text-light); white-space: nowrap; }
+  .update-note { font-size: 12px; color: var(--text-light); white-space: nowrap; }
 
   /* ══ Botón y panel de FILTROS ════════════════════════════════════ */
   .fp-wrap { position: relative; }
@@ -504,7 +504,8 @@
   .zona-bar-wrap { height: 4px; background: var(--track); border-radius: 3px; margin: 4px 0 0 auto; width: 60px; overflow: hidden; }
   .zona-bar-fill { height: 100%; background: var(--flag-blue); border-radius: 3px; }
 
-  #zonas-detalle, #top-detalle, #zonas-top-table { scroll-margin-top: 170px; }
+  /* --topbar-h lo mide el JS (altura real de la barra fija, cambia al envolver en pantallas medianas) */
+  #zonas-detalle, #top-detalle, #zonas-top-table { scroll-margin-top: calc(var(--topbar-h, 160px) + 16px); }
   @media (max-width: 640px) { #zonas-detalle, #top-detalle, #zonas-top-table { scroll-margin-top: 16px; } }
 
   /* ══ Zonas: top semáforos críticos ═══════════════════════════════ */
@@ -545,6 +546,34 @@
   }
   .top-hist-table tbody td { padding: 10px 16px; border-bottom: 1px solid var(--border); color: var(--text-mid); }
   .top-hist-table tbody tr:last-child td { border-bottom: none; }
+
+  /* ══ Buscador de semáforo ═══════════════════════════════════════ */
+  .search-box {
+    display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px;
+    width: 260px; max-width: 100%;
+    background: var(--bg-white); border: 1px solid var(--border-mid); border-radius: var(--r-md);
+    color: var(--text-light); transition: border-color .15s, box-shadow .15s;
+  }
+  .search-box:focus-within { border-color: var(--flag-blue); box-shadow: 0 0 0 3px rgba(59,130,246,.18); }
+  .search-box svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .search-box input {
+    flex: 1; min-width: 0; height: 100%; border: none; outline: none; background: transparent;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-dark); text-transform: uppercase;
+  }
+  .search-box input::placeholder { font-family: 'Figtree', system-ui, sans-serif; text-transform: none; color: var(--text-light); }
+
+  /* ══ Ficha de semáforo (dialog) ══════════════════════════════════ */
+  .sema-dialog {
+    width: min(920px, calc(100vw - 32px)); max-height: calc(100vh - 48px);
+    margin: auto; padding: 0; border: 1px solid var(--border-mid); border-radius: var(--r-xl);
+    background: var(--bg-white); color: var(--text-dark); box-shadow: var(--shadow-lg); overflow: hidden;
+  }
+  .sema-dialog[open] { display: flex; flex-direction: column; animation: panelIn .18s ease; }
+  .sema-dialog::backdrop { background: rgba(10,16,32,.55); backdrop-filter: blur(2px); }
+  #sema-body { overflow-y: auto; }
+  .sema-info { display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 14px 18px; font-size: 13px; color: var(--text-mid); border-bottom: 1px solid var(--border); }
+  .sema-info strong { color: var(--text-dark); }
+  .sema-tipos { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
 
   /* ══ Banner de error, toast, ripple ══════════════════════════════ */
   .ccm-error-banner {
@@ -596,7 +625,7 @@
     .kpi-num { font-size: 26px; }
     .kpi-total-num { font-size: 36px; }
     .page-title { font-size: 20px; }
-    .update-note { margin-left: 0; width: 100%; }
+    .search-box { width: 100%; }
     .btn-label { display: none; }
     .live-pill { display: none; }
   }
@@ -678,6 +707,7 @@
             <h1 class="page-title" id="page-title">Dashboard</h1>
             <div class="page-sub-row">
               <span class="page-sub" id="page-sub">Resumen de incidencias del período seleccionado</span>
+              <span class="update-note" id="update-note">Cargando…</span>
               <span class="demo-pill" id="demo-pill" hidden>Datos de ejemplo</span>
             </div>
           </div>
@@ -728,15 +758,6 @@
                   <label class="fp-section-label" for="f-incidencia">Tipo de incidencia</label>
                   <select class="fp-select" id="f-incidencia" onchange="updateFiltroBtn()">
                     <option value="">Todas las incidencias</option>
-                    <option>Forzamiento de Tiempos</option>
-                    <option>Apagado</option>
-                    <option>Mejora de Tiempo</option>
-                    <option>Intermitencia</option>
-                    <option>Error de Comunicaci&oacute;n</option>
-                    <option>Funcionamiento</option>
-                    <option>Programa</option>
-                    <option>Accidente</option>
-                    <option>VDT Volumen</option>
                   </select>
                 </div>
                 <div>
@@ -770,11 +791,18 @@
             <button class="range-btn"              id="rbtn-todo-bar" onclick="setRange('todo')">Todo</button>
           </div>
 
+          <form class="search-box" role="search" onsubmit="event.preventDefault(); buscarSemaforo();">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.5" y2="16.5"/></svg>
+            <label class="sr-only" for="buscar-codigo">Buscar semáforo por código</label>
+            <input id="buscar-codigo" type="search" list="lista-codigos" placeholder="Buscar semáforo (ej. SS0411)"
+                   autocomplete="off" spellcheck="false" onchange="buscarSemaforo()">
+            <datalist id="lista-codigos"></datalist>
+          </form>
+
           <button class="btn btn-clear ripple-btn" onclick="clearAll()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             Limpiar
           </button>
-          <span class="update-note" id="update-note">Cargando…</span>
         </div>
       </div>
     </header>
@@ -874,6 +902,15 @@
 
   </div><!-- /.content -->
 </div><!-- /.app -->
+
+<!-- ══ Ficha de semáforo (búsqueda por código) ══ -->
+<dialog class="sema-dialog" id="sema-dialog" aria-labelledby="sema-titulo">
+  <div class="top-detalle-header">
+    <div class="top-detalle-title" id="sema-titulo">Semáforo</div>
+    <form method="dialog"><button class="top-detalle-close" aria-label="Cerrar">✕</button></form>
+  </div>
+  <div id="sema-body"></div>
+</dialog>
 
 <script>
   'use strict';
@@ -1130,7 +1167,10 @@
   };
 
   // Helpers — derivados del catálogo TIPOS
-  const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || { label: raw || 'Otro', badge: 'b-gray', color: '#94a3b8' };
+  // Texto normalizado para comparar: minúsculas, sin tildes, espacios simples
+  const sinTildes = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+  const getTipo  = raw   => TIPOS[(raw || '').toLowerCase().trim()] || TIPOS[sinTildes(raw)]
+                         || { label: (raw || '').trim() || 'Otro', badge: 'b-gray', color: '#94a3b8' };
   const countKw  = (rows, kw) => rows.filter(r => (r.incidencia || '').toLowerCase().includes(kw)).length;
 
   // Escapa texto del Sheet antes de insertarlo como HTML (evita inyección de etiquetas)
@@ -1222,8 +1262,7 @@
       let nota = '';
       const cached = DEMO ? null : cacheLeer();   // ya valida versión y TTL
       if (DEMO) {
-        dataset = generarDatosDemo();
-        nota = ' · datos de ejemplo';
+        dataset = generarDatosDemo();   // la etiqueta DATOS DE EJEMPLO ya lo indica
       } else if (cached) {
         dataset = cached.data;
         const min = cacheEdad();
@@ -1311,12 +1350,53 @@
   }
 
   // Precalcula la fecha (ms) de cada fila una sola vez: filtrar miles de filas sin re-parsear texto
+  // Alias de ciudad: misma ciudad escrita distinto en el Sheet (clave en minúsculas y sin tildes)
+  const CIUDAD_ALIAS = {
+    'blvd. del ejercito/soyapango': 'Soyapango',
+    'blvd del ejercito/soyapango':  'Soyapango',
+  };
+
+  // Hora del Sheet → ms desde medianoche ("11:10:00 a. m.", "1:04 p.m.", "13:05")
+  function parseHora(str) {
+    const s = (str || '').toLowerCase().replace(/[\s.]/g, '');
+    const m = s.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?(am|pm|a|p)?/);
+    if (!m) return 0;
+    let h = +m[1];
+    if (m[4] && m[4][0] === 'p' && h < 12) h += 12;
+    if (m[4] && m[4][0] === 'a' && h === 12) h = 0;
+    return ((h * 60 + +m[2]) * 60 + (+m[3] || 0)) * 1000;
+  }
+
+  // Orden cronológico real: más reciente primero; a igual fecha/hora gana la fila posterior del Sheet
+  const SIN_FECHA   = -8.64e15;
+  const porReciente = (a, b) => ((b._t ?? SIN_FECHA) - (a._t ?? SIN_FECHA)) || ((b._i || 0) - (a._i || 0));
+
+  // Prepara cada fila tras cargar (una pasada, ~10 ms con 7 800 filas):
+  //   _t     fecha + hora en ms → filtros de fecha y orden cronológico real
+  //   _i     posición en el Sheet → desempate entre eventos a la misma hora
+  //   _tipo  etiqueta de TIPOS → filtro de tipo de incidencia
+  //   ciudad unificada en TODAS las pestañas: alias + variantes de mayúsculas,
+  //          tildes y espacios → se usa el nombre más frecuente
   function prepararDataset() {
-    dataset.forEach(r => {
-      if (r._t !== undefined) return;
-      const d = parseSheetDate(r.fecha);
-      r._t = (d && !isNaN(d)) ? d.getTime() : null;
+    const variantes = {};
+    dataset.forEach((r, i) => {
+      r._i = i;
+      if (r._t === undefined) {
+        const d = parseSheetDate(r.fecha);
+        r._t = (d && !isNaN(d)) ? d.getTime() + parseHora(r.hora) : null;
+      }
+      r._tipo = getTipo(r.incidencia).label;
+      const limpio = (r.ciudad || '').replace(/\s+/g, ' ').trim();
+      if (!limpio) { r.ciudad = ''; r._ciudadKey = ''; return; }
+      const alias = CIUDAD_ALIAS[sinTildes(limpio)];
+      r.ciudad      = alias || limpio;
+      r._ciudadKey  = sinTildes(r.ciudad);
+      const v = (variantes[r._ciudadKey] = variantes[r._ciudadKey] || {});
+      v[r.ciudad] = (v[r.ciudad] || 0) + 1;
     });
+    const canon = {};
+    for (const [k, v] of Object.entries(variantes)) canon[k] = Object.entries(v).sort((a, b) => b[1] - a[1])[0][0];
+    dataset.forEach(r => { if (r._ciudadKey) r.ciudad = canon[r._ciudadKey]; });
   }
 
   /* ─── Datos de ejemplo (modo demo) ──────────────────────────────
@@ -1394,14 +1474,21 @@
     return filas;
   }
 
-  // Llena el select de ciudades conservando la selección actual
+  // Llena los selects de ciudad y tipo (desde los datos, conservando la selección)
+  // y la lista de códigos del buscador de semáforos
   function poblarCiudades() {
-    const sel      = document.getElementById('f-ciudad');
-    const prev     = sel.value;
-    const ciudades = [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort();
-    sel.innerHTML  = '<option value="">Todas las ciudades</option>' +
-      ciudades.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
-    sel.value = ciudades.includes(prev) ? prev : '';
+    const llenar = (id, valores, todos) => {
+      const sel  = document.getElementById(id);
+      const prev = sel.value;
+      sel.innerHTML = `<option value="">${todos}</option>` +
+        valores.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
+      sel.value = valores.includes(prev) ? prev : '';
+    };
+    const orden = (a, b) => a.localeCompare(b, 'es');
+    llenar('f-ciudad',     [...new Set(dataset.map(r => r.ciudad).filter(Boolean))].sort(orden), 'Todas las ciudades');
+    llenar('f-incidencia', [...new Set(dataset.map(r => r._tipo).filter(Boolean))].sort(orden),  'Todas las incidencias');
+    const codigos = [...new Set(dataset.map(r => (r.codigo || '').trim().toUpperCase()).filter(Boolean))].sort();
+    document.getElementById('lista-codigos').innerHTML = codigos.map(c => `<option value="${esc(c)}"></option>`).join('');
   }
 
   /* ─── Filtros y rango de fechas ─────────────────────────────── */
@@ -1446,7 +1533,7 @@
   function applyFilters() {
     const fechaIni = document.getElementById('f-fecha-ini').value;
     const fechaFin = document.getElementById('f-fecha-fin').value;
-    const inc      = document.getElementById('f-incidencia').value.toLowerCase().trim();
+    const inc      = document.getElementById('f-incidencia').value;   // etiqueta exacta de TIPOS
     const ciudad   = document.getElementById('f-ciudad').value.toLowerCase().trim();
     const dateIni  = fechaIni ? new Date(fechaIni + 'T00:00:00') : null;
     const dateFin  = fechaFin ? new Date(fechaFin + 'T23:59:59') : null;
@@ -1457,7 +1544,7 @@
       if (tIni !== null || tFin !== null) {
         if (r._t == null || (tIni !== null && r._t < tIni) || (tFin !== null && r._t > tFin)) return false;
       }
-      if (inc    && !(r.incidencia || '').toLowerCase().includes(inc)) return false;
+      if (inc    && r._tipo !== inc) return false;
       if (ciudad && (r.ciudad||'').toLowerCase() !== ciudad)   return false;
       return true;
     });
@@ -1619,7 +1706,7 @@
   }
 
   function renderTable(rows) {
-    const items = rows.slice(-15).reverse();   // últimos 15, más reciente primero
+    const items = [...rows].sort(porReciente).slice(0, 15);   // 15 más recientes por fecha + hora real
 
     // ── Actualizar barra de resumen
     const showEl  = document.getElementById('tbl-showing');
@@ -1892,18 +1979,10 @@
       return;
     }
 
-    // Normalización de aliases de ciudad
-    const CIUDAD_ALIAS = {
-      'blvd. del ejército/soyapango': 'Soyapango',
-      'blvd del ejercito/soyapango':  'Soyapango',
-      'blvd. del ejercito/soyapango': 'Soyapango',
-    };
-
-    // Agrupar por ciudad
+    // Agrupar por ciudad (unificada en prepararDataset, igual que filtro y top críticos)
     _byCiudad = {};
     rows.forEach(r => {
-      const raw = (r.ciudad || 'Sin ciudad').trim();
-      const c   = CIUDAD_ALIAS[raw.toLowerCase()] || raw;
+      const c = r.ciudad || 'Sin ciudad';
       if (!_byCiudad[c]) _byCiudad[c] = [];
       _byCiudad[c].push(r);
     });
@@ -1986,10 +2065,9 @@
       const e = byTipo[lbl];
       e.count++;
       if (r.codigo) e.codigos.add(r.codigo);
-      // Rastrear la fecha/hora más reciente por tipo de incidencia
-      const d = parseSheetDate(r.fecha);
-      if (d && (!e.ultimaFechaD || d >= e.ultimaFechaD)) {
-        e.ultimaFechaD = d;
+      // Fecha/hora más reciente por tipo de incidencia (fecha + hora real)
+      if (r._t != null && (e.ultimaFechaD === null || r._t >= e.ultimaFechaD)) {
+        e.ultimaFechaD = r._t;
         e.ultimaFecha  = r.fecha;
         e.ultimaHora   = r.hora;
       }
@@ -2074,6 +2152,7 @@
           ciudad:        r.ciudad || '—',
           ultimaFecha:   '',
           ultimaHora:    '',
+          ultimaT:       null,
           apagado:       0,
           intermitencia: 0,
           error:         0,
@@ -2085,10 +2164,9 @@
       const e = byCodigo[cod];
       e.eventos.push(r);
 
-      // Rastrear fecha/hora más reciente con parseSheetDate
-      const d  = parseSheetDate(r.fecha);
-      const dp = parseSheetDate(e.ultimaFecha);
-      if (d && (!dp || d >= dp)) {
+      // Fecha/hora más reciente (fecha + hora real)
+      if (r._t != null && (e.ultimaT === null || r._t >= e.ultimaT)) {
+        e.ultimaT     = r._t;
         e.ultimaFecha = r.fecha;
         e.ultimaHora  = r.hora;
       }
@@ -2125,11 +2203,8 @@
       const av = a[colKeys[_topSortCol]] ?? '';
       const bv = b[colKeys[_topSortCol]] ?? '';
       // Comparar fechas con parseSheetDate para orden correcto
-      if (_topSortCol === 2) {
-        const da = parseSheetDate(av) || new Date(0);
-        const db = parseSheetDate(bv) || new Date(0);
-        return (da - db) * _topSortDir;
-      }
+      if (_topSortCol === 2) return ((a.ultimaT ?? 0) - (b.ultimaT ?? 0)) * _topSortDir;                    // fecha + hora
+      if (_topSortCol === 3) return (parseHora(a.ultimaHora) - parseHora(b.ultimaHora)) * _topSortDir;   // hora del día
       if (typeof av === 'string') return av.localeCompare(bv) * _topSortDir;
       return (av - bv) * _topSortDir;
     });
@@ -2233,11 +2308,7 @@
 
     // Historial: los últimos 20 eventos más recientes del semáforo
     const histRows = [...entry.eventos]
-      .sort((a, b) => {
-        const da = parseSheetDate(a.fecha) || new Date(0);
-        const db = parseSheetDate(b.fecha) || new Date(0);
-        return db - da;
-      })
+      .sort(porReciente)
       .slice(0, 20)
       .map(r => {
         const t = getTipo(r.incidencia);
@@ -2292,6 +2363,95 @@
     document.getElementById('zonas-top-table')
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+
+  /* ─── Buscador de semáforo por código ───────────────────────────
+     Abre una ficha con el historial COMPLETO del semáforo (todo el
+     Sheet, no solo el período filtrado) e indica cuántos eventos caen
+     en el período actual.
+  ─────────────────────────────────────────────────────────────── */
+  function buscarSemaforo() {
+    const input = document.getElementById('buscar-codigo');
+    const cod   = (input.value || '').trim().toUpperCase();
+    if (!cod) return;
+    input.value = '';   // evita doble apertura (change + submit)
+    if (!dataset.length) { showToast('⏳ Los datos aún se están cargando'); return; }
+    const eventos = dataset.filter(r => (r.codigo || '').trim().toUpperCase() === cod).sort(porReciente);
+    if (!eventos.length) { showToast(`🔍 No se encontró el semáforo ${cod}`); return; }
+    abrirFichaSemaforo(cod, eventos);
+  }
+
+  function abrirFichaSemaforo(cod, eventos) {
+    const ult       = eventos[0];
+    const mismo     = r => (r.codigo || '').trim().toUpperCase() === cod;
+    const enPeriodo = lastFilteredRows.filter(mismo).length;
+    const CRIT      = ['apagado', 'intermitencia', 'error', 'accidente'];
+    const criticos  = eventos.filter(r => CRIT.some(k => (r.incidencia || '').toLowerCase().includes(k))).length;
+
+    const porTipo = {};
+    eventos.forEach(r => {
+      const t = getTipo(r.incidencia);
+      (porTipo[t.label] = porTipo[t.label] || { n: 0, badge: t.badge }).n++;
+    });
+    const tiposHtml = Object.entries(porTipo).sort((a, b) => b[1].n - a[1].n)
+      .map(([label, v]) => `<span class="badge ${v.badge}">${esc(label)} · ${v.n}</span>`).join('');
+
+    const kpi = (label, val, color) => `<div class="top-kpi-item">
+        <div class="top-kpi-label">${label}</div>
+        <div class="top-kpi-val${val === 0 ? ' top-kpi-zero' : ''}" style="${val > 0 && color ? `color:${color}` : ''}">${val.toLocaleString('es-SV')}</div>
+      </div>`;
+
+    const MAX  = 50;
+    const filas = eventos.slice(0, MAX).map(r => {
+      const t = getTipo(r.incidencia);
+      return `<tr>
+        <td style="white-space:nowrap">${esc(r.fecha)}</td>
+        <td style="white-space:nowrap">${esc(r.hora)}</td>
+        <td><span class="badge ${t.badge}">${esc(t.label)}</span></td>
+        <td>${esc(r.reporte) || '—'}</td>
+        <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.dir)}">${esc(r.dir) || '—'}</td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('sema-titulo').textContent = `Semáforo ${cod} — ${ult.ciudad || 'Sin ciudad'}`;
+    document.getElementById('sema-body').innerHTML = `
+      <div class="sema-info">
+        <span>Dirección: <strong>${esc(ult.dir) || '—'}</strong></span>
+        <span>Último evento: <strong>${esc(ult.fecha)} · ${esc(ult.hora)}</strong></span>
+      </div>
+      <div class="top-detalle-kpis">
+        ${kpi('Total histórico', eventos.length)}
+        ${kpi('En el período actual', enPeriodo, 'var(--accent-text)')}
+        ${kpi('Incidencias críticas', criticos, 'var(--red)')}
+        ${kpi('Tipos distintos', Object.keys(porTipo).length)}
+      </div>
+      <div class="sema-tipos">${tiposHtml}</div>
+      <div class="top-detalle-hist-title">Historial ${eventos.length > MAX ? `(últimos ${MAX} de ${eventos.length.toLocaleString('es-SV')})` : 'completo'}</div>
+      <div class="table-scroll">
+        <table class="top-hist-table">
+          <thead><tr><th>Fecha</th><th>Hora</th><th>Incidencia</th><th>Reportó</th><th>Dirección</th></tr></thead>
+          <tbody>${filas}</tbody>
+        </table>
+      </div>`;
+
+    closeFiltroPanel();
+    const dlg = document.getElementById('sema-dialog');
+    if (typeof dlg.showModal === 'function') { if (!dlg.open) dlg.showModal(); }
+    else dlg.setAttribute('open', '');
+    document.getElementById('sema-body').scrollTop = 0;
+  }
+
+  // Altura real de la barra superior fija → margen de scroll de los paneles de detalle
+  (() => {
+    const topbar = document.querySelector('.topbar');
+    const medir  = () => document.documentElement.style.setProperty('--topbar-h', topbar.offsetHeight + 'px');
+    if (topbar && 'ResizeObserver' in window) new ResizeObserver(medir).observe(topbar);
+    else if (topbar) { medir(); window.addEventListener('resize', medir); }
+  })();
+
+  // Clic fuera de la ficha (en el fondo oscuro) la cierra
+  document.getElementById('sema-dialog').addEventListener('click', e => {
+    if (e.target === e.currentTarget) e.currentTarget.close();
+  });
 
   function clearAll() {
     // Limpiar selects del panel (fechas y botones de rango los reasigna setRange)

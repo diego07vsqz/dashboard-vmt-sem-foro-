@@ -575,6 +575,25 @@
   .sema-info strong { color: var(--text-dark); }
   .sema-tipos { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
 
+  /* ══ Ficha: selector de rango y estado vacío ════════════════════ */
+  .ficha-rangos-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .ficha-rangos { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 4px; background: var(--bg-soft); border: 1px solid var(--border-mid); border-radius: var(--r-md); }
+  .ficha-rango {
+    height: 32px; padding: 0 12px; border: none; border-radius: 9px; background: transparent;
+    color: var(--text-mid); font-size: 13px; font-weight: 600; white-space: nowrap; transition: background .15s, color .15s;
+  }
+  .ficha-rango:hover { background: var(--flag-blue-soft); color: var(--accent-text); }
+  .ficha-rango.on { background: var(--flag-blue); color: #fff; }
+  .ficha-rango-txt { font-size: 12px; color: var(--text-light); }
+  .ficha-vacia { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 40px 20px 44px; text-align: center; }
+  .ficha-vacia-icon {
+    width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 800; color: var(--green); background: var(--green-soft);
+  }
+  .ficha-vacia-msg { font-size: 16px; font-weight: 700; color: var(--text-dark); }
+  .ficha-vacia-sub { font-size: 13px; color: var(--text-mid); margin-bottom: 8px; }
+  .ficha-mas { display: flex; justify-content: center; padding: 14px 18px 18px; }
+
   /* ══ Banner de error, toast, ripple ══════════════════════════════ */
   .ccm-error-banner {
     display: flex; gap: 12px; align-items: flex-start;
@@ -1377,7 +1396,10 @@
   //   _tipo  etiqueta de TIPOS → filtro de tipo de incidencia
   //   ciudad unificada en TODAS las pestañas: alias + variantes de mayúsculas,
   //          tildes y espacios → se usa el nombre más frecuente
+  let _idxCodigos = null;   // índice código → eventos del buscador (se arma al primer uso)
+
   function prepararDataset() {
+    _idxCodigos = null;
     const variantes = {};
     dataset.forEach((r, i) => {
       r._i = i;
@@ -2365,52 +2387,152 @@
   }
 
   /* ─── Buscador de semáforo por código ───────────────────────────
-     Abre una ficha con el historial COMPLETO del semáforo (todo el
-     Sheet, no solo el período filtrado) e indica cuántos eventos caen
-     en el período actual.
+     La ficha abre con el MISMO rango de fechas del dashboard y permite
+     cambiarlo: Esta semana · Este mes · 3 meses · Histórico.
+     Solo aplica fechas (no los filtros de tipo/ciudad).
+     Rendimiento: índice código → eventos (una pasada, se rehace al
+     recargar datos) y la tabla se dibuja en bloques de 50 filas.
   ─────────────────────────────────────────────────────────────── */
+  const FICHA_BLOQUE = 50;
+  const CRITICAS_KW  = ['apagado', 'intermitencia', 'error', 'accidente'];
+  let _ficha = null;   // { cod, eventos, rango, mostrar }
+
+  const normCodigo = c => (c || '').trim().toUpperCase();
+
+  function indiceCodigos() {
+    if (_idxCodigos) return _idxCodigos;
+    _idxCodigos = new Map();
+    dataset.forEach(r => {
+      const c = normCodigo(r.codigo);
+      if (!c) return;
+      if (!_idxCodigos.has(c)) _idxCodigos.set(c, []);
+      _idxCodigos.get(c).push(r);
+    });
+    _idxCodigos.forEach(lista => lista.sort(porReciente));
+    return _idxCodigos;
+  }
+
   function buscarSemaforo() {
     const input = document.getElementById('buscar-codigo');
-    const cod   = (input.value || '').trim().toUpperCase();
+    const cod   = normCodigo(input.value);
     if (!cod) return;
     input.value = '';   // evita doble apertura (change + submit)
     if (!dataset.length) { showToast('⏳ Los datos aún se están cargando'); return; }
-    const eventos = dataset.filter(r => (r.codigo || '').trim().toUpperCase() === cod).sort(porReciente);
-    if (!eventos.length) { showToast(`🔍 No se encontró el semáforo ${cod}`); return; }
-    abrirFichaSemaforo(cod, eventos);
+    const eventos = indiceCodigos().get(cod);
+    if (!eventos) { showToast(`🔍 No existe el semáforo ${cod} en el registro`); return; }
+    _ficha = { cod, eventos, rango: 'actual', mostrar: FICHA_BLOQUE };
+    renderFicha();
+    closeFiltroPanel();
+    const dlg = document.getElementById('sema-dialog');
+    if (typeof dlg.showModal === 'function') { if (!dlg.open) dlg.showModal(); }
+    else dlg.setAttribute('open', '');
   }
 
-  function abrirFichaSemaforo(cod, eventos) {
-    const ult       = eventos[0];
-    const mismo     = r => (r.codigo || '').trim().toUpperCase() === cod;
-    const enPeriodo = lastFilteredRows.filter(mismo).length;
-    const CRIT      = ['apagado', 'intermitencia', 'error', 'accidente'];
-    const criticos  = eventos.filter(r => CRIT.some(k => (r.incidencia || '').toLowerCase().includes(k))).length;
+  // Rango de fechas de la ficha → { tIni, tFin, texto } (ms; null = sin límite)
+  function rangoFicha(rango) {
+    const hoy = new Date(), y = hoy.getFullYear(), m = hoy.getMonth();
+    const fin = d => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+    const fmt = d => d.toLocaleDateString('es-SV', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    let ini = null, hasta = null;
+    if (rango === 'actual') {
+      const a = document.getElementById('f-fecha-ini').value;
+      const b = document.getElementById('f-fecha-fin').value;
+      ini   = a ? new Date(a + 'T00:00:00') : null;
+      hasta = b ? new Date(b + 'T23:59:59') : null;
+    } else if (rango === 'semana') {
+      const lunes = new Date(y, m, hoy.getDate() - ((hoy.getDay() + 6) % 7));   // semana lunes → hoy
+      ini = lunes; hasta = fin(hoy);
+    } else if (rango === 'mes') {
+      ini = new Date(y, m, 1); hasta = fin(new Date(y, m + 1, 0));
+    } else if (rango === '3m') {
+      ini = new Date(y, m - 2, 1); hasta = fin(new Date(y, m + 1, 0));   // igual que "3 meses" del dashboard
+    }
+    const texto = !ini && !hasta ? 'Todo el registro'
+                : !ini ? `Hasta el ${fmt(hasta)}`
+                : !hasta ? `Desde el ${fmt(ini)}`
+                : `Del ${fmt(ini)} al ${fmt(hasta)}`;
+    return { tIni: ini ? ini.getTime() : null, tFin: hasta ? hasta.getTime() : null, texto };
+  }
 
-    const porTipo = {};
-    eventos.forEach(r => {
-      const t = getTipo(r.incidencia);
-      (porTipo[t.label] = porTipo[t.label] || { n: 0, badge: t.badge }).n++;
-    });
-    const tiposHtml = Object.entries(porTipo).sort((a, b) => b[1].n - a[1].n)
-      .map(([label, v]) => `<span class="badge ${v.badge}">${esc(label)} · ${v.n}</span>`).join('');
+  function fichaRango(rango) {
+    if (!_ficha) return;
+    _ficha.rango   = rango;
+    _ficha.mostrar = FICHA_BLOQUE;
+    renderFicha();
+    document.getElementById('sema-body').scrollTop = 0;
+  }
+
+  function fichaMas() {
+    if (!_ficha) return;
+    _ficha.mostrar += FICHA_BLOQUE;
+    renderFicha();
+  }
+
+  function renderFicha() {
+    const { cod, eventos, rango, mostrar } = _ficha;
+    const ult = eventos[0];   // último evento histórico (lista ordenada)
+    const { tIni, tFin, texto } = rangoFicha(rango);
+    const enRango = (tIni === null && tFin === null)
+      ? eventos
+      : eventos.filter(r => r._t != null && (tIni === null || r._t >= tIni) && (tFin === null || r._t <= tFin));
+
+    const BOTONES = [['actual', 'Período actual'], ['semana', 'Esta semana'], ['mes', 'Este mes'], ['3m', '3 meses'], ['todo', 'Histórico']];
+    const botones = BOTONES.map(([id, label]) =>
+      `<button type="button" class="ficha-rango${id === rango ? ' on' : ''}" aria-pressed="${id === rango}"
+               onclick="fichaRango('${id}')">${label}</button>`).join('');
 
     const kpi = (label, val, color) => `<div class="top-kpi-item">
         <div class="top-kpi-label">${label}</div>
         <div class="top-kpi-val${val === 0 ? ' top-kpi-zero' : ''}" style="${val > 0 && color ? `color:${color}` : ''}">${val.toLocaleString('es-SV')}</div>
       </div>`;
 
-    const MAX  = 50;
-    const filas = eventos.slice(0, MAX).map(r => {
-      const t = getTipo(r.incidencia);
-      return `<tr>
-        <td style="white-space:nowrap">${esc(r.fecha)}</td>
-        <td style="white-space:nowrap">${esc(r.hora)}</td>
-        <td><span class="badge ${t.badge}">${esc(t.label)}</span></td>
-        <td>${esc(r.reporte) || '—'}</td>
-        <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.dir)}">${esc(r.dir) || '—'}</td>
-      </tr>`;
-    }).join('');
+    let contenido;
+    if (!enRango.length) {
+      contenido = `
+        <div class="ficha-vacia">
+          <div class="ficha-vacia-icon" aria-hidden="true">✓</div>
+          <div class="ficha-vacia-msg">No se registraron incidencias en este período</div>
+          <div class="ficha-vacia-sub">${texto}. Último evento registrado: <strong>${esc(ult.fecha)} · ${esc(ult.hora)}</strong></div>
+          ${rango !== 'todo' ? `<button type="button" class="btn" onclick="fichaRango('todo')">Ver histórico completo (${eventos.length.toLocaleString('es-SV')})</button>` : ''}
+        </div>`;
+    } else {
+      const criticos = enRango.filter(r => CRITICAS_KW.some(k => (r.incidencia || '').toLowerCase().includes(k))).length;
+      const porTipo = {};
+      enRango.forEach(r => {
+        const t = getTipo(r.incidencia);
+        (porTipo[t.label] = porTipo[t.label] || { n: 0, badge: t.badge }).n++;
+      });
+      const tiposHtml = Object.entries(porTipo).sort((a, b) => b[1].n - a[1].n)
+        .map(([label, v]) => `<span class="badge ${v.badge}">${esc(label)} · ${v.n}</span>`).join('');
+      const visibles = enRango.slice(0, mostrar);
+      const filas = visibles.map(r => {
+        const t = getTipo(r.incidencia);
+        return `<tr>
+          <td style="white-space:nowrap">${esc(r.fecha)}</td>
+          <td style="white-space:nowrap">${esc(r.hora)}</td>
+          <td><span class="badge ${t.badge}">${esc(t.label)}</span></td>
+          <td>${esc(r.reporte) || '—'}</td>
+          <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.dir)}">${esc(r.dir) || '—'}</td>
+        </tr>`;
+      }).join('');
+      const resto = enRango.length - visibles.length;
+      contenido = `
+        <div class="top-detalle-kpis">
+          ${kpi('Eventos en el rango', enRango.length, 'var(--accent-text)')}
+          ${kpi('Incidencias críticas', criticos, 'var(--red)')}
+          ${kpi('Tipos distintos', Object.keys(porTipo).length)}
+          ${kpi('Total histórico', eventos.length)}
+        </div>
+        <div class="sema-tipos">${tiposHtml}</div>
+        <div class="top-detalle-hist-title">Mostrando ${visibles.length.toLocaleString('es-SV')} de ${enRango.length.toLocaleString('es-SV')} eventos · más reciente primero</div>
+        <div class="table-scroll">
+          <table class="top-hist-table">
+            <thead><tr><th>Fecha</th><th>Hora</th><th>Incidencia</th><th>Reportó</th><th>Dirección</th></tr></thead>
+            <tbody>${filas}</tbody>
+          </table>
+        </div>
+        ${resto > 0 ? `<div class="ficha-mas"><button type="button" class="btn" onclick="fichaMas()">Mostrar ${Math.min(resto, FICHA_BLOQUE)} más (quedan ${resto.toLocaleString('es-SV')})</button></div>` : ''}`;
+    }
 
     document.getElementById('sema-titulo').textContent = `Semáforo ${cod} — ${ult.ciudad || 'Sin ciudad'}`;
     document.getElementById('sema-body').innerHTML = `
@@ -2418,27 +2540,18 @@
         <span>Dirección: <strong>${esc(ult.dir) || '—'}</strong></span>
         <span>Último evento: <strong>${esc(ult.fecha)} · ${esc(ult.hora)}</strong></span>
       </div>
-      <div class="top-detalle-kpis">
-        ${kpi('Total histórico', eventos.length)}
-        ${kpi('En el período actual', enPeriodo, 'var(--accent-text)')}
-        ${kpi('Incidencias críticas', criticos, 'var(--red)')}
-        ${kpi('Tipos distintos', Object.keys(porTipo).length)}
+      <div class="ficha-rangos-wrap">
+        <div class="ficha-rangos" role="group" aria-label="Rango de fechas de la ficha">${botones}</div>
+        <span class="ficha-rango-txt">${texto}</span>
       </div>
-      <div class="sema-tipos">${tiposHtml}</div>
-      <div class="top-detalle-hist-title">Historial ${eventos.length > MAX ? `(últimos ${MAX} de ${eventos.length.toLocaleString('es-SV')})` : 'completo'}</div>
-      <div class="table-scroll">
-        <table class="top-hist-table">
-          <thead><tr><th>Fecha</th><th>Hora</th><th>Incidencia</th><th>Reportó</th><th>Dirección</th></tr></thead>
-          <tbody>${filas}</tbody>
-        </table>
-      </div>`;
-
-    closeFiltroPanel();
-    const dlg = document.getElementById('sema-dialog');
-    if (typeof dlg.showModal === 'function') { if (!dlg.open) dlg.showModal(); }
-    else dlg.setAttribute('open', '');
-    document.getElementById('sema-body').scrollTop = 0;
+      ${contenido}`;
   }
+
+  // Al cerrar la ficha se libera su estado
+  document.getElementById('sema-dialog').addEventListener('close', () => {
+    _ficha = null;
+    document.getElementById('sema-body').innerHTML = '';
+  });
 
   // Altura real de la barra superior fija → margen de scroll de los paneles de detalle
   (() => {
